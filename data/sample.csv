@@ -1,0 +1,11 @@
+id,name,age,salary,department,is_active,hire_date
+1,John Doe,30,75000.50,Engineering,true,2020-01-15
+2,Jane Smith,28,68000.00,Marketing,true,2021-03-22
+3,Bob Johnson,35,82000.75,Engineering,false,2019-08-10
+4,Alice Brown,26,55000.00,Sales,true,2022-01-05
+5,Charlie Wilson,42,95000.25,Management,true,2018-12-01
+6,Diana Davis,31,71000.50,Engineering,true,2020-07-18
+7,Eve Miller,29,63000.00,Marketing,true,2021-09-30
+8,Frank Garcia,38,88000.75,Engineering,true,2019-03-12
+9,Grace Lee,27,59000.00,Sales,false,2022-05-20
+10,Henry Taylor,45,105000.00,Management,true,2017-11-08 

@@ -1,0 +1,26 @@
+{
+  "name": "arrow-duckdb",
+  "version": "1.0.0",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "start:new": "node src/index-new.js",
+    "dev": "nodemon src/index.js",
+    "dev:new": "nodemon src/index-new.js",
+    "test": "node client/test-client.js"
+  },
+  "dependencies": {
+    "apache-arrow": "^14.0.2",
+    "@grpc/grpc-js": "^1.9.14",
+    "@grpc/proto-loader": "^0.7.10",
+    "fast-csv": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.4",
+    "nodemon": "^3.0.2"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "Node.js server for streaming CSV data as Apache Arrow tables via Arrow Flight protocol"
+}
