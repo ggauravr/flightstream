@@ -5,9 +5,7 @@
   "type": "module",
   "scripts": {
     "start": "node src/index.js",
-    "start:new": "node src/index-new.js",
     "dev": "nodemon src/index.js",
-    "dev:new": "nodemon src/index-new.js",
     "test": "node client/test-client.js"
   },
   "dependencies": {
