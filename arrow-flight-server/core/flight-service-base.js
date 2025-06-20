@@ -192,6 +192,41 @@ export class FlightServiceBase extends EventEmitter {
     }
   }
 
+  /**
+   * ListActions Implementation
+   * 
+   * Lists available custom actions that can be executed via DoAction.
+   * This is a server streaming RPC that sends ActionType objects for each available action.
+   */
+  async listActions(call) {
+    console.log('ListActions called');
+    
+    try {
+      const actions = [
+        {
+          type: 'refresh-datasets',
+          description: 'Refresh the dataset catalog by rescanning data sources'
+        },
+        {
+          type: 'get-server-info',
+          description: 'Get server information and statistics'
+        }
+      ];
+      
+      for (const action of actions) {
+        call.write({
+          type: action.type,
+          description: action.description
+        });
+      }
+      
+      call.end();
+    } catch (error) {
+      console.error('Error in listActions:', error);
+      call.emit('error', error);
+    }
+  }
+
   // ===== HELPER METHODS =====
 
   /**
@@ -262,4 +297,4 @@ export class FlightServiceBase extends EventEmitter {
   }
 }
 
-export default FlightServiceBase; 
+export default FlightServiceBase;

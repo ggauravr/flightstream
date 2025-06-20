@@ -207,29 +207,10 @@ export function createProtocolHandlers(flightService) {
      */
     listActions: (call) => {
       console.log('ListActions called');
-      
       try {
-        const actions = [
-          {
-            type: 'refresh-datasets',
-            description: 'Refresh the dataset catalog by rescanning data sources'
-          },
-          {
-            type: 'get-server-info',
-            description: 'Get server information and statistics'
-          }
-        ];
-        
-        for (const action of actions) {
-          call.write({
-            type: action.type,
-            description: action.description
-          });
-        }
-        
-        call.end();
+        flightService.listActions(call);
       } catch (error) {
-        console.error('Error in listActions:', error);
+        console.error('Error in listActions handler:', error);
         call.emit('error', convertToGrpcError(error));
       }
     }
