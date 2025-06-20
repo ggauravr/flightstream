@@ -1,0 +1,42 @@
+{
+  "name": "@arrow-flight/csv-adapter",
+  "version": "1.0.0",
+  "description": "CSV file adapter for Arrow Flight servers with streaming and schema inference",
+  "main": "src/index.js",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.js",
+    "./csv-adapter": "./src/csv-adapter.js",
+    "./csv-streamer": "./src/csv-streamer.js"
+  },
+  "scripts": {
+    "test": "jest",
+    "lint": "eslint src/**/*.js"
+  },
+  "keywords": [
+    "arrow",
+    "arrow-flight",
+    "csv",
+    "streaming",
+    "adapter",
+    "data-source"
+  ],
+  "author": "Arrow Flight Contributors",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@arrow-flight/server": "^1.0.0",
+    "@arrow-flight/utils": "^1.0.0",
+    "fast-csv": "^4.3.6"
+  },
+  "peerDependencies": {
+    "apache-arrow": "^14.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "files": [
+    "src/",
+    "README.md",
+    "LICENSE"
+  ]
+} 

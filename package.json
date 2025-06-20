@@ -1,24 +1,50 @@
 {
-  "name": "arrow-duckdb",
+  "name": "arrow-flight-server",
   "version": "1.0.0",
-  "main": "src/index.js",
+  "description": "Production-ready Apache Arrow Flight server framework with plugin architecture for Node.js",
+  "main": "packages/examples/basic-server/index.js",
   "type": "module",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
-    "start": "node src/index.js",
-    "dev": "nodemon src/index.js",
-    "test": "node client/test-client.js"
+    "start": "node packages/examples/basic-server/index.js",
+    "dev": "nodemon packages/examples/basic-server/index.js",
+    "test": "node packages/examples/test-client/test-client.js",
+    "build": "npm run build --workspaces",
+    "lint": "eslint packages/*/src/**/*.js",
+    "clean": "npm run clean --workspaces"
   },
-  "dependencies": {
-    "apache-arrow": "^14.0.2",
-    "@grpc/grpc-js": "^1.9.14",
-    "@grpc/proto-loader": "^0.7.10",
-    "fast-csv": "^4.3.6"
+  "keywords": [
+    "arrow",
+    "arrow-flight",
+    "grpc",
+    "streaming",
+    "data",
+    "csv",
+    "apache-arrow",
+    "flight-protocol",
+    "data-streaming",
+    "columnar-data"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/apache/arrow-flight-server-js.git"
+  },
+  "bugs": {
+    "url": "https://github.com/apache/arrow-flight-server-js/issues"
+  },
+  "homepage": "https://github.com/apache/arrow-flight-server-js#readme",
+  "author": "Arrow Flight Contributors",
+  "license": "Apache-2.0",
+  "engines": {
+    "node": ">=18.0.0"
   },
   "devDependencies": {
     "@types/node": "^20.10.4",
-    "nodemon": "^3.0.2"
-  },
-  "author": "",
-  "license": "ISC",
-  "description": "Node.js server for streaming CSV data as Apache Arrow tables via Arrow Flight protocol"
+    "nodemon": "^3.0.2",
+    "eslint": "^8.55.0",
+    "jest": "^29.7.0"
+  }
 }

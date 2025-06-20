@@ -1,0 +1,38 @@
+{
+  "name": "@arrow-flight/utils",
+  "version": "1.0.0",
+  "description": "Utilities for working with Arrow data and Flight protocol",
+  "main": "src/index.js",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.js",
+    "./arrow-builder": "./src/arrow-builder.js",
+    "./schema-inference": "./src/schema-inference.js",
+    "./streaming-utils": "./src/streaming-utils.js"
+  },
+  "scripts": {
+    "test": "jest",
+    "lint": "eslint src/**/*.js"
+  },
+  "keywords": [
+    "arrow",
+    "arrow-flight",
+    "utilities",
+    "schema-inference", 
+    "streaming",
+    "data-conversion"
+  ],
+  "author": "Arrow Flight Contributors",
+  "license": "Apache-2.0",
+  "peerDependencies": {
+    "apache-arrow": "^14.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "files": [
+    "src/",
+    "README.md",
+    "LICENSE"
+  ]
+} 

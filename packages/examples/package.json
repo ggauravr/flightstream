@@ -1,0 +1,35 @@
+{
+  "name": "@arrow-flight/examples",
+  "version": "1.0.0",
+  "description": "Examples and reference implementations for Arrow Flight server",
+  "main": "basic-server/index.js",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "node basic-server/index.js",
+    "dev": "nodemon basic-server/index.js",
+    "test-client": "node test-client/test-client.js",
+    "lint": "eslint **/*.js"
+  },
+  "keywords": [
+    "arrow",
+    "arrow-flight",
+    "examples",
+    "reference-implementation",
+    "tutorial"
+  ],
+  "author": "Arrow Flight Contributors",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@arrow-flight/server": "^1.0.0",
+    "@arrow-flight/csv-adapter": "^1.0.0",
+    "@arrow-flight/utils": "^1.0.0",
+    "apache-arrow": "^14.0.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+} 
