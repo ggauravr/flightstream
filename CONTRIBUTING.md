@@ -48,10 +48,10 @@ This project uses a monorepo structure with multiple packages:
 
 ```
 packages/
-├── core/           # @ggaurav-dev/arrow-flight-server/core
-├── csv-adapter/    # @ggaurav-dev/arrow-flight-server/csv-adapter  
-├── utils/          # @ggaurav-dev/arrow-flight-server/utils
-└── examples/       # @ggaurav-dev/arrow-flight-server/examples
+├── core/           # @ggauravr/arrow-flight-server-node-core
+├── csv-adapter/    # @ggauravr/arrow-flight-server-node-csv-adapter  
+├── utils/          # @ggauravr/arrow-flight-server-node-utils
+└── examples/       # @ggauravr/arrow-flight-server-node-examples
 ```
 
 Each package has its own:
@@ -168,7 +168,7 @@ We encourage community contributions of new data source adapters!
 
 2. **Extend FlightServiceBase**
    ```javascript
-   import { FlightServiceBase } from '@ggaurav-dev/arrow-flight-server/core';
+   import { FlightServiceBase } from '@ggauravr/arrow-flight-server-node-core';
    
    export class YourAdapter extends FlightServiceBase {
      async _initialize() {
@@ -179,6 +179,26 @@ We encourage community contributions of new data source adapters!
        // Stream data as Arrow record batches
      }
    }
+   ```
+
+   ```javascript
+   // Build adapters without touching core:
+
+   // Build a PostgreSQL adapter
+   class PostgreSQLFlightService extends FlightServiceBase {
+   // Only depends on core package
+   }
+
+   // Build a Parquet adapter  
+   class ParquetFlightService extends FlightServiceBase {
+   // Uses both core + utils packages
+   }
+
+   // Build a Redis adapter
+   class RedisFlightService extends FlightServiceBase {
+   // Minimal dependencies
+   }
+
    ```
 
 3. **Add comprehensive tests**

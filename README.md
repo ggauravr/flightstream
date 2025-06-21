@@ -106,6 +106,21 @@ npm install @ggauravr/arrow-flight-server-node-csv-adapter
 npm install @ggauravr/arrow-flight-server-node-utils
 ```
 
+```bash
+# Scenario 1: Building a custom database adapter
+npm install @ggauravr/arrow-flight-server-node-core @ggauravr/arrow-flight-server-node-utils
+# Don't need CSV adapter - saves ~50KB + fast-csv dependency
+
+# Scenario 2: Just need Arrow utilities for a different project
+npm install @ggauravr/arrow-flight-server-node-utils
+# No server code, no gRPC dependencies - much lighter
+
+# Scenario 3: Want complete CSV solution
+npm install @ggauravr/arrow-flight-server-node-csv-adapter
+# Automatically pulls in core + utils via dependencies
+
+```
+
 ### Basic Server Example
 
 ```javascript
