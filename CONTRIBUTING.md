@@ -48,10 +48,10 @@ This project uses a monorepo structure with multiple packages:
 
 ```
 packages/
-├── core/           # @arrow-flight/server
-├── csv-adapter/    # @arrow-flight/csv-adapter  
-├── utils/          # @arrow-flight/utils
-└── examples/       # @arrow-flight/examples
+├── core/           # @ggaurav-dev/arrow-flight-server/core
+├── csv-adapter/    # @ggaurav-dev/arrow-flight-server/csv-adapter  
+├── utils/          # @ggaurav-dev/arrow-flight-server/utils
+└── examples/       # @ggaurav-dev/arrow-flight-server/examples
 ```
 
 Each package has its own:
@@ -168,7 +168,7 @@ We encourage community contributions of new data source adapters!
 
 2. **Extend FlightServiceBase**
    ```javascript
-   import { FlightServiceBase } from '@arrow-flight/server';
+   import { FlightServiceBase } from '@ggaurav-dev/arrow-flight-server/core';
    
    export class YourAdapter extends FlightServiceBase {
      async _initialize() {

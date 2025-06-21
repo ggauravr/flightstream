@@ -26,10 +26,6 @@
  */
 
 // Core server components
-import { FlightServer } from './flight-server.js';
-export { FlightServer };
+export { FlightServer } from './flight-server.js';
 export { FlightServiceBase } from './flight-service-base.js';
 export { createProtocolHandlers } from './protocol-handlers.js';
-
-// Re-export for convenience
-export default FlightServer; 

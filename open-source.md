@@ -63,7 +63,7 @@ class CSVAdapter extends DataSourceAdapter {
 
 The Arrow Builder and schema inference components could form a standalone utility library:
 
-### Proposed Package: `@arrow-flight/utils`
+### Proposed Package: `@ggauravr/arrow-flight-server-node-utils`
 ```
 ├── schema-inference.js    # Infer Arrow schemas from various formats
 ├── data-conversion.js     # Convert data to Arrow format  
@@ -93,10 +93,10 @@ A polished version as educational/reference material for the community:
 
 ## 🚀 Suggested Open Source Packages
 
-### Package 1: `@arrow-flight/server` (Core Framework)
+### Package 1: `@ggauravr/arrow-flight-server-node-core` (Core Framework)
 ```json
 {
-  "name": "@arrow-flight/server",
+  "name": "@ggauravr/arrow-flight-server-node-core",
   "description": "Generic Arrow Flight server framework with plugin architecture",
   "features": [
     "Complete gRPC Flight protocol implementation",
@@ -114,10 +114,10 @@ A polished version as educational/reference material for the community:
 }
 ```
 
-### Package 2: `@arrow-flight/csv-adapter`
+### Package 2: `@ggauravr/arrow-flight-server-node-csv-adapter`
 ```json
 {
-  "name": "@arrow-flight/csv-adapter",
+  "name": "@ggauravr/arrow-flight-server-node-csv-adapter",
   "description": "CSV file adapter for Arrow Flight servers", 
   "features": [
     "Automatic schema inference",
@@ -134,10 +134,10 @@ A polished version as educational/reference material for the community:
 }
 ```
 
-### Package 3: `@arrow-flight/utils`
+### Package 3: `@ggauravr/arrow-flight-server-node-utils`
 ```json
 {
-  "name": "@arrow-flight/utils",
+  "name": "@ggauravr/arrow-flight-server-node-utils",
   "description": "Utilities for working with Arrow data and Flight protocol",
   "features": [
     "Schema inference from various formats",

@@ -18,8 +18,7 @@
  */
 
 import fs from 'fs';
-import path from 'path';
-import csv from 'fast-csv';
+import { parse } from 'fast-csv';
 import { EventEmitter } from 'events';
 
 /**
@@ -64,7 +63,7 @@ export class CSVStreamer extends EventEmitter {
 
     return new Promise((resolve, reject) => {
       const stream = fs.createReadStream(this.filePath)
-        .pipe(csv.parse({
+        .pipe(parse({
           headers: this.options.headers,
           delimiter: this.options.delimiter,
           skipEmptyLines: this.options.skipEmptyLines
@@ -155,6 +154,16 @@ export class CSVStreamer extends EventEmitter {
     
     // Date (simple YYYY-MM-DD format)
     if (/^\d{4}-\d{2}-\d{2}$/.test(strValue)) {
+      return 'date';
+    }
+    
+    // mm-dd-yyyy format
+    if (/^\d{2}-\d{2}-\d{4}$/.test(strValue)) {
+      return 'date';
+    }
+    
+    // dd-mm-yyyy format  
+    if (/^\d{2}-\d{2}-\d{4}$/.test(strValue)) {
       return 'date';
     }
     
