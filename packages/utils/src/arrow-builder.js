@@ -257,5 +257,4 @@ export class ArrowBuilder {
   }
 }
 
-export { ArrowBuilder };
 export default ArrowBuilder; 

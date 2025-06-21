@@ -58,6 +58,27 @@ export class CSVFlightService extends FlightServiceBase {
    */
   async _initialize() {
     await this._initializeDatasets();
+    this._initialized = true;
+  }
+
+  /**
+   * Public initialize method that waits for initialization to complete
+   * This can be called to ensure the service is fully initialized
+   */
+  async initialize() {
+    // Wait for initialization to complete if not already done
+    if (!this._initialized) {
+      await new Promise((resolve) => {
+        const checkInitialized = () => {
+          if (this._initialized) {
+            resolve();
+          } else {
+            setTimeout(checkInitialized, 10);
+          }
+        };
+        checkInitialized();
+      });
+    }
   }
 
   /**

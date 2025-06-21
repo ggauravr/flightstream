@@ -26,7 +26,8 @@
  */
 
 // Main adapter
-export { CSVFlightService } from './csv-adapter.js';
+import { CSVFlightService } from './csv-adapter.js';
+export { CSVFlightService };
 
 // CSV streaming utilities
 export { CSVStreamer } from './csv-streamer.js';

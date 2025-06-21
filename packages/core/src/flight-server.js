@@ -135,6 +135,9 @@ export class FlightServer {
 
       // Initialize gRPC server
       this._initializeGrpcServer();
+      
+      // Register the gRPC service (now that server is initialized)
+      this._registerGrpcService();
 
       // Bind server to host and port
       const serverAddress = `${this.options.host}:${this.options.port}`;

@@ -1,7 +1,7 @@
 {
-  "name": "@arrow-flight/csv-adapter",
+  "name": "@ggauravr/arrow-flight-server-node-csv-adapter",
   "version": "1.0.0",
-  "description": "CSV file adapter for Arrow Flight servers with streaming and schema inference",
+  "description": "CSV file adapter for Arrow Flight servers with streaming and schema inference for Node.js",
   "main": "src/index.js",
   "type": "module",
   "exports": {
@@ -21,11 +21,11 @@
     "adapter",
     "data-source"
   ],
-  "author": "Arrow Flight Contributors",
+  "author": "gggauravr@gmail.com",
   "license": "Apache-2.0",
   "dependencies": {
-    "@arrow-flight/server": "^1.0.0",
-    "@arrow-flight/utils": "^1.0.0",
+    "@ggauravr/arrow-flight-server-node-core": "^1.0.0",
+    "@ggauravr/arrow-flight-server-node-utils": "^1.0.0",
     "fast-csv": "^4.3.6"
   },
   "peerDependencies": {

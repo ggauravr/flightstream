@@ -173,8 +173,29 @@ export class FlightServiceBase extends EventEmitter {
       }
       
       const dataset = this.datasets.get(datasetId);
+      
+      // Serialize Arrow schema using the proper Apache Arrow method
+      let serializedSchema;
+      try {
+        // Import Apache Arrow for schema serialization
+        const arrow = await import('apache-arrow');
+        // Create an empty table to serialize the schema
+        const emptyTable = new arrow.Table(dataset.schema, []);
+        serializedSchema = arrow.tableToIPC(emptyTable);
+      } catch (error) {
+        console.warn('Error serializing schema, using fallback:', error);
+        // Fallback: create a simple buffer representation
+        const schemaInfo = {
+          fields: dataset.schema.fields.map(f => ({ 
+            name: f.name, 
+            type: f.type.toString() 
+          }))
+        };
+        serializedSchema = Buffer.from(JSON.stringify(schemaInfo));
+      }
+      
       const schemaResult = {
-        schema: dataset.schema.serialize()
+        schema: serializedSchema
       };
       
       call.callback(null, schemaResult);
@@ -252,8 +273,28 @@ export class FlightServiceBase extends EventEmitter {
    * Create FlightInfo structure for a dataset
    */
   async _createFlightInfo(datasetId, dataset) {
+    // Serialize Arrow schema using the proper Apache Arrow method
+    let serializedSchema;
+    try {
+      // Import Apache Arrow for schema serialization
+      const arrow = await import('apache-arrow');
+      // Create an empty table to serialize the schema
+      const emptyTable = new arrow.Table(dataset.schema, []);
+      serializedSchema = arrow.tableToIPC(emptyTable);
+    } catch (error) {
+      console.warn('Error serializing schema, using fallback:', error);
+      // Fallback: create a simple buffer representation
+      const schemaInfo = {
+        fields: dataset.schema.fields.map(f => ({ 
+          name: f.name, 
+          type: f.type.toString() 
+        }))
+      };
+      serializedSchema = Buffer.from(JSON.stringify(schemaInfo));
+    }
+
     return {
-      schema: dataset.schema.serialize(),
+      schema: serializedSchema,
       flight_descriptor: {
         type: 1, // PATH type
         path: [datasetId]

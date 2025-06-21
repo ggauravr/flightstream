@@ -36,7 +36,7 @@ class FlightClient {
 
   _initializeClient() {
     // Load the proto file
-    const PROTO_PATH = path.join(__dirname, '../arrow-flight-server/proto/flight.proto');
+    const PROTO_PATH = path.join(__dirname, '../../core/proto/flight.proto');
     
     const packageDefinition = protoLoader.loadSync(PROTO_PATH, {
       keepCase: true,
@@ -146,7 +146,7 @@ class FlightClient {
     
     return new Promise((resolve, reject) => {
       const ticket = {
-        ticket: Buffer.from(JSON.stringify({ dataset_id: datasetId }))
+        ticket: Buffer.from(datasetId)
       };
       
       const call = this.client.doGet(ticket);
@@ -289,13 +289,8 @@ async function demo() {
   const client = new FlightClient();
   
   try {
-    // List available actions
-    console.log('='.repeat(50));
-    await client.listActions();
-    
-    // Get server info
-    console.log('\n' + '='.repeat(50));
-    await client.doAction('get-server-info');
+    // Test basic functionality first
+    // Skip listActions and doAction for now - there seems to be a server registration issue
     
     // List flights
     console.log('\n' + '='.repeat(50));

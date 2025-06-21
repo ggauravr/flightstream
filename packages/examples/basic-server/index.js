@@ -26,10 +26,10 @@
  */
 
 // Import the Arrow Flight server framework
-import { FlightServer } from '@arrow-flight/server';
+import { FlightServer } from '@ggauravr/arrow-flight-server-node-core/flight-server';
 
 // Import the CSV adapter
-import { CSVFlightService } from '@arrow-flight/csv-adapter';
+import { CSVFlightService } from '@ggauravr/arrow-flight-server-node-csv-adapter';
 
 /**
  * Basic Arrow Flight CSV Server
@@ -80,14 +80,14 @@ class BasicCSVServer {
       
       console.log(`✅ Server started successfully!`);
       console.log(`🌐 Arrow Flight Server listening on ${this.options.host}:${port}`);
-      console.log(`📊 Available datasets: ${this.csvService.getDatasets().length}`);
       
       // Display available datasets
-      const datasets = this.csvService.getDatasets();
-      if (datasets.length > 0) {
+      const datasetIds = this.csvService.getDatasets();
+      console.log(`📊 Available datasets: ${datasetIds.length}`);
+      if (datasetIds.length > 0) {
         console.log('\n📋 Available datasets:');
-        datasets.forEach(dataset => {
-          console.log(`  • ${dataset.id} (${dataset.metadata.name})`);
+        datasetIds.forEach(datasetId => {
+          console.log(`  • ${datasetId}`);
         });
       } else {
         console.log(`\n⚠️  No CSV files found in ${this.options.dataDirectory}`);

@@ -1,7 +1,7 @@
 {
-  "name": "@arrow-flight/server",
+  "name": "@ggauravr/arrow-flight-server-node-core",
   "version": "1.0.0",
-  "description": "Generic Arrow Flight server framework with plugin architecture",
+  "description": "Generic Arrow Flight server framework with plugin architecture for Node.js",
   "main": "src/index.js",
   "type": "module",
   "exports": {
@@ -22,7 +22,7 @@
     "server",
     "framework"
   ],
-  "author": "Arrow Flight Contributors",
+  "author": "gggauravr@gmail.com",
   "license": "Apache-2.0",
   "dependencies": {
     "@grpc/grpc-js": "^1.9.14",
