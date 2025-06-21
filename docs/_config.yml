@@ -2,10 +2,10 @@
 title: "Arrow Flight Server Node.js"
 description: "Production-ready Apache Arrow Flight server framework with plugin architecture for Node.js"
 url: "https://ggauravr.github.io"
-baseurl: "/arrow-flight-server-node"
+baseurl: "/arrow-flight-node"
 
 # Repository information
-repository: "ggauravr/arrow-flight-server-node"
+repository: "ggauravr/arrow-flight-node"
 github_username: "ggauravr"
 
 # Build settings

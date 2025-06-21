@@ -7,7 +7,7 @@ title: Home
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Node.js Version](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg)](https://nodejs.org/)
-[![GitHub](https://img.shields.io/github/stars/ggauravr/arrow-flight-server-node?style=social)](https://github.com/ggauravr/arrow-flight-server-node)
+[![GitHub](https://img.shields.io/github/stars/ggauravr/arrow-flight-node?style=social)](https://github.com/ggauravr/arrow-flight-node)
 
 Production-ready Apache Arrow Flight server framework with plugin architecture for Node.js. Build high-performance data streaming services with ease.
 
@@ -15,8 +15,8 @@ Production-ready Apache Arrow Flight server framework with plugin architecture f
 
 ```bash
 # Clone and install
-git clone https://github.com/ggauravr/arrow-flight-server-node.git
-cd arrow-flight-server-node
+git clone https://github.com/ggauravr/arrow-flight-node.git
+cd arrow-flight-node
 npm install
 
 # Start the example server
@@ -58,10 +58,10 @@ Our monorepo contains focused, reusable packages:
 
 | Package | Description | Status |
 |---------|-------------|--------|
-| **[@ggauravr/arrow-flight-server-node-core](https://www.npmjs.com/package/@ggauravr/arrow-flight-server-node-core)** | Generic Flight server framework | ✅ Ready |
-| **[@ggauravr/arrow-flight-server-node-csv-adapter](https://www.npmjs.com/package/@ggauravr/arrow-flight-server-node-csv-adapter)** | CSV file adapter with streaming | ✅ Ready |
-| **[@ggauravr/arrow-flight-server-node-utils](https://www.npmjs.com/package/@ggauravr/arrow-flight-server-node-utils)** | Arrow utilities and schema inference | ✅ Ready |
-| **[@ggauravr/arrow-flight-server-node-examples](https://www.npmjs.com/package/@ggauravr/arrow-flight-server-node-examples)** | Reference implementations | ✅ Ready |
+| **[@ggauravr/arrow-flight-node-core](https://www.npmjs.com/package/@ggauravr/arrow-flight-node-core)** | Generic Flight server framework | ✅ Ready |
+| **[@ggauravr/arrow-flight-node-csv-adapter](https://www.npmjs.com/package/@ggauravr/arrow-flight-node-csv-adapter)** | CSV file adapter with streaming | ✅ Ready |
+| **[@ggauravr/arrow-flight-node-utils](https://www.npmjs.com/package/@ggauravr/arrow-flight-node-utils)** | Arrow utilities and schema inference | ✅ Ready |
+| **[@ggauravr/arrow-flight-node-examples](https://www.npmjs.com/package/@ggauravr/arrow-flight-node-examples)** | Reference implementations | ✅ Ready |
 
 ## 🎯 Use Cases
 
@@ -97,13 +97,13 @@ Our monorepo contains focused, reusable packages:
 
 ## 🤝 Community
 
-- **GitHub**: [ggauravr/arrow-flight-server-node](https://github.com/ggauravr/arrow-flight-server-node)
-- **Issues**: [Report bugs and request features](https://github.com/ggauravr/arrow-flight-server-node/issues)
-- **Discussions**: [Community discussions](https://github.com/ggauravr/arrow-flight-server-node/discussions)
+- **GitHub**: [ggauravr/arrow-flight-node](https://github.com/ggauravr/arrow-flight-node)
+- **Issues**: [Report bugs and request features](https://github.com/ggauravr/arrow-flight-node/issues)
+- **Discussions**: [Community discussions](https://github.com/ggauravr/arrow-flight-node/discussions)
 
 ## 📄 License
 
-This project is licensed under the [Apache License 2.0](https://github.com/ggauravr/arrow-flight-server-node/blob/main/LICENSE).
+This project is licensed under the [Apache License 2.0](https://github.com/ggauravr/arrow-flight-node/blob/main/LICENSE).
 
 <style>
 .feature-grid {

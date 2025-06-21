@@ -1,5 +1,5 @@
 {
-  "name": "@ggauravr/arrow-flight-server-node",
+  "name": "@ggauravr/arrow-flight-node",
   "version": "1.0.0",
   "description": "Production-ready Apache Arrow Flight server framework with plugin architecture for Node.js",
   "main": "packages/examples/basic-server/index.js",
@@ -30,12 +30,12 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ggauravr/arrow-flight-server-node.git"
+    "url": "git+https://github.com/ggauravr/arrow-flight-node.git"
   },
   "bugs": {
-    "url": "https://github.com/ggauravr/arrow-flight-server-node/issues"
+    "url": "https://github.com/ggauravr/arrow-flight-node/issues"
   },
-  "homepage": "https://github.com/ggauravr/arrow-flight-server-node#readme",
+  "homepage": "https://github.com/ggauravr/arrow-flight-node#readme",
   "author": "gggauravr@gmail.com",
   "license": "Apache-2.0",
   "engines": {

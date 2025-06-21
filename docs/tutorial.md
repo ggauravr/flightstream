@@ -28,8 +28,8 @@ By the end of this tutorial, you'll have:
 
 ```bash
 # Clone the repository
-git clone https://github.com/ggauravr/arrow-flight-server-node.git
-cd arrow-flight-server-node
+git clone https://github.com/ggauravr/arrow-flight-node.git
+cd arrow-flight-node
 
 # Install dependencies
 npm install
@@ -113,8 +113,8 @@ Let's create a custom server script for your specific needs.
 ```bash
 # Create a new file
 cat > my-csv-server.js << 'EOF'
-import { FlightServer } from '@ggauravr/arrow-flight-server-node-core';
-import { CSVFlightService } from '@ggauravr/arrow-flight-server-node-csv-adapter';
+import { FlightServer } from '@ggauravr/arrow-flight-node-core';
+import { CSVFlightService } from '@ggauravr/arrow-flight-node-csv-adapter';
 
 class MyCustomCSVServer {
   constructor() {
@@ -234,8 +234,8 @@ Want to serve data from a database instead of CSV? Here's how to build a custom 
 
 ```javascript
 // database-adapter.js
-import { FlightServiceBase } from '@ggauravr/arrow-flight-server-node-core';
-import { ArrowBuilder } from '@ggauravr/arrow-flight-server-node-utils';
+import { FlightServiceBase } from '@ggauravr/arrow-flight-node-core';
+import { ArrowBuilder } from '@ggauravr/arrow-flight-node-utils';
 import Database from 'better-sqlite3';
 
 export class DatabaseFlightService extends FlightServiceBase {
@@ -364,8 +364,8 @@ Congratulations! You now have a working Arrow Flight server. Here's what to expl
 - **Analytics dashboard** that connects to your Flight server
 
 ### 🤝 Get Help
-- **GitHub Issues**: [Report bugs or ask questions](https://github.com/ggauravr/arrow-flight-server-node/issues)
-- **Discussions**: [Community discussions](https://github.com/ggauravr/arrow-flight-server-node/discussions)
+- **GitHub Issues**: [Report bugs or ask questions](https://github.com/ggauravr/arrow-flight-node/issues)
+- **Discussions**: [Community discussions](https://github.com/ggauravr/arrow-flight-node/discussions)
 
 ## 🎉 You Did It!
 

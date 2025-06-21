@@ -11,14 +11,14 @@ Thank you for your interest in contributing! This guide will help you get starte
 ## 🎯 Ways to Contribute
 
 ### 🐛 Bug Reports
-Found a bug? Please [open an issue](https://github.com/ggauravr/arrow-flight-server-node/issues) with:
+Found a bug? Please [open an issue](https://github.com/ggauravr/arrow-flight-node/issues) with:
 - Clear description of the problem
 - Steps to reproduce
 - Expected vs actual behavior
 - Your environment (Node.js version, OS, etc.)
 
 ### 💡 Feature Requests
-Have an idea for improvement? [Create a feature request](https://github.com/ggauravr/arrow-flight-server-node/issues) with:
+Have an idea for improvement? [Create a feature request](https://github.com/ggauravr/arrow-flight-node/issues) with:
 - Use case description
 - Proposed solution
 - Alternative approaches considered
@@ -48,14 +48,14 @@ Help improve our docs:
 
 1. **Fork the repository**
    ```bash
-   # Visit https://github.com/ggauravr/arrow-flight-server-node
+   # Visit https://github.com/ggauravr/arrow-flight-node
    # Click "Fork" button
    ```
 
 2. **Clone your fork**
    ```bash
-   git clone https://github.com/YOUR-USERNAME/arrow-flight-server-node.git
-   cd arrow-flight-server-node
+   git clone https://github.com/YOUR-USERNAME/arrow-flight-node.git
+   cd arrow-flight-node
    ```
 
 3. **Install dependencies**
@@ -84,7 +84,7 @@ Help improve our docs:
 Understanding the codebase organization:
 
 ```
-arrow-flight-server-node/
+arrow-flight-node/
 ├── packages/
 │   ├── core/              # Core Flight server framework
 │   │   ├── src/
@@ -211,8 +211,8 @@ Create a new adapter by extending `FlightServiceBase`:
 
 ```javascript
 // packages/my-adapter/src/my-adapter.js
-import { FlightServiceBase } from '@ggauravr/arrow-flight-server-node-core';
-import { ArrowBuilder } from '@ggauravr/arrow-flight-server-node-utils';
+import { FlightServiceBase } from '@ggauravr/arrow-flight-node-core';
+import { ArrowBuilder } from '@ggauravr/arrow-flight-node-utils';
 
 export class MyFlightService extends FlightServiceBase {
   constructor(options = {}) {
@@ -425,8 +425,8 @@ Contributors are recognized in:
 ## ❓ Getting Help
 
 ### Community Support
-- **GitHub Discussions**: [Community discussions](https://github.com/ggauravr/arrow-flight-server-node/discussions)
-- **Issues**: [Bug reports and questions](https://github.com/ggauravr/arrow-flight-server-node/issues)
+- **GitHub Discussions**: [Community discussions](https://github.com/ggauravr/arrow-flight-node/discussions)
+- **Issues**: [Bug reports and questions](https://github.com/ggauravr/arrow-flight-node/issues)
 
 ### Development Help
 - **Discord**: Join our development chat

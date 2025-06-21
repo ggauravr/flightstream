@@ -26,10 +26,10 @@
  */
 
 // Import the Arrow Flight server framework
-import { FlightServer } from '@ggauravr/arrow-flight-server-node-core/flight-server';
+import { FlightServer } from '@ggauravr/arrow-flight-node-core/flight-server';
 
 // Import the CSV adapter
-import { CSVFlightService } from '@ggauravr/arrow-flight-server-node-csv-adapter';
+import { CSVFlightService } from '@ggauravr/arrow-flight-node-csv-adapter';
 
 /**
  * Basic Arrow Flight CSV Server

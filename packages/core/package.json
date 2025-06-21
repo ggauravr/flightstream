@@ -1,5 +1,5 @@
 {
-  "name": "@ggauravr/arrow-flight-server-node-core",
+  "name": "@ggauravr/arrow-flight-node-core",
   "version": "1.0.0",
   "description": "Generic Arrow Flight server framework with plugin architecture for Node.js",
   "main": "src/index.js",

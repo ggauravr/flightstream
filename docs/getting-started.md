@@ -20,8 +20,8 @@ Get up and running with Arrow Flight Server Node.js in minutes.
 
 ```bash
 # Clone the full repository
-git clone https://github.com/ggauravr/arrow-flight-server-node.git
-cd arrow-flight-server-node
+git clone https://github.com/ggauravr/arrow-flight-node.git
+cd arrow-flight-node
 
 # Install dependencies
 npm install
@@ -39,8 +39,8 @@ cd my-flight-server
 npm init -y
 
 # Install the packages you need
-npm install @ggauravr/arrow-flight-server-node-core
-npm install @ggauravr/arrow-flight-server-node-csv-adapter
+npm install @ggauravr/arrow-flight-node-core
+npm install @ggauravr/arrow-flight-node-csv-adapter
 npm install apache-arrow
 ```
 
@@ -50,8 +50,8 @@ npm install apache-arrow
 
 ```javascript
 // server.js
-import { FlightServer } from '@ggauravr/arrow-flight-server-node-core';
-import { CSVFlightService } from '@ggauravr/arrow-flight-server-node-csv-adapter';
+import { FlightServer } from '@ggauravr/arrow-flight-node-core';
+import { CSVFlightService } from '@ggauravr/arrow-flight-node-csv-adapter';
 
 const server = new FlightServer({ port: 8080 });
 const csvService = new CSVFlightService({ 
@@ -108,7 +108,7 @@ Understanding what each package does:
 import { 
   FlightServer,      // Main server class
   FlightServiceBase  // Base class for adapters
-} from '@ggauravr/arrow-flight-server-node-core';
+} from '@ggauravr/arrow-flight-node-core';
 ```
 
 ### CSV Adapter
@@ -116,7 +116,7 @@ import {
 import { 
   CSVFlightService,  // Ready-to-use CSV adapter
   CSVStreamer        // Low-level CSV streaming
-} from '@ggauravr/arrow-flight-server-node-csv-adapter';
+} from '@ggauravr/arrow-flight-node-csv-adapter';
 ```
 
 ### Utilities
@@ -125,7 +125,7 @@ import {
   ArrowBuilder,      // Build Arrow data structures
   inferSchema,       // Automatic schema inference
   StreamingUtils     // Streaming helpers
-} from '@ggauravr/arrow-flight-server-node-utils';
+} from '@ggauravr/arrow-flight-node-utils';
 ```
 
 ## 🔧 Configuration
@@ -275,8 +275,8 @@ export CSV_BATCH_SIZE=1000
 
 ### Getting Help
 
-- **🐛 Bug Reports**: [GitHub Issues](https://github.com/ggauravr/arrow-flight-server-node/issues)
-- **💬 Questions**: [GitHub Discussions](https://github.com/ggauravr/arrow-flight-server-node/discussions)
+- **🐛 Bug Reports**: [GitHub Issues](https://github.com/ggauravr/arrow-flight-node/issues)
+- **💬 Questions**: [GitHub Discussions](https://github.com/ggauravr/arrow-flight-node/discussions)
 - **📖 Documentation**: [Full docs on this site]({{ '/' | relative_url }})
 
 ## 🎉 You're Ready!

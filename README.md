@@ -30,15 +30,15 @@ This monorepo contains the following packages:
 
 | Package | Description | Version |
 |---------|-------------|---------|
-| [`@ggauravr/arrow-flight-server-node-core`](packages/core/) | Generic Arrow Flight server framework | ![npm](https://img.shields.io/npm/v/@ggauravr/arrow-flight-server-node-core) |
-| [`@ggauravr/arrow-flight-server-node-csv-adapter`](packages/csv-adapter/) | CSV file adapter with streaming support | ![npm](https://img.shields.io/npm/v/@ggauravr/arrow-flight-server-node-csv-adapter) |
-| [`@ggauravr/arrow-flight-server-node-utils`](packages/utils/) | Arrow utilities and schema inference | ![npm](https://img.shields.io/npm/v/@ggauravr/arrow-flight-server-node-utils) |
+| [`@ggauravr/arrow-flight-node-core`](packages/core/) | Generic Arrow Flight server framework | ![npm](https://img.shields.io/npm/v/@ggauravr/arrow-flight-node-core) |
+| [`@ggauravr/arrow-flight-node-csv-adapter`](packages/csv-adapter/) | CSV file adapter with streaming support | ![npm](https://img.shields.io/npm/v/@ggauravr/arrow-flight-node-csv-adapter) |
+| [`@ggauravr/arrow-flight-node-utils`](packages/utils/) | Arrow utilities and schema inference | ![npm](https://img.shields.io/npm/v/@ggauravr/arrow-flight-node-utils) |
 
 ### Examples & Reference
 
 | Package | Description |
 |---------|-------------|
-| [`@ggauravr/arrow-flight-server-node-examples`](packages/examples/) | Complete examples and reference implementations |
+| [`@ggauravr/arrow-flight-node-examples`](packages/examples/) | Complete examples and reference implementations |
 
 ## 🏗️ Architecture
 
@@ -97,26 +97,26 @@ The framework uses a plugin architecture where:
 
 ```bash
 # Core server framework
-npm install @ggauravr/arrow-flight-server-node-core
+npm install @ggauravr/arrow-flight-node-core
 
 # CSV adapter
-npm install @ggauravr/arrow-flight-server-node-csv-adapter
+npm install @ggauravr/arrow-flight-node-csv-adapter
 
 # Utilities
-npm install @ggauravr/arrow-flight-server-node-utils
+npm install @ggauravr/arrow-flight-node-utils
 ```
 
 ```bash
 # Scenario 1: Building a custom database adapter
-npm install @ggauravr/arrow-flight-server-node-core @ggauravr/arrow-flight-server-node-utils
+npm install @ggauravr/arrow-flight-node-core @ggauravr/arrow-flight-node-utils
 # Don't need CSV adapter - saves ~50KB + fast-csv dependency
 
 # Scenario 2: Just need Arrow utilities for a different project
-npm install @ggauravr/arrow-flight-server-node-utils
+npm install @ggauravr/arrow-flight-node-utils
 # No server code, no gRPC dependencies - much lighter
 
 # Scenario 3: Want complete CSV solution
-npm install @ggauravr/arrow-flight-server-node-csv-adapter
+npm install @ggauravr/arrow-flight-node-csv-adapter
 # Automatically pulls in core + utils via dependencies
 
 ```
@@ -124,8 +124,8 @@ npm install @ggauravr/arrow-flight-server-node-csv-adapter
 ### Basic Server Example
 
 ```javascript
-import { FlightServer } from '@ggauravr/arrow-flight-server-node-core';
-import { CSVFlightService } from '@ggauravr/arrow-flight-server-node-csv-adapter';
+import { FlightServer } from '@ggauravr/arrow-flight-node-core';
+import { CSVFlightService } from '@ggauravr/arrow-flight-node-csv-adapter';
 
 // Create server
 const server = new FlightServer({ port: 8080 });
@@ -143,7 +143,7 @@ await server.start();
 ### Custom Adapter Example
 
 ```javascript
-import { FlightServiceBase } from '@ggauravr/arrow-flight-server-node-core';
+import { FlightServiceBase } from '@ggauravr/arrow-flight-node-core';
 
 class DatabaseAdapter extends FlightServiceBase {
   async _initialize() {
