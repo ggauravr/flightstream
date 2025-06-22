@@ -23,7 +23,7 @@ import fs from 'fs';
 // Import base service and utilities
 import { FlightServiceBase } from '@flightstream/core';
 import { CSVStreamer } from './csv-streamer.js';
-import { ArrowBuilder } from '@flightstream/utils';
+import { CSVArrowBuilder } from '@flightstream/utils';
 
 /**
  * CSV Service for Arrow Flight Server
@@ -151,8 +151,8 @@ export class CSVFlightService extends FlightServiceBase {
       streamer.on('schema', (csvSchema) => {
         streamer.stop();
         
-        // Convert CSV schema to Arrow schema using ArrowBuilder
-        const arrowBuilder = new ArrowBuilder(csvSchema);
+        // Convert CSV schema to Arrow schema using CSVArrowBuilder
+        const arrowBuilder = new CSVArrowBuilder(csvSchema);
         const arrowSchema = arrowBuilder.getSchema();
         
         resolve(arrowSchema);
@@ -191,7 +191,7 @@ export class CSVFlightService extends FlightServiceBase {
       // Handle schema inference
       streamer.on('schema', (csvSchema) => {
         console.log(`CSV Schema inferred for ${dataset.id}:`, csvSchema);
-        arrowBuilder = new ArrowBuilder(csvSchema);
+        arrowBuilder = new CSVArrowBuilder(csvSchema);
       });
 
       // Handle data batches

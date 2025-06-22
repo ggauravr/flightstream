@@ -27,6 +27,7 @@
 
 // Arrow data utilities
 export { ArrowBuilder } from './arrow-builder.js';
+export { CSVArrowBuilder } from './csv-arrow-builder.js';
 
 // Schema utilities
 export * from './schema-inference.js';
