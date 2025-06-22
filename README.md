@@ -237,22 +237,18 @@ We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) f
 - [Arrow Flight](https://arrow.apache.org/docs/format/Flight.html) - RPC protocol specification
 - [DuckDB](https://duckdb.org/) - Analytical database with Arrow support
 
-## 📈 Benchmarks
-
-| Operation | Throughput | Latency |
-|-----------|------------|---------|
-| CSV Streaming (1M rows) | 500 MB/s | <100ms first batch |
-| Schema Inference | 1000 files/s | <10ms average |
-| Arrow Serialization | 2 GB/s | <1ms per batch |
-
-*Benchmarks run on modern hardware. Your results may vary.*
-
 ## 🆘 Support
 
 - **Issues**: [GitHub Issues](https://github.com/ggauravr/flightstream/issues)
 - **Discussions**: [GitHub Discussions](https://github.com/ggauravr/flightstream/discussions)  
 - **Documentation**: [docs/](docs/)
 - **Examples**: [packages/examples/](packages/examples/)
+
+## 🤖 Development Transparency
+
+This project leverages AI assistance for code generation and documentation while maintaining human oversight and quality control. All AI-generated code has been thoroughly reviewed, tested, and validated for accuracy, performance, and adherence to best practices. The overall architecture, design decisions, technical approach, and project direction are entirely human-driven.
+
+I believe in transparent development practices and want users to understand that while AI tools accelerated the development process, the quality and reliability of the final product remain uncompromised through meticulous review and testing.
 
 ## 📄 License
 
