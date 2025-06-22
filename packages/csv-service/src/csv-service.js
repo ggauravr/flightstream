@@ -23,7 +23,7 @@ import fs from 'fs';
 // Import base service and utilities
 import { FlightServiceBase } from '@flightstream/core';
 import { CSVStreamer } from './csv-streamer.js';
-import { CSVArrowBuilder } from '@flightstream/utils';
+import { CSVArrowBuilder } from './csv-arrow-builder.js';
 
 /**
  * CSV Service for Arrow Flight Server
