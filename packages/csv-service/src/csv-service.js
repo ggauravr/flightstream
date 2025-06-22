@@ -26,7 +26,7 @@ import { CSVStreamer } from './csv-streamer.js';
 import { ArrowBuilder } from '@flightstream/utils';
 
 /**
- * CSV Adapter for Arrow Flight Server
+ * CSV Service for Arrow Flight Server
  * 
  * This adapter extends FlightServiceBase to provide CSV file support.
  * It scans a directory for CSV files, infers their schemas, and streams
@@ -269,7 +269,7 @@ export class CSVFlightService extends FlightServiceBase {
 
   /**
    * Get CSV-specific statistics
-   * @returns {Object} CSV adapter statistics
+   * @returns {Object} CSV service statistics
    */
   getCSVStats() {
     const stats = {

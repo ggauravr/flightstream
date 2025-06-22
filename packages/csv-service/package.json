@@ -1,12 +1,12 @@
 {
-  "name": "@flightstream/csv-adapter",
+  "name": "@flightstream/csv-service",
   "version": "1.0.0",
-  "description": "CSV file adapter for FlightStream servers with streaming and schema inference for Node.js",
+  "description": "CSV file service for FlightStream servers with streaming and schema inference for Node.js",
   "main": "src/index.js",
   "type": "module",
   "exports": {
     ".": "./src/index.js",
-    "./csv-adapter": "./src/csv-adapter.js",
+    "./csv-service": "./src/csv-service.js",
     "./csv-streamer": "./src/csv-streamer.js"
   },
   "scripts": {
@@ -18,7 +18,7 @@
     "arrow-flight",
     "csv",
     "streaming",
-    "adapter",
+    "service",
     "data-source",
     "flightstream"
   ],

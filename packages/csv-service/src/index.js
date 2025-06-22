@@ -18,7 +18,7 @@
  */
 
 /**
- * @fileoverview CSV adapter for Arrow Flight servers
+ * @fileoverview CSV service for Arrow Flight servers
  * 
  * This package provides a complete CSV file adapter for Arrow Flight servers,
  * including streaming CSV parsing, automatic schema inference, and efficient
@@ -26,7 +26,7 @@
  */
 
 // Main adapter
-export { CSVFlightService } from './csv-adapter.js';
+export { CSVFlightService } from './csv-service.js';
 
 // CSV streaming utilities
 export { CSVStreamer } from './csv-streamer.js';

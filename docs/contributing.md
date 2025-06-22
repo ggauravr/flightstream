@@ -92,9 +92,9 @@ arrow-flight-node/
 │   │   │   ├── flight-service-base.js
 │   │   │   └── protocol-handlers.js
 │   │   └── package.json
-│   ├── csv-adapter/       # CSV file adapter
+│   ├── csv-service/       # CSV file adapter
 │   │   ├── src/
-│   │   │   ├── csv-adapter.js
+│   │   │   ├── csv-service.js
 │   │   │   └── csv-streamer.js
 │   │   └── package.json
 │   ├── utils/            # Shared utilities
@@ -319,7 +319,7 @@ test('ArrowBuilder creates valid schema', () => {
 #### Integration Tests
 ```javascript
 // Test component interactions
-test('CSV adapter discovers files', async () => {
+test('CSV service discovers files', async () => {
   const adapter = new CSVFlightService({ dataDirectory: './test-data' });
   await adapter.initialize();
   expect(adapter.getDatasets()).toContain('sample');

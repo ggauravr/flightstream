@@ -114,7 +114,7 @@ Let's create a custom server script for your specific needs.
 # Create a new file
 cat > my-csv-server.js << 'EOF'
 import { FlightServer } from '@ggauravr/arrow-flight-node-core';
-import { CSVFlightService } from '@ggauravr/arrow-flight-node-csv-adapter';
+import { CSVFlightService } from '@ggauravr/arrow-flight-node-csv-service';
 
 class MyCustomCSVServer {
   constructor() {

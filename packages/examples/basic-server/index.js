@@ -28,8 +28,8 @@
 // Import the Arrow Flight server framework
 import { FlightServer } from '@flightstream/core/flight-server';
 
-// Import the CSV adapter
-import { CSVFlightService } from '@flightstream/csv-adapter';
+// Import the CSV service
+import { CSVFlightService } from '@flightstream/csv-service';
 
 /**
  * Basic Arrow Flight CSV Server
@@ -55,7 +55,7 @@ class BasicCSVServer {
       maxSendMessageLength: 100 * 1024 * 1024,    // 100MB
     });
     
-    // Create the CSV adapter service
+    // Create the CSV service service
     this.csvService = new CSVFlightService({
       dataDirectory: this.options.dataDirectory,
       batchSize: parseInt(process.env.CSV_BATCH_SIZE) || 10000,

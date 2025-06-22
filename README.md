@@ -31,7 +31,7 @@ This monorepo contains the following packages:
 | Package | Description | Version |
 |---------|-------------|---------|
 | [`@flightstream/core`](packages/core/) | Core Arrow Flight server framework | ![npm](https://img.shields.io/npm/v/@flightstream/core) |
-| [`@flightstream/csv-adapter`](packages/csv-adapter/) | CSV file adapter with streaming support | ![npm](https://img.shields.io/npm/v/@flightstream/csv-adapter) |
+| [`@flightstream/csv-service`](packages/csv-service/) | CSV file adapter with streaming support | ![npm](https://img.shields.io/npm/v/@flightstream/csv-service) |
 | [`@flightstream/utils`](packages/utils/) | Arrow utilities and schema inference | ![npm](https://img.shields.io/npm/v/@flightstream/utils) |
 
 ### Examples & Reference
@@ -99,8 +99,8 @@ The framework uses a plugin architecture where:
 # Core server framework
 npm install @flightstream/core
 
-# CSV adapter
-npm install @flightstream/csv-adapter
+# CSV service
+npm install @flightstream/csv-service
 
 # Utilities
 npm install @flightstream/utils
@@ -109,14 +109,14 @@ npm install @flightstream/utils
 ```bash
 # Scenario 1: Building a custom database adapter
 npm install @flightstream/core @flightstream/utils
-# Don't need CSV adapter - saves ~50KB + fast-csv dependency
+# Don't need CSV service - saves ~50KB + fast-csv dependency
 
 # Scenario 2: Just need Arrow utilities for a different project
 npm install @flightstream/utils
 # No server code, no gRPC dependencies - much lighter
 
 # Scenario 3: Want complete CSV solution
-npm install @flightstream/csv-adapter
+npm install @flightstream/csv-service
 # Automatically pulls in core + utils via dependencies
 
 ```
@@ -125,12 +125,12 @@ npm install @flightstream/csv-adapter
 
 ```javascript
 import { FlightServer } from '@flightstream/core';
-import { CSVFlightService } from '@flightstream/csv-adapter';
+import { CSVFlightService } from '@flightstream/csv-service';
 
 // Create server
 const server = new FlightServer({ port: 8080 });
 
-// Create CSV adapter
+// Create CSV service
 const csvService = new CSVFlightService({
   dataDirectory: './data'
 });

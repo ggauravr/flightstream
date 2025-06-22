@@ -15,7 +15,7 @@ Real-world examples and patterns for building Arrow Flight servers.
 ```javascript
 // basic-csv-server.js
 import { FlightServer } from '@ggauravr/arrow-flight-node-core';
-import { CSVFlightService } from '@ggauravr/arrow-flight-node-csv-adapter';
+import { CSVFlightService } from '@ggauravr/arrow-flight-node-csv-service';
 
 const server = new FlightServer({ port: 8080 });
 const csvService = new CSVFlightService({ dataDirectory: './data' });
@@ -30,7 +30,7 @@ console.log('🚀 CSV server running on port 8080');
 ```javascript
 // configured-server.js
 import { FlightServer } from '@ggauravr/arrow-flight-node-core';
-import { CSVFlightService } from '@ggauravr/arrow-flight-node-csv-adapter';
+import { CSVFlightService } from '@ggauravr/arrow-flight-node-csv-service';
 
 const server = new FlightServer({
   host: '0.0.0.0',  // Accept external connections
@@ -315,7 +315,7 @@ demo();
 ```javascript
 // multi-source-server.js
 import { FlightServer } from '@ggauravr/arrow-flight-node-core';
-import { CSVFlightService } from '@ggauravr/arrow-flight-node-csv-adapter';
+import { CSVFlightService } from '@ggauravr/arrow-flight-node-csv-service';
 
 class MultiSourceFlightService {
   constructor() {
@@ -440,7 +440,7 @@ startMultiSourceServer();
 ```javascript
 // monitored-server.js
 import { FlightServer } from '@ggauravr/arrow-flight-node-core';
-import { CSVFlightService } from '@ggauravr/arrow-flight-node-csv-adapter';
+import { CSVFlightService } from '@ggauravr/arrow-flight-node-csv-service';
 
 class MonitoredFlightService extends CSVFlightService {
   constructor(options) {

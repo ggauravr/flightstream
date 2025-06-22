@@ -23,7 +23,7 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@flightstream/core": "^1.0.0",
-    "@flightstream/csv-adapter": "^1.0.0",
+    "@flightstream/csv-service": "^1.0.0",
     "@flightstream/utils": "^1.0.0",
     "apache-arrow": "^14.0.2"
   },

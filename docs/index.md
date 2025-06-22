@@ -59,7 +59,7 @@ The monorepo contains focused, reusable packages:
 | Package | Description | Status |
 |---------|-------------|--------|
 | **[@ggauravr/arrow-flight-node-core](https://www.npmjs.com/package/@ggauravr/arrow-flight-node-core)** | Generic Flight server framework | ✅ Ready |
-| **[@ggauravr/arrow-flight-node-csv-adapter](https://www.npmjs.com/package/@ggauravr/arrow-flight-node-csv-adapter)** | CSV file adapter with streaming | ✅ Ready |
+| **[@ggauravr/arrow-flight-node-csv-service](https://www.npmjs.com/package/@ggauravr/arrow-flight-node-csv-service)** | CSV file adapter with streaming | ✅ Ready |
 | **[@ggauravr/arrow-flight-node-utils](https://www.npmjs.com/package/@ggauravr/arrow-flight-node-utils)** | Arrow utilities and schema inference | ✅ Ready |
 | **[@ggauravr/arrow-flight-node-examples](https://www.npmjs.com/package/@ggauravr/arrow-flight-node-examples)** | Reference implementations | ✅ Ready |
 

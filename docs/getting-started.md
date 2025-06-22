@@ -40,7 +40,7 @@ npm init -y
 
 # Install the packages you need
 npm install @flightstream/core
-npm install @flightstream/csv-adapter
+npm install @flightstream/csv-service
 npm install apache-arrow
 ```
 
@@ -51,7 +51,7 @@ npm install apache-arrow
 ```javascript
 // server.js
 import { FlightServer } from '@flightstream/core';
-import { CSVFlightService } from '@flightstream/csv-adapter';
+import { CSVFlightService } from '@flightstream/csv-service';
 
 const server = new FlightServer({ port: 8080 });
 const csvService = new CSVFlightService({ 
@@ -111,12 +111,12 @@ import {
 } from '@flightstream/core';
 ```
 
-### CSV Adapter
+### CSV Service
 ```javascript
 import { 
-  CSVFlightService,  // Ready-to-use CSV adapter
+  CSVFlightService,  // Ready-to-use CSV service
   CSVStreamer        // Low-level CSV streaming
-} from '@flightstream/csv-adapter';
+} from '@flightstream/csv-service';
 ```
 
 ### Utilities
@@ -137,7 +137,7 @@ import {
 export FLIGHT_HOST=localhost
 export FLIGHT_PORT=8080
 
-# CSV adapter configuration
+# CSV service configuration
 export DATA_DIRECTORY=./data
 export CSV_BATCH_SIZE=10000
 export CSV_DELIMITER=,

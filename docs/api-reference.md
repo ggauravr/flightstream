@@ -160,7 +160,7 @@ class MyAdapter extends FlightServiceBase {
 
 ---
 
-## 📊 CSV Adapter Package (@ggauravr/arrow-flight-node-csv-adapter)
+## 📊 CSV Service Package (@ggauravr/arrow-flight-node-csv-service)
 
 ### CSVFlightService Class
 

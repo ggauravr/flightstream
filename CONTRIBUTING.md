@@ -49,7 +49,7 @@ This project uses a monorepo structure with multiple packages:
 ```
 packages/
 ├── core/           # @flightstream/core
-├── csv-adapter/    # @flightstream/csv-adapter
+├── csv-service/    # @flightstream/csv-service
 ├── utils/          # @flightstream/utils
 └── examples/       # @flightstream/examples
 ```
@@ -262,7 +262,7 @@ type(scope): description
 
 ### Examples
 ```bash
-feat(csv-adapter): add support for custom delimiters
+feat(csv-service): add support for custom delimiters
 fix(core): handle gRPC connection errors gracefully
 docs(readme): update installation instructions
 test(utils): add tests for schema inference
