@@ -110,6 +110,59 @@ flightstream/
 └── tools/               # Development tools
 ```
 
+## 🧠 Mental Model
+
+```mermaid
+flowchart TD
+    Start([Developer Starts]) --> Choice{What data source?}
+    
+    Choice -->|CSV Files| InstallCSV[Install @flightstream/csv-service]
+    Choice -->|Database| InstallDB[Install @flightstream/xxx-service<br/>Future: snowflake, postgres, etc.]
+    Choice -->|Custom| InstallCore[Install @flightstream/core + utils]
+
+    InstallCSV --> CreateCSVServer[Create CSV Server]
+    InstallDB --> CreateDBServer[Create Database Server]
+    InstallCore --> CreateCustomServer[Create Custom Adapter]
+
+    subgraph "CSV Service Usage"
+        CreateCSVServer --> ConfigCSV[Configure CSV Options<br/>• Data directory<br/>• Batch size<br/>• Delimiter]
+        ConfigCSV --> InitCSV[CSVFlightService.initialize<br/>Discovers CSV files]
+        InitCSV --> RegisterCSV[Register with FlightServer]
+    end
+
+    subgraph "Custom Adapter Development"
+        CreateCustomServer --> ExtendBase[Extend FlightServiceBase]
+        ExtendBase --> ImplementMethods[Implement Required Methods<br/>• _initialize<br/>• _inferSchemaForDataset<br/>• _streamDataset]
+        ImplementMethods --> UseUtils[Use ArrowBuilder utilities<br/>for data conversion]
+        UseUtils --> RegisterCustom[Register with FlightServer]
+    end
+
+    RegisterCSV --> StartServer[Start FlightServer]
+    CreateDBServer --> StartServer
+    RegisterCustom --> StartServer
+
+    StartServer --> ClientConnect[Clients Connect via Arrow Flight]
+    ClientConnect --> Operations[Flight Operations<br/>• ListFlights<br/>• GetFlightInfo<br/>• DoGet]
+
+    subgraph "Data Flow"
+        Operations --> Discovery[Dataset Discovery]
+        Discovery --> Schema[Schema Inference]
+        Schema --> Stream[Stream Arrow Data]
+        Stream --> Client[Client Receives<br/>Arrow RecordBatches]
+    end
+
+    %% Styling
+    classDef startEnd fill:#c8e6c9,stroke:#4caf50,stroke-width:3px
+    classDef process fill:#bbdefb,stroke:#2196f3,stroke-width:2px
+    classDef decision fill:#ffe0b2,stroke:#ff9800,stroke-width:2px
+    classDef service fill:#f8bbd9,stroke:#e91e63,stroke-width:2px
+
+    class Start,Client startEnd
+    class Choice decision
+    class CreateCSVServer,CreateDBServer,CreateCustomServer,StartServer,ClientConnect,Operations process
+    class ConfigCSV,InitCSV,RegisterCSV,ExtendBase,ImplementMethods,UseUtils,RegisterCustom,Discovery,Schema,Stream service
+```
+
 ## 📋 Development Guidelines
 
 ### Code Style
