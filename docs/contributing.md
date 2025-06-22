@@ -11,14 +11,14 @@ Thank you for your interest in contributing! This guide will help you get starte
 ## 🎯 Ways to Contribute
 
 ### 🐛 Bug Reports
-Found a bug? Please [open an issue](https://github.com/ggauravr/arrow-flight-node/issues) with:
+Found a bug? Please [open an issue](https://github.com/ggauravr/flightstream/issues) with:
 - Clear description of the problem
 - Steps to reproduce
 - Expected vs actual behavior
 - Your environment (Node.js version, OS, etc.)
 
 ### 💡 Feature Requests
-Have an idea for improvement? [Create a feature request](https://github.com/ggauravr/arrow-flight-node/issues) with:
+Have an idea for improvement? [Create a feature request](https://github.com/ggauravr/flightstream/issues) with:
 - Use case description
 - Proposed solution
 - Alternative approaches considered
@@ -48,14 +48,14 @@ Help improve our docs:
 
 1. **Fork the repository**
    ```bash
-   # Visit https://github.com/ggauravr/arrow-flight-node
+   # Visit https://github.com/ggauravr/flightstream
    # Click "Fork" button
    ```
 
 2. **Clone your fork**
    ```bash
-   git clone https://github.com/YOUR-USERNAME/arrow-flight-node.git
-   cd arrow-flight-node
+   git clone https://github.com/YOUR-USERNAME/flightstream.git
+   cd flightstream
    ```
 
 3. **Install dependencies**
@@ -84,7 +84,7 @@ Help improve our docs:
 Understanding the codebase organization:
 
 ```
-arrow-flight-node/
+flightstream/
 ├── packages/
 │   ├── core/              # Core Flight server framework
 │   │   ├── src/
@@ -114,7 +114,7 @@ arrow-flight-node/
 
 ### Code Style
 
-We use ESLint for code formatting:
+This project uses ESLint for code formatting:
 
 ```bash
 # Check code style
@@ -425,8 +425,8 @@ Contributors are recognized in:
 ## ❓ Getting Help
 
 ### Community Support
-- **GitHub Discussions**: [Community discussions](https://github.com/ggauravr/arrow-flight-node/discussions)
-- **Issues**: [Bug reports and questions](https://github.com/ggauravr/arrow-flight-node/issues)
+- **GitHub Discussions**: [Community discussions](https://github.com/ggauravr/flightstream/discussions)
+- **Issues**: [Bug reports and questions](https://github.com/ggauravr/flightstream/issues)
 
 ### Development Help
 - **Discord**: Join our development chat

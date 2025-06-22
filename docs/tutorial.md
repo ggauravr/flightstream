@@ -651,8 +651,8 @@ Congratulations! You now have a working Arrow Flight server. Here's what to expl
 - **Analytics dashboard** that connects to your Flight server
 
 ### 🤝 Get Help
-- **GitHub Issues**: [Report bugs or ask questions](https://github.com/ggauravr/arrow-flight-node/issues)
-- **Discussions**: [Community discussions](https://github.com/ggauravr/arrow-flight-node/discussions)
+- **GitHub Issues**: [Report bugs or ask questions](https://github.com/ggauravr/flightstream/issues)
+- **Discussions**: [Community discussions](https://github.com/ggauravr/flightstream/discussions)
 
 ## 🎉 You Did It!
 

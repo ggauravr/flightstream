@@ -7,7 +7,7 @@ title: Home
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Node.js Version](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg)](https://nodejs.org/)
-[![GitHub](https://img.shields.io/github/stars/ggauravr/arrow-flight-node?style=social)](https://github.com/ggauravr/arrow-flight-node)
+[![GitHub](https://img.shields.io/github/stars/ggauravr/flightstream?style=social)](https://github.com/ggauravr/flightstream)
 
 Production-ready Apache Arrow Flight server framework with plugin architecture for Node.js. Build high-performance data streaming services with ease.
 
@@ -15,7 +15,7 @@ Production-ready Apache Arrow Flight server framework with plugin architecture f
 
 ```bash
 # Clone and install
-git clone https://github.com/ggauravr/arrow-flight-node.git
+git clone https://github.com/ggauravr/flightstream.git
 cd arrow-flight-node
 npm install
 
@@ -97,13 +97,13 @@ The monorepo contains focused, reusable packages:
 
 ## 🤝 Community
 
-- **GitHub**: [ggauravr/arrow-flight-node](https://github.com/ggauravr/arrow-flight-node)
-- **Issues**: [Report bugs and request features](https://github.com/ggauravr/arrow-flight-node/issues)
-- **Discussions**: [Community discussions](https://github.com/ggauravr/arrow-flight-node/discussions)
+- **GitHub**: [ggauravr/flightstream](https://github.com/ggauravr/flightstream)
+- **Issues**: [Report bugs and request features](https://github.com/ggauravr/flightstream/issues)
+- **Discussions**: [Community discussions](https://github.com/ggauravr/flightstream/discussions)
 
 ## 📄 License
 
-This project is licensed under the [Apache License 2.0](https://github.com/ggauravr/arrow-flight-node/blob/main/LICENSE).
+This project is licensed under the [Apache License 2.0](https://github.com/ggauravr/flightstream/blob/main/LICENSE).
 
 <style>
 .feature-grid {
