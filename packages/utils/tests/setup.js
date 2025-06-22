@@ -3,12 +3,18 @@
  */
 
 // Set test timeout for Arrow operations
-jest.setTimeout(30000);
+if (typeof jest !== 'undefined') {
+  jest.setTimeout(30000);
+}
 
 // Mock console.warn to avoid noise in tests unless explicitly testing warnings
 global.originalConsoleWarn = console.warn;
 beforeEach(() => {
-  console.warn = jest.fn();
+  if (typeof jest !== 'undefined') {
+    console.warn = jest.fn();
+  } else {
+    console.warn = () => {};
+  }
 });
 
 afterEach(() => {

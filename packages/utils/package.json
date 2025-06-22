@@ -11,14 +11,14 @@
     "./streaming-utils": "./src/streaming-utils.js"
   },
   "scripts": {
-    "test": "jest",
+    "test": "NODE_OPTIONS=\"--experimental-vm-modules\" jest",
     "lint": "eslint src/**/*.js"
   },
   "keywords": [
     "arrow",
     "arrow-flight",
     "utilities",
-    "schema-inference", 
+    "schema-inference",
     "streaming",
     "data-conversion",
     "flightstream"
@@ -26,7 +26,7 @@
   "author": "gggauravr@gmail.com",
   "license": "Apache-2.0",
   "peerDependencies": {
-    "apache-arrow": "^14.0.0"
+    "apache-arrow": "^14.0.2"
   },
   "engines": {
     "node": ">=18.0.0"
@@ -36,4 +36,4 @@
     "README.md",
     "LICENSE"
   ]
-} 
+}
