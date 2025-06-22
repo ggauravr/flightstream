@@ -1,7 +1,7 @@
 {
-  "name": "@ggauravr/arrow-flight-node",
+  "name": "@flightstream/monorepo",
   "version": "1.0.0",
-  "description": "Production-ready Apache Arrow Flight server framework with plugin architecture for Node.js",
+  "description": "High-performance Apache Arrow Flight streaming framework with plugin architecture for Node.js",
   "main": "packages/examples/basic-server/index.js",
   "type": "module",
   "private": true,
@@ -26,16 +26,17 @@
     "apache-arrow",
     "flight-protocol",
     "data-streaming",
-    "columnar-data"
+    "columnar-data",
+    "flightstream"
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ggauravr/arrow-flight-node.git"
+    "url": "git+https://github.com/ggauravr/flightstream.git"
   },
   "bugs": {
-    "url": "https://github.com/ggauravr/arrow-flight-node/issues"
+    "url": "https://github.com/ggauravr/flightstream/issues"
   },
-  "homepage": "https://github.com/ggauravr/arrow-flight-node#readme",
+  "homepage": "https://github.com/ggauravr/flightstream#readme",
   "author": "gggauravr@gmail.com",
   "license": "Apache-2.0",
   "engines": {

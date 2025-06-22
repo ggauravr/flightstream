@@ -1,16 +1,16 @@
-# Arrow Flight Server Framework
+# FlightStream
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Node.js Version](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg)](https://nodejs.org/)
 
-Production-ready Apache Arrow Flight server framework with plugin architecture for Node.js. This monorepo contains a complete ecosystem for building high-performance data streaming services using the Arrow Flight protocol.
+High-performance Apache Arrow Flight streaming framework with plugin architecture for Node.js. This monorepo contains a complete ecosystem for building high-performance data streaming services using the Arrow Flight protocol.
 
 ## 🚀 Quick Start
 
 ```bash
 # Clone and install
-git clone https://github.com/apache/arrow-flight-server-js.git
-cd arrow-flight-server-js
+git clone https://github.com/ggauravr/flightstream.git
+cd flightstream
 npm install
 
 # Start the example CSV server
@@ -30,21 +30,21 @@ This monorepo contains the following packages:
 
 | Package | Description | Version |
 |---------|-------------|---------|
-| [`@ggauravr/arrow-flight-node-core`](packages/core/) | Generic Arrow Flight server framework | ![npm](https://img.shields.io/npm/v/@ggauravr/arrow-flight-node-core) |
-| [`@ggauravr/arrow-flight-node-csv-adapter`](packages/csv-adapter/) | CSV file adapter with streaming support | ![npm](https://img.shields.io/npm/v/@ggauravr/arrow-flight-node-csv-adapter) |
-| [`@ggauravr/arrow-flight-node-utils`](packages/utils/) | Arrow utilities and schema inference | ![npm](https://img.shields.io/npm/v/@ggauravr/arrow-flight-node-utils) |
+| [`@flightstream/core`](packages/core/) | Core Arrow Flight server framework | ![npm](https://img.shields.io/npm/v/@flightstream/core) |
+| [`@flightstream/csv-adapter`](packages/csv-adapter/) | CSV file adapter with streaming support | ![npm](https://img.shields.io/npm/v/@flightstream/csv-adapter) |
+| [`@flightstream/utils`](packages/utils/) | Arrow utilities and schema inference | ![npm](https://img.shields.io/npm/v/@flightstream/utils) |
 
 ### Examples & Reference
 
 | Package | Description |
 |---------|-------------|
-| [`@ggauravr/arrow-flight-node-examples`](packages/examples/) | Complete examples and reference implementations |
+| [`@flightstream/examples`](packages/examples/) | Complete examples and reference implementations |
 
 ## 🏗️ Architecture
 
 ```
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   Data Sources  │───▶│  Flight Server  │───▶│     Clients     │
+│   Data Sources  │───▶│  FlightStream   │───▶│     Clients     │
 │  (CSV, DB, S3)  │    │   Framework     │    │ (Python, Java)  │
 └─────────────────┘    └─────────────────┘    └─────────────────┘
                               │
@@ -97,26 +97,26 @@ The framework uses a plugin architecture where:
 
 ```bash
 # Core server framework
-npm install @ggauravr/arrow-flight-node-core
+npm install @flightstream/core
 
 # CSV adapter
-npm install @ggauravr/arrow-flight-node-csv-adapter
+npm install @flightstream/csv-adapter
 
 # Utilities
-npm install @ggauravr/arrow-flight-node-utils
+npm install @flightstream/utils
 ```
 
 ```bash
 # Scenario 1: Building a custom database adapter
-npm install @ggauravr/arrow-flight-node-core @ggauravr/arrow-flight-node-utils
+npm install @flightstream/core @flightstream/utils
 # Don't need CSV adapter - saves ~50KB + fast-csv dependency
 
 # Scenario 2: Just need Arrow utilities for a different project
-npm install @ggauravr/arrow-flight-node-utils
+npm install @flightstream/utils
 # No server code, no gRPC dependencies - much lighter
 
 # Scenario 3: Want complete CSV solution
-npm install @ggauravr/arrow-flight-node-csv-adapter
+npm install @flightstream/csv-adapter
 # Automatically pulls in core + utils via dependencies
 
 ```
@@ -124,8 +124,8 @@ npm install @ggauravr/arrow-flight-node-csv-adapter
 ### Basic Server Example
 
 ```javascript
-import { FlightServer } from '@ggauravr/arrow-flight-node-core';
-import { CSVFlightService } from '@ggauravr/arrow-flight-node-csv-adapter';
+import { FlightServer } from '@flightstream/core';
+import { CSVFlightService } from '@flightstream/csv-adapter';
 
 // Create server
 const server = new FlightServer({ port: 8080 });
@@ -143,7 +143,7 @@ await server.start();
 ### Custom Adapter Example
 
 ```javascript
-import { FlightServiceBase } from '@ggauravr/arrow-flight-node-core';
+import { FlightServiceBase } from '@flightstream/core';
 
 class DatabaseAdapter extends FlightServiceBase {
   async _initialize() {
@@ -249,8 +249,8 @@ We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) f
 
 ## 🆘 Support
 
-- **Issues**: [GitHub Issues](https://github.com/apache/arrow-flight-server-js/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/apache/arrow-flight-server-js/discussions)  
+- **Issues**: [GitHub Issues](https://github.com/ggauravr/flightstream/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/ggauravr/flightstream/discussions)  
 - **Documentation**: [docs/](docs/)
 - **Examples**: [packages/examples/](packages/examples/)
 

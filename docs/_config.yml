@@ -1,11 +1,11 @@
 # Jekyll configuration for GitHub Pages
-title: "Arrow Flight Server Node.js"
-description: "Production-ready Apache Arrow Flight server framework with plugin architecture for Node.js"
+title: "FlightStream"
+description: "High-performance Apache Arrow Flight streaming framework with plugin architecture for Node.js"
 url: "https://ggauravr.github.io"
-baseurl: "/arrow-flight-node"
+baseurl: "/flightstream"
 
 # Repository information
-repository: "ggauravr/arrow-flight-node"
+repository: "ggauravr/flightstream"
 github_username: "ggauravr"
 
 # Build settings

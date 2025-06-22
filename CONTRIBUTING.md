@@ -48,10 +48,10 @@ This project uses a monorepo structure with multiple packages:
 
 ```
 packages/
-├── core/           # @ggauravr/arrow-flight-node-core
-├── csv-adapter/    # @ggauravr/arrow-flight-node-csv-adapter  
-├── utils/          # @ggauravr/arrow-flight-node-utils
-└── examples/       # @ggauravr/arrow-flight-node-examples
+├── core/           # @flightstream/core
+├── csv-adapter/    # @flightstream/csv-adapter
+├── utils/          # @flightstream/utils
+└── examples/       # @flightstream/examples
 ```
 
 Each package has its own:
@@ -168,7 +168,7 @@ We encourage community contributions of new data source adapters!
 
 2. **Extend FlightServiceBase**
    ```javascript
-   import { FlightServiceBase } from '@ggauravr/arrow-flight-node-core';
+   import { FlightServiceBase } from '@flightstream/core';
    
    export class YourAdapter extends FlightServiceBase {
      async _initialize() {

@@ -20,8 +20,8 @@ Get up and running with Arrow Flight Server Node.js in minutes.
 
 ```bash
 # Clone the full repository
-git clone https://github.com/ggauravr/arrow-flight-node.git
-cd arrow-flight-node
+git clone https://github.com/ggauravr/flightstream.git
+cd flightstream
 
 # Install dependencies
 npm install
@@ -39,8 +39,8 @@ cd my-flight-server
 npm init -y
 
 # Install the packages you need
-npm install @ggauravr/arrow-flight-node-core
-npm install @ggauravr/arrow-flight-node-csv-adapter
+npm install @flightstream/core
+npm install @flightstream/csv-adapter
 npm install apache-arrow
 ```
 
@@ -50,8 +50,8 @@ npm install apache-arrow
 
 ```javascript
 // server.js
-import { FlightServer } from '@ggauravr/arrow-flight-node-core';
-import { CSVFlightService } from '@ggauravr/arrow-flight-node-csv-adapter';
+import { FlightServer } from '@flightstream/core';
+import { CSVFlightService } from '@flightstream/csv-adapter';
 
 const server = new FlightServer({ port: 8080 });
 const csvService = new CSVFlightService({ 
@@ -106,9 +106,9 @@ Understanding what each package does:
 ### Core Package
 ```javascript
 import { 
-  FlightServer,      // Main server class
-  FlightServiceBase  // Base class for adapters
-} from '@ggauravr/arrow-flight-node-core';
+  FlightServer,      // Main server class that serves data from various sources via Arrow Flight protocol
+  FlightServiceBase  // Base class for adapters to convert data from various sources to Arrow Flight protocol
+} from '@flightstream/core';
 ```
 
 ### CSV Adapter
@@ -116,7 +116,7 @@ import {
 import { 
   CSVFlightService,  // Ready-to-use CSV adapter
   CSVStreamer        // Low-level CSV streaming
-} from '@ggauravr/arrow-flight-node-csv-adapter';
+} from '@flightstream/csv-adapter';
 ```
 
 ### Utilities
@@ -125,7 +125,7 @@ import {
   ArrowBuilder,      // Build Arrow data structures
   inferSchema,       // Automatic schema inference
   StreamingUtils     // Streaming helpers
-} from '@ggauravr/arrow-flight-node-utils';
+} from '@flightstream/utils';
 ```
 
 ## 🔧 Configuration
@@ -275,8 +275,8 @@ export CSV_BATCH_SIZE=1000
 
 ### Getting Help
 
-- **🐛 Bug Reports**: [GitHub Issues](https://github.com/ggauravr/arrow-flight-node/issues)
-- **💬 Questions**: [GitHub Discussions](https://github.com/ggauravr/arrow-flight-node/discussions)
+- **🐛 Bug Reports**: [GitHub Issues](https://github.com/ggauravr/flightstream/issues)
+- **💬 Questions**: [GitHub Discussions](https://github.com/ggauravr/flightstream/discussions)
 - **📖 Documentation**: [Full docs on this site]({{ '/' | relative_url }})
 
 ## 🎉 You're Ready!

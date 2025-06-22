@@ -1,7 +1,7 @@
 {
-  "name": "@ggauravr/arrow-flight-node-examples",
+  "name": "@flightstream/examples",
   "version": "1.0.0",
-  "description": "Examples and reference implementations for Arrow Flight server",
+  "description": "Examples and reference implementations for FlightStream server",
   "main": "basic-server/index.js",
   "type": "module",
   "private": true,
@@ -16,14 +16,15 @@
     "arrow-flight",
     "examples",
     "reference-implementation",
-    "tutorial"
+    "tutorial",
+    "flightstream"
   ],
-  "author": "Arrow Flight Contributors",
+  "author": "FlightStream Contributors",
   "license": "Apache-2.0",
   "dependencies": {
-    "@ggauravr/arrow-flight-node-core": "^1.0.0",
-    "@ggauravr/arrow-flight-node-csv-adapter": "^1.0.0",
-    "@ggauravr/arrow-flight-node-utils": "^1.0.0",
+    "@flightstream/core": "^1.0.0",
+    "@flightstream/csv-adapter": "^1.0.0",
+    "@flightstream/utils": "^1.0.0",
     "apache-arrow": "^14.0.2"
   },
   "devDependencies": {

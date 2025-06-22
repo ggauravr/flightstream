@@ -1,7 +1,7 @@
 {
-  "name": "@ggauravr/arrow-flight-node-csv-adapter",
+  "name": "@flightstream/csv-adapter",
   "version": "1.0.0",
-  "description": "CSV file adapter for Arrow Flight servers with streaming and schema inference for Node.js",
+  "description": "CSV file adapter for FlightStream servers with streaming and schema inference for Node.js",
   "main": "src/index.js",
   "type": "module",
   "exports": {
@@ -19,13 +19,14 @@
     "csv",
     "streaming",
     "adapter",
-    "data-source"
+    "data-source",
+    "flightstream"
   ],
   "author": "gggauravr@gmail.com",
   "license": "Apache-2.0",
   "dependencies": {
-    "@ggauravr/arrow-flight-node-core": "^1.0.0",
-    "@ggauravr/arrow-flight-node-utils": "^1.0.0",
+    "@flightstream/core": "^1.0.0",
+    "@flightstream/utils": "^1.0.0",
     "fast-csv": "^4.3.6"
   },
   "peerDependencies": {

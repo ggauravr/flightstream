@@ -54,7 +54,7 @@ The server automatically discovers CSV files in the `data/` directory and serves
 
 ## 📦 Packages
 
-Our monorepo contains focused, reusable packages:
+The monorepo contains focused, reusable packages:
 
 | Package | Description | Status |
 |---------|-------------|--------|
@@ -65,7 +65,7 @@ Our monorepo contains focused, reusable packages:
 
 ## 🎯 Use Cases
 
-- **Data Lakes**: Serve files from S3, GCS, or local storage
+- **Data Lakes**: Serve files efficiently from S3, GCS, Snowflake, or local storage
 - **Analytics Pipelines**: Stream data to Apache Spark, DuckDB, or custom analytics  
 - **Real-time ETL**: High-performance data transformation and streaming
 - **API Modernization**: Replace REST APIs with efficient columnar data transfer

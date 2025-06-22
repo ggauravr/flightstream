@@ -21,9 +21,9 @@ import path from 'path';
 import fs from 'fs';
 
 // Import base service and utilities
-import { FlightServiceBase } from '@ggauravr/arrow-flight-node-core';
+import { FlightServiceBase } from '@flightstream/core';
 import { CSVStreamer } from './csv-streamer.js';
-import { ArrowBuilder } from '@ggauravr/arrow-flight-node-utils';
+import { ArrowBuilder } from '@flightstream/utils';
 
 /**
  * CSV Adapter for Arrow Flight Server
