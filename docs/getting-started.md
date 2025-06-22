@@ -44,7 +44,7 @@ npm install @flightstream/csv-service
 npm install apache-arrow
 ```
 
-## 🎯 First Server (5 minutes)
+## 🎯 First Server (2 minutes)
 
 ### 1. Create Your Server File
 
@@ -106,25 +106,26 @@ Understanding what each package does:
 ### Core Package
 ```javascript
 import { 
-  FlightServer,      // Main server class that serves data from various sources via Arrow Flight protocol
-  FlightServiceBase  // Base class for adapters to convert data from various sources to Arrow Flight protocol
+  FlightServer,      // Main server class that serves data via Arrow Flight protocol
+  FlightServiceBase  // Base class for services/adapters to convert data from various sources to Arrow Flight protocol
 } from '@flightstream/core';
 ```
 
 ### CSV Service
 ```javascript
 import { 
-  CSVFlightService,  // Ready-to-use CSV service
+  CSVFlightService,  // Ready-to-use CSV service that reads data from CSV files and serves it via Arrow Flight protocol
   CSVStreamer        // Low-level CSV streaming
 } from '@flightstream/csv-service';
 ```
 
 ### Utilities
 ```javascript
-import { 
-  ArrowBuilder,      // Build Arrow data structures
-  inferSchema,       // Automatic schema inference
-  StreamingUtils     // Streaming helpers
+import {
+  ArrowBuilder,       // Generic Arrow data builder
+  CSVArrowBuilder,    // CSV-specific Arrow data builder
+  inferSchema,        // Automatic schema inference
+  StreamingUtils      // Streaming helpers for Arrow data
 } from '@flightstream/utils';
 ```
 
@@ -229,49 +230,9 @@ for (FlightInfo info : client.listFlights(Criteria.ALL)) {
 Now that you have a basic server running:
 
 1. **📖 Follow the [Tutorial]({{ '/tutorial/' | relative_url }})** - Build a complete custom server
-2. **🔍 Browse [Examples]({{ '/examples/' | relative_url }})** - See advanced patterns
+2. **🔍 Browse [Examples]({{ '/examples/' | relative_url }})** - for sample implementations
 3. **📚 Check [API Reference]({{ '/api-reference/' | relative_url }})** - Complete documentation
-4. **🛠️ Build a custom adapter** - Connect your own data sources
-
-## 🆘 Troubleshooting
-
-### Common Issues
-
-**Server won't start**
-```bash
-# Check if port is in use
-lsof -i :8080
-
-# Try a different port
-FLIGHT_PORT=8081 npm start
-```
-
-**No datasets found**
-```bash
-# Check data directory exists
-ls -la ./data/
-
-# Check CSV files are valid
-head ./data/your-file.csv
-```
-
-**Client connection fails**
-```bash
-# Test server is running
-curl http://localhost:8080 || echo "Server not responding"
-
-# Check firewall/network settings
-telnet localhost 8080
-```
-
-**Memory issues with large files**
-```bash
-# Increase Node.js memory
-node --max-old-space-size=8192 server.js
-
-# Reduce batch size
-export CSV_BATCH_SIZE=1000
-```
+4. **🛠️ Build a custom service/adapter** - Connect your own data sources
 
 ### Getting Help
 

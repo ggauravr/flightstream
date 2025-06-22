@@ -8,7 +8,7 @@ permalink: /api-reference/
 
 Complete API documentation for all packages in the Arrow Flight Server Node.js framework.
 
-## 🏗️ Core Package (@ggauravr/arrow-flight-node-core)
+## 🏗️ Core Package (@flightstream/core)
 
 ### FlightServer Class
 
@@ -160,7 +160,7 @@ class MyAdapter extends FlightServiceBase {
 
 ---
 
-## 📊 CSV Service Package (@ggauravr/arrow-flight-node-csv-service)
+## 📊 CSV Service Package (@flightstream/csv-service)
 
 ### CSVFlightService Class
 
@@ -296,7 +296,7 @@ await streamer.start();
 
 ---
 
-## 🔧 Utils Package (@ggauravr/arrow-flight-node-utils)
+## 🔧 Utils Package (@flightstream/utils)
 
 ### ArrowBuilder Class
 
@@ -395,7 +395,7 @@ Automatically infer schema from sample data.
 
 **Example:**
 ```javascript
-import { inferSchema } from '@ggauravr/arrow-flight-node-utils';
+import { inferSchema } from '@flightstream/utils';
 
 const data = [
   { id: 1, name: 'Alice', active: true },
@@ -431,7 +431,7 @@ Create a batched stream from any data source.
 
 **Example:**
 ```javascript
-import { createBatchStream } from '@ggauravr/arrow-flight-node-utils';
+import { createBatchStream } from '@flightstream/utils';
 
 const data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 const batches = createBatchStream(data, { batchSize: 3 });
@@ -557,7 +557,7 @@ const csvService = new CSVFlightService({
 ### Test Client
 
 ```javascript
-import { FlightClient } from '@ggauravr/arrow-flight-node-examples/test-client';
+import { FlightClient } from '@flightstream/examples/test-client';
 
 const client = new FlightClient('localhost', 8080);
 
@@ -574,7 +574,7 @@ const data = await client.getData('dataset-name');
 ### Mock Services
 
 ```javascript
-import { FlightServiceBase } from '@ggauravr/arrow-flight-node-core';
+import { FlightServiceBase } from '@flightstream/core';
 
 class MockFlightService extends FlightServiceBase {
   async _initialize() {

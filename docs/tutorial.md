@@ -28,8 +28,8 @@ By the end of this tutorial, you'll have:
 
 ```bash
 # Clone the repository
-git clone https://github.com/ggauravr/arrow-flight-node.git
-cd arrow-flight-node
+git clone https://github.com/ggauravr/flightstream.git
+cd flightstream
 
 # Install dependencies
 npm install
@@ -113,8 +113,8 @@ Let's create a custom server script for your specific needs.
 ```bash
 # Create a new file
 cat > my-csv-server.js << 'EOF'
-import { FlightServer } from '@ggauravr/arrow-flight-node-core';
-import { CSVFlightService } from '@ggauravr/arrow-flight-node-csv-service';
+import { FlightServer } from '@flightstream/core';
+import { CSVFlightService } from '@flightstream/csv-service';
 
 class MyCustomCSVServer {
   constructor() {
@@ -230,87 +230,374 @@ console.log('Employees data:', data.toArray());
 
 ## 🔌 Step 5: Build a Custom Adapter
 
-Want to serve data from a database instead of CSV? Here's how to build a custom adapter:
+Want to serve data from a database instead of CSV? You'll need to create two classes: a custom ArrowBuilder for your data format and a FlightService for your data source.
+
+### Step 5.1: Create a SQLite Arrow Builder
+
+First, create a custom `SQLiteArrowBuilder` that extends `ArrowBuilder`:
 
 ```javascript
-// database-adapter.js
-import { FlightServiceBase } from '@ggauravr/arrow-flight-node-core';
-import { ArrowBuilder } from '@ggauravr/arrow-flight-node-utils';
+// sqlite-arrow-builder.js
+import * as arrow from 'apache-arrow';
+import { ArrowBuilder } from '@flightstream/utils';
+
+/**
+ * SQLite-specific Arrow Builder
+ * 
+ * Extends the generic ArrowBuilder to handle SQLite-specific data types
+ * and row format conversion to Arrow format.
+ */
+export class SQLiteArrowBuilder extends ArrowBuilder {
+  constructor(sqliteSchema, options = {}) {
+    super(sqliteSchema, options);
+  }
+
+  /**
+   * Build Arrow schema from SQLite column information
+   * Required by ArrowBuilder abstract class
+   */
+  _buildArrowSchema() {
+    const fields = [];
+    
+    for (const [columnName, sqliteType] of Object.entries(this.sourceSchema)) {
+      const arrowType = this._mapSourceTypeToArrow(sqliteType);
+      fields.push(arrow.Field.new(columnName, arrowType, true)); // nullable = true
+    }
+    
+    this.arrowSchema = new arrow.Schema(fields);
+  }
+
+  /**
+   * Transform SQLite rows to column-oriented data
+   * Required by ArrowBuilder abstract class
+   */
+  _transformDataToColumns(sqliteRows) {
+    if (!Array.isArray(sqliteRows) || sqliteRows.length === 0) {
+      return {};
+    }
+
+    const columnData = {};
+    
+    // Initialize column arrays
+    for (const field of this.arrowSchema.fields) {
+      columnData[field.name] = [];
+    }
+    
+    // Convert row-oriented data to column-oriented
+    for (const row of sqliteRows) {
+      for (const field of this.arrowSchema.fields) {
+        const columnName = field.name;
+        const value = row[columnName];
+        columnData[columnName].push(value);
+      }
+    }
+    
+    return columnData;
+  }
+
+  /**
+   * Map SQLite types to Arrow types
+   * Required by ArrowBuilder abstract class
+   */
+  _mapSourceTypeToArrow(sqliteType) {
+    const type = sqliteType.toLowerCase();
+    
+    if (type.includes('int')) {
+      return new arrow.Int64();
+    } else if (type.includes('real') || type.includes('float') || type.includes('double')) {
+      return new arrow.Float64();
+    } else if (type.includes('text') || type.includes('char') || type.includes('varchar')) {
+      return new arrow.Utf8();
+    } else if (type.includes('blob')) {
+      return new arrow.Binary();
+    } else if (type.includes('boolean') || type.includes('bool')) {
+      return new arrow.Bool();
+    } else {
+      // Default to string for unknown types
+      return new arrow.Utf8();
+    }
+  }
+
+  /**
+   * SQLite-specific helper: Get schema from table info
+   */
+  static createSchemaFromTableInfo(tableInfo) {
+    const schema = {};
+    for (const column of tableInfo) {
+      schema[column.name] = column.type;
+    }
+    return schema;
+  }
+}
+```
+
+### Step 5.2: Create a SQLite Flight Service
+
+Next, create a `SQLiteFlightService` that extends `FlightServiceBase`:
+
+```javascript
+// sqlite-flight-service.js
+import { FlightServiceBase } from '@flightstream/core';
+import { SQLiteArrowBuilder } from './sqlite-arrow-builder.js';
 import Database from 'better-sqlite3';
 
-export class DatabaseFlightService extends FlightServiceBase {
+/**
+ * SQLite Flight Service
+ * 
+ * Extends FlightServiceBase to provide SQLite database support.
+ * Discovers tables automatically and streams them via Arrow Flight.
+ */
+export class SQLiteFlightService extends FlightServiceBase {
   constructor(options = {}) {
     super(options);
+    
     this.dbPath = options.dbPath || './data.db';
+    this.batchSize = options.batchSize || 10000;
     this.db = null;
   }
 
+  /**
+   * Initialize the SQLite service
+   * Required by FlightServiceBase abstract class
+   */
   async _initialize() {
-    // Connect to database
-    this.db = new Database(this.dbPath);
-    
-    // Discover tables
+    try {
+      console.log(`🗄️  Connecting to SQLite database: ${this.dbPath}`);
+      this.db = new Database(this.dbPath);
+      
+      // Discover and register tables
+      await this._initializeDatasets();
+      
+      console.log(`✅ SQLite service initialized with ${this.datasets.size} tables`);
+    } catch (error) {
+      console.error('❌ Error initializing SQLite service:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Discover and register database tables as datasets
+   * Required by FlightServiceBase abstract class  
+   */
+  async _initializeDatasets() {
+    // Get all user tables (exclude SQLite system tables)
     const tables = this.db.prepare(`
       SELECT name FROM sqlite_master 
       WHERE type='table' AND name NOT LIKE 'sqlite_%'
     `).all();
 
+    console.log(`📋 Found ${tables.length} tables in database`);
+
     for (const table of tables) {
-      const schema = await this._inferSchemaForDataset(table.name);
-      this.datasets.set(table.name, {
-        id: table.name,
-        schema: schema,
-        metadata: { type: 'database', table: table.name }
-      });
+      try {
+        const tableName = table.name;
+        
+        // Infer Arrow schema from table structure
+        const schema = await this._inferSchemaForDataset(tableName);
+        
+        // Get table metadata
+        const rowCount = this.db.prepare(`SELECT COUNT(*) as count FROM ${tableName}`).get().count;
+        
+        // Register the table as a dataset
+        this.datasets.set(tableName, {
+          id: tableName,
+          schema: schema,
+          metadata: { 
+            type: 'sqlite-table',
+            tableName: tableName,
+            totalRecords: rowCount,
+            totalBytes: -1 // Unknown for database tables
+          }
+        });
+        
+        console.log(`📊 Registered table: ${tableName} (${rowCount} rows)`);
+        
+      } catch (error) {
+        console.warn(`⚠️  Failed to register table ${table.name}:`, error.message);
+      }
     }
   }
 
+  /**
+   * Infer Arrow schema from SQLite table structure
+   * Required by FlightServiceBase abstract class
+   */
   async _inferSchemaForDataset(tableName) {
-    // Query sample data to infer schema
-    const sample = this.db.prepare(`SELECT * FROM ${tableName} LIMIT 1`).get();
+    // Get column information using SQLite PRAGMA
+    const tableInfo = this.db.prepare(`PRAGMA table_info(${tableName})`).all();
     
-    // Convert to CSV-like schema for ArrowBuilder
-    const csvSchema = {};
-    for (const [key, value] of Object.entries(sample)) {
-      csvSchema[key] = typeof value === 'number' ? 'float64' : 'string';
+    if (tableInfo.length === 0) {
+      throw new Error(`Table ${tableName} has no columns`);
     }
     
-    const arrowBuilder = new ArrowBuilder(csvSchema);
+    // Convert SQLite column info to schema format
+    const sqliteSchema = SQLiteArrowBuilder.createSchemaFromTableInfo(tableInfo);
+    
+    // Create Arrow schema using our custom builder
+    const arrowBuilder = new SQLiteArrowBuilder(sqliteSchema);
     return arrowBuilder.getSchema();
   }
 
+  /**
+   * Stream table data as Arrow record batches
+   * Required by FlightServiceBase abstract class
+   */
   async _streamDataset(call, dataset) {
     const tableName = dataset.id;
-    const batchSize = 10000;
-    let offset = 0;
-
-    while (true) {
-      // Get batch of data
-      const rows = this.db.prepare(`
-        SELECT * FROM ${tableName} 
-        LIMIT ${batchSize} OFFSET ${offset}
-      `).all();
-
-      if (rows.length === 0) break;
-
-      // Convert to Arrow and stream
-      const arrowBuilder = new ArrowBuilder(dataset.schema);
-      const recordBatch = arrowBuilder.createRecordBatch(rows);
-      const serialized = arrowBuilder.serializeRecordBatch(recordBatch);
-
-      call.write({
-        flight_descriptor: { type: 1, path: [tableName] },
-        app_metadata: Buffer.alloc(0),
-        data_header: serialized.header,
-        data_body: serialized.body
-      });
-
-      offset += batchSize;
-    }
+    console.log(`🚀 Streaming SQLite table: ${tableName}`);
     
-    call.end();
+    try {
+      let offset = 0;
+      let totalBatches = 0;
+      let totalRows = 0;
+      const startTime = Date.now();
+
+      // Get table schema for Arrow builder
+      const tableInfo = this.db.prepare(`PRAGMA table_info(${tableName})`).all();
+      const sqliteSchema = SQLiteArrowBuilder.createSchemaFromTableInfo(tableInfo);
+      const arrowBuilder = new SQLiteArrowBuilder(sqliteSchema);
+
+      // Stream data in batches
+      while (true) {
+        // Fetch next batch from database
+        const rows = this.db.prepare(`
+          SELECT * FROM ${tableName} 
+          LIMIT ${this.batchSize} OFFSET ${offset}
+        `).all();
+
+        // No more data
+        if (rows.length === 0) break;
+
+        // Convert SQLite rows to Arrow record batch
+        const recordBatch = arrowBuilder.createRecordBatch(rows);
+        if (!recordBatch) {
+          console.warn('⚠️  Failed to create record batch, skipping');
+          break;
+        }
+
+        // Serialize record batch for Flight protocol
+        const serializedBatch = arrowBuilder.serializeRecordBatch(recordBatch);
+        if (!serializedBatch) {
+          console.warn('⚠️  Failed to serialize record batch, skipping');
+          break;
+        }
+
+        // Send Flight data message to client
+        call.write({
+          flight_descriptor: {
+            type: 1, // PATH descriptor type
+            path: [tableName]
+          },
+          data_header: serializedBatch.slice(0, 4), // IPC message header
+          data_body: serializedBatch.slice(4)      // IPC message body
+        });
+
+        // Update progress
+        totalBatches++;
+        totalRows += rows.length;
+        offset += this.batchSize;
+
+        console.log(`📦 Sent batch ${totalBatches}: ${rows.length} rows (total: ${totalRows})`);
+      }
+      
+      const processingTime = Date.now() - startTime;
+      console.log(`✅ Completed streaming ${tableName}: ${totalRows} rows in ${totalBatches} batches (${processingTime}ms)`);
+      
+      // Signal end of stream
+      call.end();
+      
+    } catch (error) {
+      console.error(`❌ Error streaming table ${tableName}:`, error);
+      call.emit('error', error);
+    }
+  }
+
+  /**
+   * Clean up database connection
+   */
+  async stop() {
+    if (this.db) {
+      console.log('🔌 Closing SQLite database connection');
+      this.db.close();
+      this.db = null;
+    }
+  }
+
+  /**
+   * Get SQLite-specific statistics
+   */
+  getSQLiteStats() {
+    if (!this.db) return null;
+    
+    const stats = {
+      dbPath: this.dbPath,
+      totalTables: this.datasets.size,
+      batchSize: this.batchSize,
+      tables: []
+    };
+
+    for (const [tableName, dataset] of this.datasets) {
+      stats.tables.push({
+        name: tableName,
+        rows: dataset.metadata.totalRecords,
+        columns: dataset.schema.fields.length,
+        schema: dataset.schema.fields.map(f => ({
+          name: f.name,
+          type: f.type.toString()
+        }))
+      });
+    }
+
+    return stats;
   }
 }
+```
+
+### Step 5.3: Use Your Custom Adapter
+
+Now use your custom SQLite adapter in a server:
+
+```javascript
+// my-sqlite-server.js
+import { FlightServer } from '@flightstream/core';
+import { SQLiteFlightService } from './sqlite-flight-service.js';
+
+const server = new FlightServer({
+  host: 'localhost',
+  port: 8080,
+  maxReceiveMessageLength: 100 * 1024 * 1024,
+  maxSendMessageLength: 100 * 1024 * 1024
+});
+
+const sqliteService = new SQLiteFlightService({
+  dbPath: './my-database.db',
+  batchSize: 50000
+});
+
+// Wait for service to initialize, then start server
+sqliteService.initialize().then(() => {
+  server.setFlightService(sqliteService);
+  return server.start();
+}).then((port) => {
+  console.log(`🚀 SQLite Flight Server running on port ${port}`);
+  
+  // Show available tables
+  const stats = sqliteService.getSQLiteStats();
+  console.log(`📊 Serving ${stats.totalTables} tables:`);
+  stats.tables.forEach(table => {
+    console.log(`  • ${table.name} (${table.rows} rows, ${table.columns} columns)`);
+  });
+}).catch(error => {
+  console.error('Failed to start server:', error);
+});
+
+// Graceful shutdown
+process.on('SIGINT', async () => {
+  console.log('\n🛑 Shutting down...');
+  await sqliteService.stop();
+  await server.stop();
+  process.exit(0);
+});
 ```
 
 ## 🚀 Step 6: Production Deployment

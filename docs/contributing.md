@@ -211,8 +211,8 @@ Create a new adapter by extending `FlightServiceBase`:
 
 ```javascript
 // packages/my-adapter/src/my-adapter.js
-import { FlightServiceBase } from '@ggauravr/arrow-flight-node-core';
-import { ArrowBuilder } from '@ggauravr/arrow-flight-node-utils';
+import { FlightServiceBase } from '@flightstream/core';
+import { ArrowBuilder } from '@flightstream/utils';
 
 export class MyFlightService extends FlightServiceBase {
   constructor(options = {}) {
