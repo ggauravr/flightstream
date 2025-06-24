@@ -27,11 +27,11 @@ import { CSVArrowBuilder } from './csv-arrow-builder.js';
 
 /**
  * CSV Service for Arrow Flight Server
- * 
+ *
  * This adapter extends FlightServiceBase to provide CSV file support.
  * It scans a directory for CSV files, infers their schemas, and streams
  * them as Arrow data via the Flight protocol.
- * 
+ *
  * Features:
  * 1. Automatic CSV file discovery
  * 2. Schema inference from CSV headers and data
@@ -42,7 +42,7 @@ import { CSVArrowBuilder } from './csv-arrow-builder.js';
 export class CSVFlightService extends FlightServiceBase {
   constructor(options = {}) {
     super(options);
-    
+
     this.csvOptions = {
       dataDirectory: options.dataDirectory || './data',
       batchSize: options.batchSize || 10000,
@@ -93,15 +93,15 @@ export class CSVFlightService extends FlightServiceBase {
       }
 
       const files = fs.readdirSync(dataDir).filter(file => file.endsWith('.csv'));
-      
+
       for (const file of files) {
         const filePath = path.join(dataDir, file);
         const datasetId = path.basename(file, '.csv');
-        
+
         try {
           // Infer schema from CSV file
           const schema = await this._inferSchemaForDataset(filePath);
-          
+
           // Register dataset
           this.datasets.set(datasetId, {
             id: datasetId,
@@ -115,7 +115,7 @@ export class CSVFlightService extends FlightServiceBase {
               type: 'csv'
             }
           });
-          
+
           console.log(`Registered CSV dataset: ${datasetId} (${file})`);
         } catch (error) {
           console.warn(`Failed to register CSV dataset ${file}:`, error.message);
@@ -140,28 +140,28 @@ export class CSVFlightService extends FlightServiceBase {
 
     return new Promise((resolve, reject) => {
       // Create a streamer that reads just 1 batch for schema inference
-      const streamer = new CSVStreamer(filePath, { 
+      const streamer = new CSVStreamer(filePath, {
         batchSize: 1,
         delimiter: this.csvOptions.delimiter,
         headers: this.csvOptions.headers,
         skipEmptyLines: this.csvOptions.skipEmptyLines
       });
-      
+
       // When schema is inferred from CSV headers and first rows
       streamer.on('schema', (csvSchema) => {
         streamer.stop();
-        
+
         // Convert CSV schema to Arrow schema using CSVArrowBuilder
         const arrowBuilder = new CSVArrowBuilder(csvSchema);
         const arrowSchema = arrowBuilder.getSchema();
-        
+
         resolve(arrowSchema);
       });
-      
+
       streamer.on('error', (error) => {
         reject(error);
       });
-      
+
       streamer.start().catch(reject);
     });
   }
@@ -173,7 +173,7 @@ export class CSVFlightService extends FlightServiceBase {
    */
   async _streamDataset(call, dataset) {
     console.log(`Streaming CSV dataset: ${dataset.id}`);
-    
+
     try {
       // Create CSV streamer with configured options
       const streamer = new CSVStreamer(dataset.filePath, {
@@ -228,9 +228,9 @@ export class CSVFlightService extends FlightServiceBase {
 
           totalBatches++;
           totalRows += csvBatch.length;
-          
+
           console.log(`Sent batch ${totalBatches} with ${csvBatch.length} rows (total: ${totalRows})`);
-          
+
         } catch (error) {
           console.error('Error processing batch:', error);
         }
@@ -260,7 +260,7 @@ export class CSVFlightService extends FlightServiceBase {
       // Start streaming
       const startTime = Date.now();
       await streamer.start();
-      
+
     } catch (error) {
       console.error(`Error streaming CSV dataset ${dataset.id}:`, error);
       call.emit('error', error);
@@ -297,4 +297,4 @@ export class CSVFlightService extends FlightServiceBase {
   }
 }
 
-export default CSVFlightService; 
+export default CSVFlightService;

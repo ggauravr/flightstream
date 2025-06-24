@@ -1,0 +1,114 @@
+name: Bug Report
+description: File a bug report to help us improve FlightStream
+title: "[Bug]: "
+labels: ["bug", "triage"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bug report! 🐛
+
+  - type: input
+    id: version
+    attributes:
+      label: FlightStream Version
+      description: What version of FlightStream are you running?
+      placeholder: e.g., 1.0.0
+    validations:
+      required: true
+
+  - type: dropdown
+    id: package
+    attributes:
+      label: Which package is affected?
+      multiple: true
+      options:
+        - "@flightstream/core"
+        - "@flightstream/csv-service"
+        - "@flightstream/utils"
+        - "@flightstream/examples"
+        - "Other (please specify)"
+    validations:
+      required: true
+
+  - type: input
+    id: node-version
+    attributes:
+      label: Node.js Version
+      description: What version of Node.js are you running?
+      placeholder: e.g., 20.10.0
+    validations:
+      required: true
+
+  - type: input
+    id: os
+    attributes:
+      label: Operating System
+      description: What operating system are you using?
+      placeholder: e.g., Ubuntu 22.04, macOS 13.0, Windows 11
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: A clear and concise description of what the bug is.
+      placeholder: Describe the bug...
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to Reproduce
+      description: Steps to reproduce the behavior
+      placeholder: |
+        1. Start the server with...
+        2. Connect using...
+        3. Send request...
+        4. See error...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: A clear and concise description of what you expected to happen.
+      placeholder: What should have happened?
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual Behavior
+      description: What actually happened instead?
+      placeholder: What actually happened?
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant Log Output
+      description: Please copy and paste any relevant log output. This will be automatically formatted into code, so no need for backticks.
+      render: shell
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Add any other context about the problem here, such as configuration files, client code, etc.
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Code of Conduct
+      description: By submitting this issue, you agree to follow our Code of Conduct
+      options:
+        - label: I agree to follow this project's Code of Conduct
+          required: true 

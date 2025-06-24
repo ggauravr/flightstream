@@ -19,10 +19,10 @@
 
 /**
  * Generic Schema Inference Utilities
- * 
+ *
  * This module provides utilities for inferring Arrow schemas from various data formats.
  * It supports multiple data types and provides extensible type inference patterns.
- * 
+ *
  * Key features:
  * 1. Type inference from sample data
  * 2. Support for multiple data formats (CSV, JSON, etc.)
@@ -49,28 +49,28 @@ export function inferType(value, options = {}) {
   }
 
   const strValue = String(value).trim();
-  
+
   // Boolean detection
   if (isBooleanValue(strValue)) {
     return 'boolean';
   }
-  
+
   // Numeric detection
   const numericType = inferNumericType(strValue, { strictMode, integerThreshold });
   if (numericType) {
     return numericType;
   }
-  
+
   // Date detection
   if (isDateValue(strValue, dateFormats)) {
     return 'date';
   }
-  
+
   // Timestamp detection
   if (isTimestampValue(strValue)) {
     return 'timestamp';
   }
-  
+
   // Default to string
   return 'string';
 }
@@ -95,7 +95,7 @@ export function inferSchema(samples, options = {}) {
 
   // Use subset of samples for performance
   const sampleData = samples.slice(0, sampleSize);
-  
+
   // Extract all column names from samples
   const columnNames = new Set();
   sampleData.forEach(record => {
@@ -105,19 +105,19 @@ export function inferSchema(samples, options = {}) {
   });
 
   const schema = {};
-  
+
   // Infer type for each column
   for (const columnName of columnNames) {
     const columnValues = sampleData
       .map(record => record && record[columnName])
       .filter(value => value !== undefined);
-    
+
     const inferredType = inferColumnType(columnValues, {
       confidenceThreshold,
       nullThreshold,
       ...typeOptions
     });
-    
+
     schema[columnName] = inferredType;
   }
 
@@ -132,7 +132,7 @@ export function inferSchema(samples, options = {}) {
  */
 export function inferColumnType(values, options = {}) {
   const { confidenceThreshold = 0.8, nullThreshold = 0.5 } = options;
-  
+
   if (!values || values.length === 0) {
     return 'string';
   }
@@ -140,7 +140,7 @@ export function inferColumnType(values, options = {}) {
   // Count null values
   const nullCount = values.filter(v => v === null || v === undefined || v === '').length;
   const nullRatio = nullCount / values.length;
-  
+
   // If too many nulls, default to string
   if (nullRatio > nullThreshold) {
     return 'string';
@@ -148,7 +148,7 @@ export function inferColumnType(values, options = {}) {
 
   // Get non-null values for type inference
   const nonNullValues = values.filter(v => v !== null && v !== undefined && v !== '');
-  
+
   if (nonNullValues.length === 0) {
     return 'string';
   }
@@ -163,7 +163,7 @@ export function inferColumnType(values, options = {}) {
   // Find the most common type
   const sortedTypes = Object.entries(typeCounts)
     .sort(([,a], [,b]) => b - a);
-  
+
   const [mostCommonType, count] = sortedTypes[0];
   const confidence = count / nonNullValues.length;
 
@@ -194,7 +194,7 @@ function isBooleanValue(value) {
  */
 function inferNumericType(value, options = {}) {
   const { strictMode = false, integerThreshold = Number.MAX_SAFE_INTEGER } = options;
-  
+
   // Integer detection
   if (/^-?\d+$/.test(value)) {
     const intValue = parseInt(value, 10);
@@ -204,22 +204,22 @@ function inferNumericType(value, options = {}) {
       return 'string'; // Too large for safe integer
     }
   }
-  
+
   // Float detection
   if (/^-?\d*\.\d+$/.test(value) || /^-?\d+\.?\d*[eE][+-]?\d+$/.test(value)) {
     return 'float64';
   }
-  
+
   // Percentage
   if (/^-?\d*\.?\d+%$/.test(value)) {
     return strictMode ? 'string' : 'float64';
   }
-  
+
   // Currency (simple detection)
   if (/^[\$€£¥]\d+\.?\d*$/.test(value)) {
     return strictMode ? 'string' : 'float64';
   }
-  
+
   return null;
 }
 
@@ -342,9 +342,9 @@ function isValidArrowType(type) {
  */
 export function generateArrowSchema(schema, options = {}) {
   const { nullable = true } = options;
-  
+
   const arrowFields = [];
-  
+
   for (const [columnName, type] of Object.entries(schema)) {
     arrowFields.push({
       name: columnName,
@@ -352,7 +352,7 @@ export function generateArrowSchema(schema, options = {}) {
       nullable: nullable
     });
   }
-  
+
   return {
     fields: arrowFields,
     metadata: {
@@ -376,7 +376,7 @@ function mapToArrowType(type) {
     'timestamp': 'timestamp',
     'string': 'utf8'
   };
-  
+
   return typeMapping[type] || 'utf8';
 }
 
@@ -386,4 +386,4 @@ export default {
   inferColumnType,
   normalizeSchema,
   generateArrowSchema
-}; 
+};

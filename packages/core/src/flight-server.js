@@ -32,11 +32,11 @@ const __dirname = path.dirname(__filename);
 
 /**
  * Generic Arrow Flight Server
- * 
+ *
  * This class provides a generic gRPC server for Arrow Flight protocol that works
  * with any Flight service adapter. It uses a plugin architecture where the actual
  * data management is handled by pluggable service adapters (CSV, Parquet, Database, etc.)
- * 
+ *
  * Key features:
  * 1. Generic gRPC server setup with Arrow Flight protocol
  * 2. Plugin architecture for data source adapters
@@ -56,13 +56,13 @@ export class FlightServer {
       protoPath: options.protoPath || path.join(__dirname, '../proto/flight.proto'),
       ...options
     };
-    
+
     // The underlying gRPC server instance
     this.server = null;
-    
+
     // Flight service adapter (CSV, Parquet, Database, etc.)
     this.flightService = null;
-    
+
     // Protocol handlers
     this.protocolHandlers = null;
   }
@@ -87,7 +87,7 @@ export class FlightServer {
 
     // Load the Arrow Flight protocol definition
     const PROTO_PATH = this.options.protoPath;
-    
+
     // Parse the protocol buffer definition
     const packageDefinition = protoLoader.loadSync(PROTO_PATH, {
       keepCase: true,     // Preserve field name casing from proto file
@@ -135,13 +135,13 @@ export class FlightServer {
 
       // Initialize gRPC server
       this._initializeGrpcServer();
-      
+
       // Register the gRPC service (now that server is initialized)
       this._registerGrpcService();
 
       // Bind server to host and port
       const serverAddress = `${this.options.host}:${this.options.port}`;
-      
+
       this.server.bindAsync(serverAddress, grpc.ServerCredentials.createInsecure(), (error, port) => {
         if (error) {
           console.error('Failed to bind server:', error);
@@ -150,10 +150,10 @@ export class FlightServer {
         }
 
         console.log(`🚀 Arrow Flight Server bound to ${serverAddress}`);
-        
+
         // Start the server
         this.server.start();
-        
+
         console.log(`✅ Arrow Flight Server started on port ${port}`);
         resolve(port);
       });
@@ -172,7 +172,7 @@ export class FlightServer {
       }
 
       console.log('🛑 Stopping Arrow Flight Server...');
-      
+
       // Try graceful shutdown first
       this.server.tryShutdown((error) => {
         if (error) {
@@ -180,7 +180,7 @@ export class FlightServer {
           // Force shutdown
           this.server.forceShutdown();
         }
-        
+
         console.log('✅ Arrow Flight Server stopped');
         this.server = null;
         resolve();
@@ -213,4 +213,4 @@ export class FlightServer {
   }
 }
 
-export default FlightServer; 
+export default FlightServer;

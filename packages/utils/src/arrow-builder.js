@@ -22,11 +22,11 @@ import { vectorFromArray, makeData } from 'apache-arrow';
 
 /**
  * Abstract Arrow Builder Base Class
- * 
+ *
  * This abstract class provides the generic infrastructure for building Apache Arrow
  * data structures from various data sources. It handles the common Arrow operations
  * while requiring subclasses to implement data source-specific logic.
- * 
+ *
  * Generic features provided:
  * 1. Arrow vector creation from column arrays
  * 2. Record batch construction with proper batching
@@ -34,7 +34,7 @@ import { vectorFromArray, makeData } from 'apache-arrow';
  * 4. IPC serialization for Flight protocol
  * 5. Error handling for type conversion edge cases
  * 6. Table creation and schema management
- * 
+ *
  * Subclasses must implement:
  * - _buildArrowSchema(): Create Arrow schema from source schema
  * - _transformDataToColumns(): Convert source data format to column arrays
@@ -45,14 +45,14 @@ export class ArrowBuilder {
     if (this.constructor === ArrowBuilder) {
       throw new Error('ArrowBuilder is abstract and cannot be instantiated directly');
     }
-    
+
     this.sourceSchema = sourceSchema;
     this.options = {
       recordBatchSize: options.recordBatchSize || 65536,
       nullValue: options.nullValue || null,
       ...options
     };
-    
+
     this.arrowSchema = null;
     this._buildArrowSchema();
   }
@@ -103,7 +103,7 @@ export class ArrowBuilder {
 
     // Use abstract method to transform source data to columns
     const columnData = this._transformDataToColumns(sourceData);
-    
+
     // Create Arrow vectors using generic logic
     return this.createRecordBatchFromColumns(columnData);
   }
@@ -121,20 +121,20 @@ export class ArrowBuilder {
 
     // Create Arrow vectors for each column
     const vectors = [];
-    
+
     for (const field of this.arrowSchema.fields) {
       const columnName = field.name;
       const data = columnData[columnName] || [];
       const vector = this._createVector(field, data);
       vectors.push(vector);
     }
-    
+
     // Create record batch using the correct API
     const data = makeData({
       type: new arrow.Struct(this.arrowSchema.fields),
       children: vectors.map(vector => vector.data[0])
     });
-    
+
     return new arrow.RecordBatch(this.arrowSchema, data);
   }
 
@@ -147,61 +147,61 @@ export class ArrowBuilder {
    */
   _createVector(field, data) {
     const arrowType = field.type;
-    
+
     try {
       switch (arrowType.constructor) {
-        case arrow.Bool:
-          return vectorFromArray(
-            data.map(v => v === null ? null : Boolean(v)),
-            arrowType
-          );
-          
-        case arrow.Int64:
-          return vectorFromArray(
-            data.map(v => {
-              if (v === null) return null;
-              const parsed = this._safeParseInt(v);
-              return parsed === null ? null : BigInt(parsed);
-            }),
-            arrowType
-          );
-          
-        case arrow.Int32:
-          return vectorFromArray(
-            data.map(v => v === null ? null : this._safeParseInt(v)),
-            arrowType
-          );
-          
-        case arrow.Float64:
-          return vectorFromArray(
-            data.map(v => v === null ? null : this._safeParseFloat(v)),
-            arrowType
-          );
-          
-        case arrow.Float32:
-          return vectorFromArray(
-            data.map(v => v === null ? null : this._safeParseFloat(v)),
-            arrowType
-          );
-          
-        case arrow.DateMillisecond:
-          return vectorFromArray(
-            data.map(v => v === null ? null : this._safeParseDateMillis(v)),
-            arrowType
-          );
-          
-        case arrow.TimestampMillisecond:
-          return vectorFromArray(
-            data.map(v => v === null ? null : this._safeParseDateMillis(v)),
-            arrowType
-          );
-          
-        case arrow.Utf8:
-        default:
-          return vectorFromArray(
-            data.map(v => v === null ? null : String(v)),
-            arrowType
-          );
+      case arrow.Bool:
+        return vectorFromArray(
+          data.map(v => v === null ? null : Boolean(v)),
+          arrowType
+        );
+
+      case arrow.Int64:
+        return vectorFromArray(
+          data.map(v => {
+            if (v === null) return null;
+            const parsed = this._safeParseInt(v);
+            return parsed === null ? null : BigInt(parsed);
+          }),
+          arrowType
+        );
+
+      case arrow.Int32:
+        return vectorFromArray(
+          data.map(v => v === null ? null : this._safeParseInt(v)),
+          arrowType
+        );
+
+      case arrow.Float64:
+        return vectorFromArray(
+          data.map(v => v === null ? null : this._safeParseFloat(v)),
+          arrowType
+        );
+
+      case arrow.Float32:
+        return vectorFromArray(
+          data.map(v => v === null ? null : this._safeParseFloat(v)),
+          arrowType
+        );
+
+      case arrow.DateMillisecond:
+        return vectorFromArray(
+          data.map(v => v === null ? null : this._safeParseDateMillis(v)),
+          arrowType
+        );
+
+      case arrow.TimestampMillisecond:
+        return vectorFromArray(
+          data.map(v => v === null ? null : this._safeParseDateMillis(v)),
+          arrowType
+        );
+
+      case arrow.Utf8:
+      default:
+        return vectorFromArray(
+          data.map(v => v === null ? null : String(v)),
+          arrowType
+        );
       }
     } catch (error) {
       console.warn(`Error creating vector for field ${field.name}:`, error);
@@ -261,7 +261,7 @@ export class ArrowBuilder {
     if (!Array.isArray(recordBatches) || recordBatches.length === 0) {
       return null;
     }
-    
+
     return new arrow.Table(this.arrowSchema, recordBatches);
   }
 
@@ -280,7 +280,7 @@ export class ArrowBuilder {
    */
   serializeRecordBatch(recordBatch) {
     if (!recordBatch) return null;
-    
+
     try {
       // Create a table from the record batch and serialize to IPC format
       const table = new arrow.Table([recordBatch]);
@@ -298,7 +298,7 @@ export class ArrowBuilder {
    */
   serializeSchema() {
     if (!this.arrowSchema) return null;
-    
+
     try {
       // Create an empty table with just the schema and serialize
       const emptyVectors = this.arrowSchema.fields.map(field => {
@@ -331,7 +331,7 @@ export class ArrowBuilder {
    */
   getStats(recordBatch) {
     if (!recordBatch) return null;
-    
+
     return {
       numRows: recordBatch.numRows,
       numColumns: recordBatch.numCols,
@@ -339,4 +339,4 @@ export class ArrowBuilder {
       types: recordBatch.schema.fields.map(field => field.type.toString())
     };
   }
-} 
+}
