@@ -10,7 +10,7 @@
     "./csv-streamer": "./src/csv-streamer.js"
   },
   "scripts": {
-    "test": "jest",
+    "test": "NODE_OPTIONS=\"--experimental-vm-modules\" jest",
     "lint": "eslint src/**/*.js"
   },
   "keywords": [

@@ -13,10 +13,10 @@ describe('CSV Service Test Setup', () => {
   });
 
   it('should have access to test utilities', () => {
-    expect(jest).toBeDefined();
-    expect(describe).toBeDefined();
-    expect(it).toBeDefined();
-    expect(beforeEach).toBeDefined();
-    expect(afterEach).toBeDefined();
+    expect(typeof describe).toBe('function');
+    expect(typeof it).toBe('function');
+    expect(typeof beforeEach).toBe('function');
+    expect(typeof afterEach).toBe('function');
+    expect(global.CSVTestUtils).toBeDefined();
   });
 }); 

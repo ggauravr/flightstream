@@ -2,18 +2,29 @@
  * Jest setup for @flightstream/csv-service package
  */
 
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Set test timeout for file operations
-jest.setTimeout(30000);
+if (typeof jest !== 'undefined') {
+  jest.setTimeout(30000);
+}
 
 // Mock console output to avoid noise
 global.originalConsoleLog = console.log;
 global.originalConsoleWarn = console.warn;
 beforeEach(() => {
-  console.log = jest.fn();
-  console.warn = jest.fn();
+  if (typeof jest !== 'undefined') {
+    console.log = jest.fn();
+    console.warn = jest.fn();
+  } else {
+    console.log = () => {};
+    console.warn = () => {};
+  }
 });
 
 afterEach(() => {
