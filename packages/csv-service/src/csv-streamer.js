@@ -23,11 +23,11 @@ import { EventEmitter } from 'events';
 
 /**
  * CSV Streamer
- * 
+ *
  * This class handles streaming CSV files and converting them to structured data.
  * It provides batch processing, schema inference, and type conversion capabilities
  * specifically optimized for CSV data sources.
- * 
+ *
  * Features:
  * 1. Streaming CSV parsing for memory efficiency
  * 2. Automatic schema inference from headers and data
@@ -46,7 +46,7 @@ export class CSVStreamer extends EventEmitter {
       skipEmptyLines: options.skipEmptyLines !== false, // default true
       ...options
     };
-    
+
     this.currentBatch = [];
     this.totalRows = 0;
     this.schema = null;
@@ -105,7 +105,7 @@ export class CSVStreamer extends EventEmitter {
           this.emit('batch', [...this.currentBatch]);
           this.currentBatch = [];
         }
-        
+
         this.isReading = false;
         this.emit('end', { totalRows: this.totalRows });
         resolve({ totalRows: this.totalRows, schema: this.schema });
@@ -122,11 +122,11 @@ export class CSVStreamer extends EventEmitter {
 
   _inferSchema(sampleRow) {
     const schema = {};
-    
+
     for (const [key, value] of Object.entries(sampleRow)) {
       schema[key] = this._inferType(value);
     }
-    
+
     return schema;
   }
 
@@ -136,51 +136,51 @@ export class CSVStreamer extends EventEmitter {
     }
 
     const strValue = String(value).trim();
-    
+
     // Boolean
     if (strValue.toLowerCase() === 'true' || strValue.toLowerCase() === 'false') {
       return 'boolean';
     }
-    
+
     // Integer
     if (/^-?\d+$/.test(strValue)) {
       return 'int64';
     }
-    
+
     // Float
     if (/^-?\d*\.\d+$/.test(strValue)) {
       return 'float64';
     }
-    
+
     // Date (simple YYYY-MM-DD format)
     if (/^\d{4}-\d{2}-\d{2}$/.test(strValue)) {
       return 'date';
     }
-    
+
     // mm-dd-yyyy format
     if (/^\d{2}-\d{2}-\d{4}$/.test(strValue)) {
       return 'date';
     }
-    
-    // dd-mm-yyyy format  
+
+    // dd-mm-yyyy format
     if (/^\d{2}-\d{2}-\d{4}$/.test(strValue)) {
       return 'date';
     }
-    
+
     // Default to string
     return 'string';
   }
 
   _convertRowTypes(row) {
     if (!this.schema) return row;
-    
+
     const convertedRow = {};
-    
+
     for (const [key, value] of Object.entries(row)) {
       const expectedType = this.schema[key];
       convertedRow[key] = this._convertValue(value, expectedType);
     }
-    
+
     return convertedRow;
   }
 
@@ -190,19 +190,19 @@ export class CSVStreamer extends EventEmitter {
     }
 
     const strValue = String(value).trim();
-    
+
     try {
       switch (type) {
-        case 'boolean':
-          return strValue.toLowerCase() === 'true';
-        case 'int64':
-          return parseInt(strValue, 10);
-        case 'float64':
-          return parseFloat(strValue);
-        case 'date':
-          return new Date(strValue);
-        default:
-          return strValue;
+      case 'boolean':
+        return strValue.toLowerCase() === 'true';
+      case 'int64':
+        return parseInt(strValue, 10);
+      case 'float64':
+        return parseFloat(strValue);
+      case 'date':
+        return new Date(strValue);
+      default:
+        return strValue;
       }
     } catch (error) {
       // Return original value if conversion fails
@@ -220,4 +220,4 @@ export class CSVStreamer extends EventEmitter {
   }
 }
 
-export default CSVStreamer; 
+export default CSVStreamer;

@@ -21,11 +21,11 @@ import { EventEmitter } from 'events';
 
 /**
  * Abstract Base Class for Arrow Flight Services
- * 
+ *
  * This class defines the standard interface that all Flight service implementations
  * must provide. It serves as the contract between the generic Flight server
  * and specific data source adapters (CSV, Parquet, Database, etc.)
- * 
+ *
  * The plugin architecture allows:
  * 1. Easy addition of new data sources
  * 2. Consistent Flight protocol implementation
@@ -40,10 +40,10 @@ export class FlightServiceBase extends EventEmitter {
       port: options.port || 8080,
       ...options
     };
-    
+
     // Dataset registry: Maps dataset IDs to their metadata and schema information
     this.datasets = new Map();
-    
+
     // Initialize datasets after construction completes
     setImmediate(() => this._initializeAsync());
   }
@@ -103,13 +103,13 @@ export class FlightServiceBase extends EventEmitter {
 
   /**
    * ListFlights Implementation
-   * 
+   *
    * Arrow Flight discovery mechanism - returns information about all available datasets.
    * This is a server streaming RPC that sends FlightInfo objects for each dataset.
    */
   async listFlights(call) {
     console.log('ListFlights called');
-    
+
     try {
       // Stream FlightInfo for each registered dataset
       for (const [datasetId, dataset] of this.datasets) {
@@ -125,16 +125,16 @@ export class FlightServiceBase extends EventEmitter {
 
   /**
    * GetFlightInfo Implementation
-   * 
+   *
    * Returns detailed information about a specific dataset identified by FlightDescriptor.
    */
   async getFlightInfo(call) {
     try {
       console.log('GetFlightInfo called with request:', call.request);
-      
+
       const descriptor = call.request;
       const datasetId = this._extractDatasetId(descriptor);
-      
+
       console.log('Available datasets:', Array.from(this.datasets.keys()));
       console.log('Requested dataset ID:', datasetId);
 
@@ -143,10 +143,10 @@ export class FlightServiceBase extends EventEmitter {
         error.code = 5; // gRPC NOT_FOUND status code
         throw error;
       }
-      
+
       const dataset = this.datasets.get(datasetId);
       const flightInfo = await this._createFlightInfo(datasetId, dataset);
-      
+
       call.callback(null, flightInfo);
     } catch (error) {
       console.error('Error in getFlightInfo:', error);
@@ -156,24 +156,24 @@ export class FlightServiceBase extends EventEmitter {
 
   /**
    * GetSchema Implementation
-   * 
+   *
    * Returns just the Arrow schema for a dataset, without any data.
    */
   async getSchema(call) {
     try {
       console.log('GetSchema called');
-      
+
       const descriptor = call.request;
       const datasetId = this._extractDatasetId(descriptor);
-      
+
       if (!this.datasets.has(datasetId)) {
         const error = new Error(`Dataset not found: ${datasetId}`);
         error.code = 5; // gRPC NOT_FOUND status code
         throw error;
       }
-      
+
       const dataset = this.datasets.get(datasetId);
-      
+
       // Serialize Arrow schema using the proper Apache Arrow method
       let serializedSchema;
       try {
@@ -186,18 +186,18 @@ export class FlightServiceBase extends EventEmitter {
         console.warn('Error serializing schema, using fallback:', error);
         // Fallback: create a simple buffer representation
         const schemaInfo = {
-          fields: dataset.schema.fields.map(f => ({ 
-            name: f.name, 
-            type: f.type.toString() 
+          fields: dataset.schema.fields.map(f => ({
+            name: f.name,
+            type: f.type.toString()
           }))
         };
         serializedSchema = Buffer.from(JSON.stringify(schemaInfo));
       }
-      
+
       const schemaResult = {
         schema: serializedSchema
       };
-      
+
       call.callback(null, schemaResult);
     } catch (error) {
       console.error('Error in getSchema:', error);
@@ -207,25 +207,25 @@ export class FlightServiceBase extends EventEmitter {
 
   /**
    * DoGet Implementation
-   * 
+   *
    * The main data streaming operation - streams dataset as Arrow record batches.
    */
   async doGet(call) {
     try {
       console.log('DoGet called');
-      
+
       const ticket = call.request;
       const datasetId = ticket.ticket ? ticket.ticket.toString() : '';
-      
+
       if (!this.datasets.has(datasetId)) {
         const error = new Error(`Dataset not found: ${datasetId}`);
         error.code = 5; // gRPC NOT_FOUND status code
         throw error;
       }
-      
+
       const dataset = this.datasets.get(datasetId);
       await this._streamDataset(call, dataset);
-      
+
     } catch (error) {
       console.error('Error in doGet:', error);
       call.emit('error', error);
@@ -234,13 +234,13 @@ export class FlightServiceBase extends EventEmitter {
 
   /**
    * ListActions Implementation
-   * 
+   *
    * Lists available custom actions that can be executed via DoAction.
    * This is a server streaming RPC that sends ActionType objects for each available action.
    */
   async listActions(call) {
     console.log('ListActions called');
-    
+
     try {
       const actions = [
         {
@@ -252,14 +252,14 @@ export class FlightServiceBase extends EventEmitter {
           description: 'Get server information and statistics'
         }
       ];
-      
+
       for (const action of actions) {
         call.write({
           type: action.type,
           description: action.description
         });
       }
-      
+
       call.end();
     } catch (error) {
       console.error('Error in listActions:', error);
@@ -285,9 +285,9 @@ export class FlightServiceBase extends EventEmitter {
       console.warn('Error serializing schema, using fallback:', error);
       // Fallback: create a simple buffer representation
       const schemaInfo = {
-        fields: dataset.schema.fields.map(f => ({ 
-          name: f.name, 
-          type: f.type.toString() 
+        fields: dataset.schema.fields.map(f => ({
+          name: f.name,
+          type: f.type.toString()
         }))
       };
       serializedSchema = Buffer.from(JSON.stringify(schemaInfo));

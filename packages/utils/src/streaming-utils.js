@@ -21,11 +21,11 @@ import { EventEmitter } from 'events';
 
 /**
  * Streaming Utilities for Data Processing
- * 
+ *
  * This module provides common streaming patterns and utilities for processing
  * large datasets efficiently. It includes batching, backpressure handling,
  * error recovery, and memory management utilities.
- * 
+ *
  * Key features:
  * 1. Batch processing with configurable sizes
  * 2. Backpressure handling for stream control
@@ -36,7 +36,7 @@ import { EventEmitter } from 'events';
 
 /**
  * Base Stream Processor
- * 
+ *
  * Provides common streaming functionality that can be extended
  * by specific data source implementations.
  */
@@ -50,7 +50,7 @@ export class StreamProcessor extends EventEmitter {
       backpressureThreshold: options.backpressureThreshold || 50000,
       ...options
     };
-    
+
     this.isProcessing = false;
     this.totalProcessed = 0;
     this.errorCount = 0;
@@ -107,7 +107,7 @@ export class StreamProcessor extends EventEmitter {
    */
   addToBatch(item) {
     this.currentBatch.push(item);
-    
+
     if (this.currentBatch.length >= this.options.batchSize) {
       this.flushBatch();
     }
@@ -130,7 +130,7 @@ export class StreamProcessor extends EventEmitter {
   async handleBackpressure() {
     if (this.pendingBatches.length > this.options.backpressureThreshold) {
       this.emit('backpressure', { pendingBatches: this.pendingBatches.length });
-      
+
       // Wait for pending batches to clear
       while (this.pendingBatches.length > this.options.backpressureThreshold / 2 && this.isProcessing) {
         await new Promise(resolve => setTimeout(resolve, 100));
@@ -155,7 +155,7 @@ export class StreamProcessor extends EventEmitter {
 
 /**
  * Batch Processor
- * 
+ *
  * Processes data in configurable batches with memory management
  */
 export class BatchProcessor extends StreamProcessor {
@@ -173,25 +173,25 @@ export class BatchProcessor extends StreamProcessor {
   async processBatch(batch) {
     const batchId = Math.random().toString(36).substr(2, 9);
     this.activeBatches.add(batchId);
-    
+
     try {
       this.emit('batch-start', { batchId, size: batch.length });
-      
+
       const result = await this.processor(batch);
-      
+
       this.emit('batch-complete', { batchId, size: batch.length, result });
       return result;
-      
+
     } catch (error) {
       this.errorCount++;
       this.emit('batch-error', { batchId, size: batch.length, error });
-      
+
       // Retry logic
       if (this.errorCount <= this.options.errorRetries) {
         console.warn(`Batch processing failed, retrying (${this.errorCount}/${this.options.errorRetries}):`, error.message);
         return this.processBatch(batch);
       }
-      
+
       throw error;
     } finally {
       this.activeBatches.delete(batchId);
@@ -206,10 +206,10 @@ export class BatchProcessor extends StreamProcessor {
   async processBatches(batches) {
     const results = [];
     const semaphore = new Semaphore(this.options.maxConcurrency);
-    
+
     const promises = batches.map(async (batch, index) => {
       await semaphore.acquire();
-      
+
       try {
         const result = await this.processBatch(batch);
         results[index] = result;
@@ -218,7 +218,7 @@ export class BatchProcessor extends StreamProcessor {
         semaphore.release();
       }
     });
-    
+
     await Promise.all(promises);
     return results;
   }
@@ -233,7 +233,7 @@ export class BatchProcessor extends StreamProcessor {
 
 /**
  * Data Chunker
- * 
+ *
  * Splits data streams into configurable chunks
  */
 export class DataChunker {
@@ -277,24 +277,24 @@ export class DataChunker {
    */
   createStreamingChunker(onChunk) {
     let buffer = [];
-    
+
     return {
       add: (items) => {
         buffer.push(...items);
-        
+
         while (buffer.length >= this.options.chunkSize) {
           const chunk = buffer.splice(0, this.options.chunkSize);
           onChunk(chunk);
         }
       },
-      
+
       flush: () => {
         if (buffer.length > 0) {
           onChunk([...buffer]);
           buffer = [];
         }
       },
-      
+
       getBufferSize: () => buffer.length
     };
   }
@@ -302,7 +302,7 @@ export class DataChunker {
 
 /**
  * Stream Buffer
- * 
+ *
  * Provides buffering for smooth data flow
  */
 export class StreamBuffer extends EventEmitter {
@@ -314,7 +314,7 @@ export class StreamBuffer extends EventEmitter {
       highWaterMark: options.highWaterMark || 8000,
       ...options
     };
-    
+
     this.buffer = [];
     this.isReading = false;
     this.isDraining = false;
@@ -332,11 +332,11 @@ export class StreamBuffer extends EventEmitter {
     }
 
     this.buffer.push(data);
-    
+
     if (this.buffer.length >= this.options.highWaterMark && !this.isDraining) {
       this.emit('drain-needed');
     }
-    
+
     this.emit('data', data);
     return true;
   }
@@ -348,12 +348,12 @@ export class StreamBuffer extends EventEmitter {
    */
   read(count = 1) {
     const items = this.buffer.splice(0, count);
-    
+
     if (this.buffer.length <= this.options.lowWaterMark && this.isDraining) {
       this.isDraining = false;
       this.emit('drained');
     }
-    
+
     return items;
   }
 
@@ -420,7 +420,7 @@ export class RateLimiter {
       burstSize: options.burstSize || 10,
       ...options
     };
-    
+
     this.tokens = this.options.burstSize;
     this.lastRefill = Date.now();
   }
@@ -431,12 +431,12 @@ export class RateLimiter {
    */
   tryAcquire() {
     this.refillTokens();
-    
+
     if (this.tokens > 0) {
       this.tokens--;
       return true;
     }
-    
+
     return false;
   }
 
@@ -459,7 +459,7 @@ export class RateLimiter {
     const now = Date.now();
     const timePassed = now - this.lastRefill;
     const tokensToAdd = Math.floor((timePassed / 1000) * this.options.requestsPerSecond);
-    
+
     if (tokensToAdd > 0) {
       this.tokens = Math.min(this.options.burstSize, this.tokens + tokensToAdd);
       this.lastRefill = now;
@@ -473,4 +473,4 @@ export default {
   DataChunker,
   StreamBuffer,
   RateLimiter
-}; 
+};

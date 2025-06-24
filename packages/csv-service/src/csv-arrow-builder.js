@@ -22,17 +22,17 @@ import { ArrowBuilder } from '@flightstream/utils';
 
 /**
  * CSV-Specific Arrow Builder
- * 
+ *
  * This class extends the generic ArrowBuilder to provide CSV-specific functionality.
- * It handles CSV schema format conversion and transforms CSV row data into 
+ * It handles CSV schema format conversion and transforms CSV row data into
  * Arrow-compatible column arrays.
- * 
+ *
  * CSV-specific features:
  * 1. CSV schema to Arrow schema mapping
  * 2. CSV row objects to column arrays transformation
  * 3. CSV type inference integration
  * 4. Support for CSV-specific data patterns
- * 
+ *
  * Usage:
  *   const csvSchema = { id: 'int64', name: 'string', price: 'float64' };
  *   const builder = new CSVArrowBuilder(csvSchema);
@@ -52,12 +52,12 @@ export class CSVArrowBuilder extends ArrowBuilder {
    */
   _buildArrowSchema() {
     const fields = [];
-    
+
     for (const [columnName, csvType] of Object.entries(this.sourceSchema)) {
       const arrowType = this._mapSourceTypeToArrow(csvType);
       fields.push(arrow.Field.new(columnName, arrowType, true)); // nullable = true
     }
-    
+
     this.arrowSchema = new arrow.Schema(fields);
   }
 
@@ -73,12 +73,12 @@ export class CSVArrowBuilder extends ArrowBuilder {
     }
 
     const columnData = {};
-    
+
     // Initialize columns
     for (const field of this.arrowSchema.fields) {
       columnData[field.name] = [];
     }
-    
+
     // Transform rows to columns
     for (const row of csvBatch) {
       for (const field of this.arrowSchema.fields) {
@@ -87,7 +87,7 @@ export class CSVArrowBuilder extends ArrowBuilder {
         columnData[columnName].push(value);
       }
     }
-    
+
     return columnData;
   }
 
@@ -99,23 +99,23 @@ export class CSVArrowBuilder extends ArrowBuilder {
    */
   _mapSourceTypeToArrow(csvType) {
     switch (csvType) {
-      case 'boolean':
-        return new arrow.Bool();
-      case 'int32':
-        return new arrow.Int32();
-      case 'int64':
-        return new arrow.Int64();
-      case 'float32':
-        return new arrow.Float32();
-      case 'float64':
-        return new arrow.Float64();
-      case 'date':
-        return new arrow.DateMillisecond();
-      case 'timestamp':
-        return new arrow.TimestampMillisecond();
-      case 'string':
-      default:
-        return new arrow.Utf8();
+    case 'boolean':
+      return new arrow.Bool();
+    case 'int32':
+      return new arrow.Int32();
+    case 'int64':
+      return new arrow.Int64();
+    case 'float32':
+      return new arrow.Float32();
+    case 'float64':
+      return new arrow.Float64();
+    case 'date':
+      return new arrow.DateMillisecond();
+    case 'timestamp':
+      return new arrow.TimestampMillisecond();
+    case 'string':
+    default:
+      return new arrow.Utf8();
     }
   }
 
@@ -151,7 +151,7 @@ export class CSVArrowBuilder extends ArrowBuilder {
     // Check if all required columns are present
     const expectedColumns = Object.keys(this.csvSchema);
     const actualColumns = Object.keys(csvRow);
-    
+
     // Allow extra columns, but ensure all expected columns exist
     return expectedColumns.every(col => actualColumns.includes(col));
   }
@@ -176,7 +176,7 @@ export class CSVArrowBuilder extends ArrowBuilder {
     // Calculate per-column statistics
     for (const columnName of stats.columns) {
       const values = csvRows.map(row => row[columnName]).filter(v => v !== null && v !== undefined && v !== '');
-      
+
       stats.columnStats[columnName] = {
         nullCount: csvRows.length - values.length,
         uniqueCount: new Set(values).size,
@@ -186,4 +186,4 @@ export class CSVArrowBuilder extends ArrowBuilder {
 
     return stats;
   }
-} 
+}

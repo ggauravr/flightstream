@@ -19,10 +19,10 @@
 
 /**
  * Arrow Flight Protocol Handlers
- * 
+ *
  * This module contains the standard gRPC method handlers for Arrow Flight protocol.
  * These handlers bridge between the gRPC server and the Flight service implementation.
- * 
+ *
  * Each handler:
  * 1. Receives gRPC calls from clients
  * 2. Validates request parameters
@@ -39,19 +39,19 @@ export function createProtocolHandlers(flightService) {
   return {
     /**
      * Handshake Handler
-     * 
+     *
      * Arrow Flight handshake is used for:
      * - Authentication between client and server
-     * - Protocol version negotiation  
+     * - Protocol version negotiation
      * - Session establishment
      */
     handshake: (call) => {
       console.log('Handshake called');
-      
+
       // Handle incoming handshake requests from client
       call.on('data', (request) => {
         console.log('Handshake request received:', request);
-        
+
         // Send handshake response back to client
         // In a production system, this would include authentication validation
         call.write({
@@ -59,12 +59,12 @@ export function createProtocolHandlers(flightService) {
           payload: Buffer.from('handshake-response')
         });
       });
-      
+
       // Client has finished sending handshake data
       call.on('end', () => {
         call.end();
       });
-      
+
       // Handle handshake errors
       call.on('error', (error) => {
         console.error('Handshake error:', error);
@@ -73,7 +73,7 @@ export function createProtocolHandlers(flightService) {
 
     /**
      * ListFlights Handler
-     * 
+     *
      * Arrow Flight's discovery mechanism - allows clients to find available datasets.
      * This is a server streaming RPC that returns a stream of FlightInfo objects.
      */
@@ -89,7 +89,7 @@ export function createProtocolHandlers(flightService) {
 
     /**
      * GetFlightInfo Handler
-     * 
+     *
      * Gets detailed metadata about a specific dataset identified by FlightDescriptor.
      * This is a unary RPC (single request, single response).
      */
@@ -107,7 +107,7 @@ export function createProtocolHandlers(flightService) {
 
     /**
      * GetSchema Handler
-     * 
+     *
      * Returns just the Arrow schema for a dataset, without any data.
      * This is useful for clients that need to prepare for data processing
      * without actually retrieving the full dataset.
@@ -126,7 +126,7 @@ export function createProtocolHandlers(flightService) {
 
     /**
      * DoGet Handler
-     * 
+     *
      * The main data transfer operation - streams dataset data to client.
      * This is a server streaming RPC that sends FlightData messages containing
      * Arrow record batches in IPC format.
@@ -143,24 +143,24 @@ export function createProtocolHandlers(flightService) {
 
     /**
      * DoPut Handler
-     * 
+     *
      * Upload data from client to server. This is a client streaming RPC
      * where the client sends Arrow data and the server processes it.
      */
     doPut: (call) => {
       console.log('DoPut called - not implemented');
-      
+
       // Collect incoming data
       const recordBatches = [];
-      
+
       call.on('data', (flightData) => {
         console.log('Received flight data:', flightData);
         recordBatches.push(flightData);
       });
-      
+
       call.on('end', () => {
         console.log(`DoPut completed with ${recordBatches.length} record batches`);
-        
+
         // Send response indicating success
         call.write({
           app_metadata: Buffer.from(JSON.stringify({
@@ -168,10 +168,10 @@ export function createProtocolHandlers(flightService) {
             records_received: recordBatches.length
           }))
         });
-        
+
         call.end();
       });
-      
+
       call.on('error', (error) => {
         console.error('DoPut error:', error);
       });
@@ -179,39 +179,39 @@ export function createProtocolHandlers(flightService) {
 
     /**
      * DoAction Handler
-     * 
+     *
      * Execute custom server actions. This allows for server-specific operations
      * beyond the standard Flight protocol.
      */
     doAction: (call) => {
       console.log('DoAction called');
-      
+
       try {
         const action = call.request;
         const actionType = action.type;
         const actionBody = action.body ? action.body.toString() : '';
-        
+
         console.log(`Executing action: ${actionType}`);
-        
+
         switch (actionType) {
-          case 'refresh-datasets':
-            handleRefreshDatasets(call, flightService);
-            break;
-            
-          case 'get-server-info':
-            handleGetServerInfo(call, flightService);
-            break;
-            
-          default:
-            console.warn(`Unknown action type: ${actionType}`);
-            call.write({
-              type: 'error',
-              body: Buffer.from(JSON.stringify({
-                error: `Unknown action type: ${actionType}`,
-                available_actions: ['refresh-datasets', 'get-server-info']
-              }))
-            });
-            call.end();
+        case 'refresh-datasets':
+          handleRefreshDatasets(call, flightService);
+          break;
+
+        case 'get-server-info':
+          handleGetServerInfo(call, flightService);
+          break;
+
+        default:
+          console.warn(`Unknown action type: ${actionType}`);
+          call.write({
+            type: 'error',
+            body: Buffer.from(JSON.stringify({
+              error: `Unknown action type: ${actionType}`,
+              available_actions: ['refresh-datasets', 'get-server-info']
+            }))
+          });
+          call.end();
         }
       } catch (error) {
         console.error('Error in doAction:', error);
@@ -221,7 +221,7 @@ export function createProtocolHandlers(flightService) {
 
     /**
      * ListActions Handler
-     * 
+     *
      * List available custom actions that can be executed via DoAction.
      */
     listActions: (call) => {
@@ -243,7 +243,7 @@ async function handleRefreshDatasets(call, flightService) {
   try {
     console.log('Refreshing datasets...');
     await flightService.refreshDatasets();
-    
+
     const datasets = flightService.getDatasets();
     call.write({
       type: 'refresh-datasets',
@@ -253,7 +253,7 @@ async function handleRefreshDatasets(call, flightService) {
         datasets: datasets
       }))
     });
-    
+
     call.end();
   } catch (error) {
     console.error('Error refreshing datasets:', error);
@@ -284,7 +284,7 @@ function handleGetServerInfo(call, flightService) {
       },
       capabilities: [
         'listFlights',
-        'getFlightInfo', 
+        'getFlightInfo',
         'getSchema',
         'doGet',
         'doAction',
@@ -292,12 +292,12 @@ function handleGetServerInfo(call, flightService) {
       ],
       timestamp: new Date().toISOString()
     };
-    
+
     call.write({
       type: 'get-server-info',
       body: Buffer.from(JSON.stringify(serverInfo, null, 2))
     });
-    
+
     call.end();
   } catch (error) {
     console.error('Error getting server info:', error);
@@ -317,7 +317,7 @@ function handleGetServerInfo(call, flightService) {
  */
 function convertToGrpcError(error) {
   const grpcError = new Error(error.message);
-  
+
   // Map error types to gRPC status codes
   if (error.message.includes('not found')) {
     grpcError.code = 5; // NOT_FOUND
@@ -330,8 +330,8 @@ function convertToGrpcError(error) {
   } else {
     grpcError.code = 13; // INTERNAL
   }
-  
+
   return grpcError;
 }
 
-export default createProtocolHandlers; 
+export default createProtocolHandlers;

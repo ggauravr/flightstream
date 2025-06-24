@@ -1,0 +1,100 @@
+name: Feature Request
+description: Suggest an idea for FlightStream
+title: "[Feature]: "
+labels: ["enhancement", "triage"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting a new feature! 🚀
+
+  - type: dropdown
+    id: type
+    attributes:
+      label: Feature Type
+      description: What type of feature is this?
+      options:
+        - "New data source adapter"
+        - "Core framework enhancement"
+        - "Performance improvement"
+        - "Documentation improvement"
+        - "Developer experience"
+        - "Other"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: package
+    attributes:
+      label: Which package would this affect?
+      multiple: true
+      options:
+        - "@flightstream/core"
+        - "@flightstream/csv-service"
+        - "@flightstream/utils"
+        - "@flightstream/examples"
+        - "New package"
+        - "Documentation"
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem Description
+      description: Is your feature request related to a problem? Please describe.
+      placeholder: I'm frustrated when...
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution
+      description: Describe the solution you'd like
+      placeholder: I would like to see...
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: Describe any alternative solutions or features you've considered
+      placeholder: I also considered...
+
+  - type: textarea
+    id: use-case
+    attributes:
+      label: Use Case
+      description: Describe your use case and how this feature would help
+      placeholder: This would help me...
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Add any other context, screenshots, or examples about the feature request here.
+
+  - type: checkboxes
+    id: contribution
+    attributes:
+      label: Contribution
+      description: Would you be willing to contribute this feature?
+      options:
+        - label: I would be willing to implement this feature
+        - label: I would be willing to help with testing
+        - label: I would be willing to help with documentation
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Code of Conduct
+      description: By submitting this issue, you agree to follow our Code of Conduct
+      options:
+        - label: I agree to follow this project's Code of Conduct
+          required: true 
