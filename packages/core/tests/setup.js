@@ -3,12 +3,18 @@
  */
 
 // Set test timeout for gRPC operations
-jest.setTimeout(30000);
+if (typeof jest !== 'undefined') {
+  jest.setTimeout(30000);
+}
 
 // Mock console.log to avoid noise in tests unless explicitly testing logging
 global.originalConsoleLog = console.log;
 beforeEach(() => {
-  console.log = jest.fn();
+  if (typeof jest !== 'undefined') {
+    console.log = jest.fn();
+  } else {
+    console.log = () => {};
+  }
 });
 
 afterEach(() => {
@@ -21,12 +27,13 @@ const CoreTestUtils = {
    * Create a mock gRPC call object
    */
   createMockCall(request = {}) {
+    const mockFn = typeof jest !== 'undefined' ? jest.fn() : () => {};
     return {
       request,
-      write: jest.fn(),
-      end: jest.fn(),
-      emit: jest.fn(),
-      callback: jest.fn()
+      write: mockFn,
+      end: mockFn,
+      emit: mockFn,
+      callback: mockFn
     };
   },
 
