@@ -234,7 +234,7 @@ Want to serve data from a database instead of CSV? You'll need to create two cla
 
 ### Step 5.1: Create a SQLite Arrow Builder
 
-First, create a custom `SQLiteArrowBuilder` that extends `ArrowBuilder`:
+First, create a custom `SQLiteArrowBuilder` that extends the abstract `ArrowBuilder`:
 
 ```javascript
 // sqlite-arrow-builder.js
@@ -244,8 +244,8 @@ import { ArrowBuilder } from '@flightstream/utils';
 /**
  * SQLite-specific Arrow Builder
  * 
- * Extends the generic ArrowBuilder to handle SQLite-specific data types
- * and row format conversion to Arrow format.
+ * Extends the abstract ArrowBuilder to provide SQLite-specific data type
+ * mapping and row format conversion to Arrow format.
  */
 export class SQLiteArrowBuilder extends ArrowBuilder {
   constructor(sqliteSchema, options = {}) {
@@ -254,7 +254,7 @@ export class SQLiteArrowBuilder extends ArrowBuilder {
 
   /**
    * Build Arrow schema from SQLite column information
-   * Required by ArrowBuilder abstract class
+   * Required implementation of abstract method
    */
   _buildArrowSchema() {
     const fields = [];
@@ -269,7 +269,7 @@ export class SQLiteArrowBuilder extends ArrowBuilder {
 
   /**
    * Transform SQLite rows to column-oriented data
-   * Required by ArrowBuilder abstract class
+   * Required implementation of abstract method
    */
   _transformDataToColumns(sqliteRows) {
     if (!Array.isArray(sqliteRows) || sqliteRows.length === 0) {
@@ -297,7 +297,7 @@ export class SQLiteArrowBuilder extends ArrowBuilder {
 
   /**
    * Map SQLite types to Arrow types
-   * Required by ArrowBuilder abstract class
+   * Required implementation of abstract method
    */
   _mapSourceTypeToArrow(sqliteType) {
     const type = sqliteType.toLowerCase();
@@ -358,7 +358,7 @@ export class SQLiteFlightService extends FlightServiceBase {
 
   /**
    * Initialize the SQLite service
-   * Required by FlightServiceBase abstract class
+   * Required implementation of abstract method
    */
   async _initialize() {
     try {
@@ -377,7 +377,7 @@ export class SQLiteFlightService extends FlightServiceBase {
 
   /**
    * Discover and register database tables as datasets
-   * Required by FlightServiceBase abstract class  
+   * Required implementation of abstract method  
    */
   async _initializeDatasets() {
     // Get all user tables (exclude SQLite system tables)
@@ -420,7 +420,7 @@ export class SQLiteFlightService extends FlightServiceBase {
 
   /**
    * Infer Arrow schema from SQLite table structure
-   * Required by FlightServiceBase abstract class
+   * Required implementation of abstract method
    */
   async _inferSchemaForDataset(tableName) {
     // Get column information using SQLite PRAGMA
@@ -440,7 +440,7 @@ export class SQLiteFlightService extends FlightServiceBase {
 
   /**
    * Stream table data as Arrow record batches
-   * Required by FlightServiceBase abstract class
+   * Required implementation of abstract method
    */
   async _streamDataset(call, dataset) {
     const tableName = dataset.id;

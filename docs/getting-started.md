@@ -230,7 +230,7 @@ for (FlightInfo info : client.listFlights(Criteria.ALL)) {
 Now that you have a basic server running:
 
 1. **📖 Follow the [Tutorial]({{ '/tutorial/' | relative_url }})** - Build a complete custom server
-2. **🔍 Browse [Examples]({{ '/examples/' | relative_url }})** - for sample implementations
+2. **🔍 Browse [Examples]({{ '/examples/' | relative_url }})** - Learn from sample implementations
 3. **📚 Check [API Reference]({{ '/api-reference/' | relative_url }})** - Complete documentation
 4. **🛠️ Build a custom service/adapter** - Connect your own data sources
 

@@ -1,9 +1,7 @@
 ---
 layout: home
-title: Home
+title: Arrow Flight Server Node.js
 ---
-
-# Arrow Flight Server Node.js
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Node.js Version](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg)](https://nodejs.org/)
@@ -16,7 +14,7 @@ Production-ready Apache Arrow Flight server framework with plugin architecture f
 ```bash
 # Clone and install
 git clone https://github.com/ggauravr/flightstream.git
-cd arrow-flight-node
+cd flightstream
 npm install
 
 # Start the example server
@@ -56,19 +54,19 @@ The server automatically discovers CSV files in the `data/` directory and serves
 
 The monorepo contains focused, reusable packages:
 
-| Package | Description | Status |
-|---------|-------------|--------|
-| **[@flightstream/core](https://www.npmjs.com/package/@flightstream/core)** | Generic Flight server framework | ✅ Ready |
-| **[@flightstream/csv-service](https://www.npmjs.com/package/@flightstream/csv-service)** | CSV file adapter with streaming | ✅ Ready |
-| **[@flightstream/utils](https://www.npmjs.com/package/@flightstream/utils)** | Arrow utilities and schema inference | ✅ Ready |
-| **[@flightstream/examples](https://www.npmjs.com/package/@flightstream/examples)** | Reference implementations | ✅ Ready |
+| Package | Description |
+|---------|-------------|
+| **[@flightstream/core](https://www.npmjs.com/package/@flightstream/core)** | Generic Flight server framework|
+| **[@flightstream/csv-service](https://www.npmjs.com/package/@flightstream/csv-service)** | CSV file adapter with streaming. Implementations to convert CSV into Apache Arrow and send it over the wire with the server |
+| **[@flightstream/utils](https://www.npmjs.com/package/@flightstream/utils)** | Arrow utilities and schema inference |
+| **[@flightstream/examples](https://www.npmjs.com/package/@flightstream/examples)** | Reference implementations |
 
 ## 🎯 Use Cases
 
 - **Data Lakes**: Serve files efficiently from S3, GCS, Snowflake, or local storage
 - **Analytics Pipelines**: Stream data to Apache Spark, DuckDB, or custom analytics  
 - **Real-time ETL**: High-performance data transformation and streaming
-- **API Modernization**: Replace REST APIs with efficient columnar data transfer
+- **API Modernization**: Replace REST APIs with efficient columnar data transfer for real-time analytics products
 - **Multi-language Integration**: Connect Python, Java, C++, and JavaScript applications
 
 ## 📚 Documentation

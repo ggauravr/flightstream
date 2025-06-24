@@ -77,7 +77,7 @@ await server.stop();
 
 ### FlightServiceBase Class
 
-Abstract base class for implementing Flight service adapters.
+Abstract base class for implementing Flight service adapters for custom data sources
 
 #### Constructor
 
@@ -296,33 +296,33 @@ await streamer.start();
 
 ---
 
-## 🔧 Utils Package (@flightstream/utils)
+### CSVArrowBuilder Class
 
-### ArrowBuilder Class
-
-Utility for building Arrow data structures from various sources.
+CSV-specific Arrow builder that extends the abstract `ArrowBuilder` class.
 
 #### Constructor
 
 ```javascript
-new ArrowBuilder(csvSchema, options)
+new CSVArrowBuilder(csvSchema, options)
 ```
 
 **Parameters:**
-- `csvSchema` (Object) - Schema mapping column names to types
+- `csvSchema` (Object) - Schema mapping column names to CSV types
 - `options.recordBatchSize` (number, default: 65536) - Default batch size
 - `options.nullValue` (any, default: null) - Value to use for nulls
 
 **Example:**
 ```javascript
-const schema = {
+import { CSVArrowBuilder } from '@flightstream/csv-service';
+
+const csvSchema = {
   id: 'int64',
   name: 'string', 
   price: 'float64',
   active: 'boolean'
 };
 
-const builder = new ArrowBuilder(schema);
+const builder = new CSVArrowBuilder(csvSchema);
 ```
 
 #### Methods
@@ -332,11 +332,118 @@ Get the Arrow schema object.
 
 **Returns:** `arrow.Schema` - Arrow schema
 
-##### `createRecordBatch(csvBatch)`
-Convert CSV data to Arrow RecordBatch.
+##### `createRecordBatch(csvRows)`
+Convert CSV row objects to Arrow RecordBatch.
 
 **Parameters:**
-- `csvBatch` (Array) - Array of CSV row objects
+- `csvRows` (Array) - Array of CSV row objects
+
+**Returns:** `arrow.RecordBatch` - Arrow record batch
+
+##### `createRecordBatchFromCSVRows(csvRows)`
+Alias for `createRecordBatch` for clarity.
+
+**Parameters:**
+- `csvRows` (Array) - Array of CSV row objects
+
+**Returns:** `arrow.RecordBatch` - Arrow record batch
+
+##### `validateCSVRow(csvRow)`
+Validate a CSV row against the expected schema.
+
+**Parameters:**
+- `csvRow` (Object) - CSV row object
+
+**Returns:** `boolean` - Whether the row is valid
+
+##### `getCSVSchema()`
+Get the original CSV schema.
+
+**Returns:** `Object` - CSV schema object
+
+##### `getCSVStats(csvRows)`
+Get CSV-specific statistics.
+
+**Parameters:**
+- `csvRows` (Array) - CSV rows to analyze
+
+**Returns:** `Object` - Statistics object
+
+**Example:**
+```javascript
+const builder = new CSVArrowBuilder({ id: 'int64', name: 'string' });
+const batch = builder.createRecordBatch([
+  { id: 1, name: 'Alice' },
+  { id: 2, name: 'Bob' }
+]);
+```
+
+---
+
+## 🔧 Utils Package (@flightstream/utils)
+
+### ArrowBuilder Class (Abstract)
+
+Abstract base class for building Arrow data structures from various data sources. This class cannot be instantiated directly and must be extended by concrete implementations.
+
+#### Constructor
+
+```javascript
+new ArrowBuilder(sourceSchema, options)
+```
+
+**Parameters:**
+- `sourceSchema` (Object) - Schema in source-specific format
+- `options.recordBatchSize` (number, default: 65536) - Default batch size
+- `options.nullValue` (any, default: null) - Value to use for nulls
+
+**Note:** This class is abstract and cannot be instantiated directly. Use concrete implementations like `CSVArrowBuilder`.
+
+#### Abstract Methods
+
+These methods must be implemented by subclasses:
+
+##### `_buildArrowSchema()`
+Build Arrow schema from source-specific schema format.
+
+**Returns:** `void` - Sets `this.arrowSchema`
+
+##### `_transformDataToColumns(sourceData)`
+Transform source data format to column arrays.
+
+**Parameters:**
+- `sourceData` (any) - Data in source-specific format
+
+**Returns:** `Object` - Column data as `{ columnName: [values...] }`
+
+##### `_mapSourceTypeToArrow(sourceType)`
+Map source-specific type to Arrow type.
+
+**Parameters:**
+- `sourceType` (string) - Type name in source format
+
+**Returns:** `arrow.DataType` - Arrow data type
+
+#### Implemented Methods
+
+##### `getSchema()`
+Get the Arrow schema object.
+
+**Returns:** `arrow.Schema` - Arrow schema
+
+##### `createRecordBatch(sourceData)`
+Convert source data to Arrow RecordBatch using abstract methods.
+
+**Parameters:**
+- `sourceData` (any) - Data in source-specific format
+
+**Returns:** `arrow.RecordBatch` - Arrow record batch
+
+##### `createRecordBatchFromColumns(columnData)`
+Create record batch from column data arrays.
+
+**Parameters:**
+- `columnData` (Object) - Column data as `{ columnName: [values...] }`
 
 **Returns:** `arrow.RecordBatch` - Arrow record batch
 
@@ -354,7 +461,7 @@ Serialize RecordBatch for Flight protocol.
 **Parameters:**
 - `recordBatch` (arrow.RecordBatch) - Record batch to serialize
 
-**Returns:** `Object` - `{ header: Buffer, body: Buffer }`
+**Returns:** `Buffer` - Serialized record batch
 
 ##### `serializeSchema()`
 Serialize schema for Flight protocol.
@@ -371,12 +478,14 @@ Get statistics for a record batch.
 
 **Example:**
 ```javascript
-const builder = new ArrowBuilder({ id: 'int64', name: 'string' });
-const batch = builder.createRecordBatch([
-  { id: 1, name: 'Alice' },
-  { id: 2, name: 'Bob' }
-]);
-const serialized = builder.serializeRecordBatch(batch);
+import { ArrowBuilder } from '@flightstream/utils';
+
+// Cannot instantiate directly - this would throw an error:
+// const builder = new ArrowBuilder(schema); // ERROR!
+
+// Instead, use a concrete implementation:
+import { CSVArrowBuilder } from '@flightstream/csv-service';
+const builder = new CSVArrowBuilder(csvSchema);
 ```
 
 ---
@@ -459,10 +568,13 @@ Create Flight-compatible stream from record batches.
 | CSV Type | Arrow Type | Notes |
 |----------|------------|-------|
 | `'string'` | `Utf8` | Text data |
-| `'int64'` | `Int64` | Integer numbers |
-| `'float64'` | `Float64` | Decimal numbers |
+| `'int32'` | `Int32` | 32-bit integer numbers |
+| `'int64'` | `Int64` | 64-bit integer numbers |
+| `'float32'` | `Float32` | 32-bit decimal numbers |
+| `'float64'` | `Float64` | 64-bit decimal numbers |
 | `'boolean'` | `Bool` | true/false values |
 | `'date'` | `DateMillisecond` | Date values |
+| `'timestamp'` | `TimestampMillisecond` | Timestamp values |
 
 ### JavaScript to Arrow Type Mapping
 
@@ -557,7 +669,7 @@ const csvService = new CSVFlightService({
 ### Test Client
 
 ```javascript
-import { FlightClient } from '@flightstream/examples/test-client';
+import { FlightClient } from '@flightstream/examples/test-client/test-client';
 
 const client = new FlightClient('localhost', 8080);
 
