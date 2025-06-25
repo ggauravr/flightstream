@@ -4,9 +4,9 @@ title: Contributing
 permalink: /contributing/
 ---
 
-# 🤝 Contributing to Arrow Flight Server Node.js
+# 🤝 Contributing to FlightStream
 
-Thank you for your interest in contributing! This guide will help you get started with contributing to the Arrow Flight Server Node.js framework.
+Thank you for your interest in contributing! This guide will help you get started with contributing to FlightStream framework.
 
 ## 🎯 Ways to Contribute
 
@@ -75,8 +75,11 @@ Help improve our docs:
    # Start the example server
    npm start
    
-   # In another terminal, test your changes
+   # In another terminal, run the test client
    npm test
+   
+   # To run the actual test suite
+   npm run test:ci
    ```
 
 ## 🏗️ Project Structure
@@ -90,91 +93,49 @@ flightstream/
 │   │   ├── src/
 │   │   │   ├── flight-server.js
 │   │   │   ├── flight-service-base.js
-│   │   │   └── protocol-handlers.js
+│   │   │   ├── protocol-handlers.js
+│   │   │   └── index.js
+│   │   ├── proto/
+│   │   │   └── flight.proto
 │   │   └── package.json
 │   ├── csv-service/       # CSV file adapter
 │   │   ├── src/
 │   │   │   ├── csv-service.js
-│   │   │   └── csv-streamer.js
+│   │   │   ├── csv-streamer.js
+│   │   │   ├── csv-arrow-builder.js
+│   │   │   └── index.js
 │   │   └── package.json
 │   ├── utils/            # Shared utilities
 │   │   ├── src/
 │   │   │   ├── arrow-builder.js
-│   │   │   └── schema-inference.js
+│   │   │   ├── schema-inference.js
+│   │   │   ├── streaming-utils.js
+│   │   │   └── index.js
 │   │   └── package.json
 │   └── examples/         # Reference implementations
 │       ├── basic-server/
 │       └── test-client/
 ├── docs/                 # Documentation website
 ├── data/                 # Sample data files
-└── tools/               # Development tools
-```
-
-## 🧠 Mental Model
-
-```mermaid
-flowchart TD
-    Start([Developer Starts]) --> Choice{What data source?}
-    
-    Choice -->|CSV Files| InstallCSV[Install @flightstream/csv-service]
-    Choice -->|Database| InstallDB[Install @flightstream/xxx-service<br/>Future: snowflake, postgres, etc.]
-    Choice -->|Custom| InstallCore[Install @flightstream/core + utils]
-
-    InstallCSV --> CreateCSVServer[Create CSV Server]
-    InstallDB --> CreateDBServer[Create Database Server]
-    InstallCore --> CreateCustomServer[Create Custom Adapter]
-
-    subgraph "CSV Service Usage"
-        CreateCSVServer --> ConfigCSV[Configure CSV Options<br/>• Data directory<br/>• Batch size<br/>• Delimiter]
-        ConfigCSV --> InitCSV[CSVFlightService.initialize<br/>Discovers CSV files]
-        InitCSV --> RegisterCSV[Register with FlightServer]
-    end
-
-    subgraph "Custom Adapter Development"
-        CreateCustomServer --> ExtendBase[Extend FlightServiceBase]
-        ExtendBase --> ImplementMethods[Implement Required Methods<br/>• _initialize<br/>• _inferSchemaForDataset<br/>• _streamDataset]
-        ImplementMethods --> UseUtils[Use ArrowBuilder utilities<br/>for data conversion]
-        UseUtils --> RegisterCustom[Register with FlightServer]
-    end
-
-    RegisterCSV --> StartServer[Start FlightServer]
-    CreateDBServer --> StartServer
-    RegisterCustom --> StartServer
-
-    StartServer --> ClientConnect[Clients Connect via Arrow Flight]
-    ClientConnect --> Operations[Flight Operations<br/>• ListFlights<br/>• GetFlightInfo<br/>• DoGet]
-
-    subgraph "Data Flow"
-        Operations --> Discovery[Dataset Discovery]
-        Discovery --> Schema[Schema Inference]
-        Schema --> Stream[Stream Arrow Data]
-        Stream --> Client[Client Receives<br/>Arrow RecordBatches]
-    end
-
-    %% Styling
-    classDef startEnd fill:#c8e6c9,stroke:#4caf50,stroke-width:3px
-    classDef process fill:#bbdefb,stroke:#2196f3,stroke-width:2px
-    classDef decision fill:#ffe0b2,stroke:#ff9800,stroke-width:2px
-    classDef service fill:#f8bbd9,stroke:#e91e63,stroke-width:2px
-
-    class Start,Client startEnd
-    class Choice decision
-    class CreateCSVServer,CreateDBServer,CreateCustomServer,StartServer,ClientConnect,Operations process
-    class ConfigCSV,InitCSV,RegisterCSV,ExtendBase,ImplementMethods,UseUtils,RegisterCustom,Discovery,Schema,Stream service
+├── coverage/            # Test coverage reports
+├── .github/             # GitHub workflows and templates
+├── jest.config.js       # Jest configuration
+├── .eslintrc.cjs        # ESLint configuration
+└── .nvmrc              # Node.js version specification
 ```
 
 ## 📋 Development Guidelines
 
 ### Code Style
 
-This project uses ESLint for code formatting:
+This project uses ESLint for code linting and style enforcement:
 
 ```bash
 # Check code style
 npm run lint
 
 # Fix auto-fixable issues
-npm run lint -- --fix
+npm run lint:fix
 ```
 
 **Key principles:**
@@ -218,20 +179,21 @@ test(utils): add tests for schema inference
 #### Running Tests
 ```bash
 # Run all tests
-npm test
+npm run test:ci
 
 # Test specific package
-cd packages/core
-npm test
+npm run test:core
+npm run test:csv-service
+npm run test:utils
 
 # Test with coverage
-npm test -- --coverage
+npm run test:coverage
 ```
 
 #### Writing Tests
 ```javascript
 // Example test structure
-import { FlightServer } from '../src/flight-server.js';
+import { FlightServer } from '@flightstream/core';
 
 describe('FlightServer', () => {
   let server;
@@ -255,6 +217,8 @@ describe('FlightServer', () => {
   });
 });
 ```
+
+**Note**: Tests require Node.js experimental VM modules. Jest is configured to run with the `--experimental-vm-modules` flag automatically.
 
 ## 🔌 Contributing New Adapters
 
@@ -389,11 +353,15 @@ test('server serves CSV data to client', async () => {
   server.setFlightService(service);
   await server.start();
   
-  const client = new FlightClient('localhost', 8082);
+  // Note: FlightClient is available in packages/examples/test-client/
+  const { FlightClient } = await import('../../examples/test-client/test-client.js');
+  const client = new FlightClient();
+  await client.connect('localhost', 8082);
   const flights = await client.listFlights();
   
   expect(flights.length).toBeGreaterThan(0);
   
+  await client.close();
   await server.stop();
 });
 ```
@@ -401,9 +369,9 @@ test('server serves CSV data to client', async () => {
 ## 🚀 Submitting Changes
 
 ### Before Submitting
-1. **Run tests**: `npm test`
+1. **Run tests**: `npm run test:ci`
 2. **Check linting**: `npm run lint`
-3. **Test examples**: `npm start` and `npm test`
+3. **Test examples**: `npm start` (then `npm test` in another terminal)
 4. **Update documentation** if needed
 5. **Add tests** for new features
 
@@ -488,7 +456,7 @@ Contributors are recognized in:
 
 ## 📜 Code of Conduct
 
-This project follows the [Contributor Covenant Code of Conduct](https://www.contributor-covenant.org/). By participating, you agree to:
+This project follows the [Contributor Covenant Code of Conduct](https://www.contributor-covenant.org/). Please see our [CONTRIBUTING.md](../CONTRIBUTING.md) file for the full details. By participating, you agree to:
 
 - Use welcoming and inclusive language
 - Respect differing viewpoints and experiences
@@ -521,6 +489,4 @@ We track these metrics to understand project health:
 - Code quality scores
 - Community engagement
 
-Thank you for contributing to Arrow Flight Server Node.js! 🚀
-
-Your contributions help make high-performance data streaming accessible to everyone. 
+Thank you for contributing to FlightStream! 🚀 Your contributions help make high-performance data streaming accessible to everyone. 
