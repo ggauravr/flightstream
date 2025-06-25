@@ -189,7 +189,7 @@ export function createProtocolHandlers(flightService) {
       try {
         const action = call.request;
         const actionType = action.type;
-        const actionBody = action.body ? action.body.toString() : '';
+        // const _actionBody = action.body ? action.body.toString() : '';
 
         console.log(`Executing action: ${actionType}`);
 

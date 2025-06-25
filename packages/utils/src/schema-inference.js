@@ -216,7 +216,7 @@ function inferNumericType(value, options = {}) {
   }
 
   // Currency (simple detection)
-  if (/^[\$€£¥]\d+\.?\d*$/.test(value)) {
+  if (/^[$€£¥]\d+\.?\d*$/.test(value)) {
     return strictMode ? 'string' : 'float64';
   }
 
@@ -226,10 +226,10 @@ function inferNumericType(value, options = {}) {
 /**
  * Check if a value represents a date
  * @param {string} value - String value to check
- * @param {Array} dateFormats - Supported date formats
+ * @param {Array} _dateFormats - Supported date formats (for future use)
  * @returns {boolean}
  */
-function isDateValue(value, dateFormats = []) {
+function isDateValue(value, _dateFormats = []) {
   // Simple date patterns
   const datePatterns = [
     /^\d{4}-\d{2}-\d{2}$/,           // YYYY-MM-DD
@@ -289,7 +289,7 @@ export function normalizeSchema(schema, options = {}) {
   const {
     preferredTypes = {},
     typeRules = {},
-    strictMode = false
+    // strictMode: _strictMode = false  // Reserved for future use
   } = options;
 
   const normalizedSchema = {};

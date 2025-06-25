@@ -69,12 +69,12 @@ export class ArrowBuilder {
   }
 
   /**
-   * Transform source data format to column arrays
-   * @param {*} sourceData - Data in source-specific format (CSV rows, DB results, etc.)
+   * Transform source-specific data structure to column arrays
+   * @param {*} sourceData - Data in source-specific format (CSV rows, SQL result, etc.)
    * @returns {Object} Column data as { columnName: [values...] }
    * @abstract
    */
-  _transformDataToColumns(sourceData) {
+  _transformDataToColumns(_sourceData) {
     throw new Error('_transformDataToColumns() must be implemented by subclass');
   }
 
@@ -84,7 +84,7 @@ export class ArrowBuilder {
    * @returns {arrow.DataType} Arrow data type
    * @abstract
    */
-  _mapSourceTypeToArrow(sourceType) {
+  _mapSourceTypeToArrow(_sourceType) {
     throw new Error('_mapSourceTypeToArrow() must be implemented by subclass');
   }
 

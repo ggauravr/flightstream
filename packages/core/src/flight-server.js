@@ -165,7 +165,7 @@ export class FlightServer {
    * @returns {Promise<void>}
    */
   async stop() {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       if (!this.server) {
         resolve();
         return;

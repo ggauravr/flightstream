@@ -243,7 +243,7 @@ export class CSVFlightService extends FlightServiceBase {
       });
 
       // Handle row-level errors (non-fatal)
-      streamer.on('row-error', ({ row, error }) => {
+      streamer.on('row-error', ({ row: _row, error }) => {
         console.warn(`Row error in ${dataset.id}:`, error);
       });
 

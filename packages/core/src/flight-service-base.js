@@ -84,7 +84,7 @@ export class FlightServiceBase extends EventEmitter {
    * @param {string} datasetId - Dataset identifier
    * @returns {Promise<Object>} Arrow schema
    */
-  async _inferSchemaForDataset(datasetId) {
+  async _inferSchemaForDataset(_datasetId) {
     throw new Error('_inferSchemaForDataset() must be implemented by subclass');
   }
 
@@ -94,7 +94,7 @@ export class FlightServiceBase extends EventEmitter {
    * @param {Object} dataset - Dataset metadata
    * @returns {Promise<void>}
    */
-  async _streamDataset(call, dataset) {
+  async _streamDataset(_call, _dataset) {
     throw new Error('_streamDataset() must be implemented by subclass');
   }
 
