@@ -93,7 +93,7 @@ flightstream/
 │   │   ├── src/
 │   │   │   ├── flight-server.js
 │   │   │   ├── flight-service-base.js
-│   │   │   ├── protocol-handlers.js
+│   │   │   ├── flight-protocol-handler.js
 │   │   │   └── index.js
 │   │   ├── proto/
 │   │   │   └── flight.proto

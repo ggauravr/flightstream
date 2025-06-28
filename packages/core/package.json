@@ -8,7 +8,7 @@
     ".": "./src/index.js",
     "./flight-server": "./src/flight-server.js",
     "./flight-service-base": "./src/flight-service-base.js",
-    "./protocol-handlers": "./src/protocol-handlers.js"
+    "./flight-protocol-handler": "./src/flight-protocol-handler.js"
   },
   "scripts": {
     "test": "NODE_OPTIONS=\"--experimental-vm-modules\" jest",
