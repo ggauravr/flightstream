@@ -1,1 +1,3 @@
 - [ ] Clickhouse service/adapter and arrow builder
+- [ ] Develop `connect-core` package as an alternative to `core` using connect gRPC library in place of gRPC
+- [ ] Develop Flight server plugins for Express and Fastify
