@@ -22,6 +22,7 @@
     "test:utils": "npm run test --workspace=packages/utils",
     "test:core": "npm run test --workspace=packages/core",
     "test:csv-service": "npm run test --workspace=packages/csv-service",
+    "test:client": "npm run test --workspace=packages/client",
     "audit:check": "npm audit --audit-level moderate",
     "audit:fix": "npm audit fix",
     "version:patch": "npm version patch --workspaces",
