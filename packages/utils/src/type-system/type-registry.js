@@ -17,12 +17,11 @@
  * under the License.
  */
 
-import * as arrow from 'apache-arrow';
 import { TypeTransformer } from './type-transformer.js';
 
 /**
  * TypeRegistry - Maintains mappings between logical types, Arrow types, and transformer functions
- * 
+ *
  * This class provides a central registry for type mapping and extensibility.
  * It maps logical type names to Arrow types and provides transformer functions
  * for converting values to Arrow-compatible formats.
@@ -32,7 +31,7 @@ export class TypeRegistry {
     this.transformer = new TypeTransformer();
     this.typeMappings = new Map();
     this.arrowTransformers = new Map();
-    
+
     this._initializeDefaultMappings();
   }
 
@@ -78,7 +77,7 @@ export class TypeRegistry {
     const transformers = {
       // Boolean types
       'Bool': (v) => v === null ? null : Boolean(v),
-      
+
       // Integer types
       'Int8': (v) => v === null ? null : this.transformer.safeParseInt(v),
       'Int16': (v) => v === null ? null : this.transformer.safeParseInt(v),
@@ -96,12 +95,12 @@ export class TypeRegistry {
         const parsed = this.transformer.safeParseInt(v);
         return parsed === null ? null : BigInt(parsed);
       },
-      
+
       // Float types
       'Float16': (v) => v === null ? null : this.transformer.safeParseFloat(v),
       'Float32': (v) => v === null ? null : this.transformer.safeParseFloat(v),
       'Float64': (v) => v === null ? null : this.transformer.safeParseFloat(v),
-      
+
       // Date and time types
       'DateDay': (v) => v === null ? null : this.transformer.safeParseDateDays(v),
       'DateMillisecond': (v) => v === null ? null : this.transformer.safeParseDateMillis(v),
@@ -113,43 +112,43 @@ export class TypeRegistry {
       'TimeMillisecond': (v) => v === null ? null : this.transformer.safeParseTime(v, 1),
       'TimeMicrosecond': (v) => v === null ? null : this.transformer.safeParseTime(v, 0.001),
       'TimeNanosecond': (v) => v === null ? null : this.transformer.safeParseTime(v, 0.000001),
-      
+
       // String types
       'Utf8': (v) => v === null ? null : String(v),
       'LargeUtf8': (v) => v === null ? null : String(v),
       'Binary': (v) => v === null ? null : this.transformer.safeParseBinary(v),
       'LargeBinary': (v) => v === null ? null : this.transformer.safeParseBinary(v),
-      
+
       // Decimal types
       'Decimal': (v, arrowType) => v === null ? null : this.transformer.safeParseDecimal(v, arrowType),
       'Decimal128': (v, arrowType) => v === null ? null : this.transformer.safeParseDecimal(v, arrowType),
       'Decimal256': (v, arrowType) => v === null ? null : this.transformer.safeParseDecimal(v, arrowType),
-      
+
       // List and nested types
       'List': (v) => v === null ? null : this.transformer.safeParseList(v),
       'LargeList': (v) => v === null ? null : this.transformer.safeParseList(v),
       'FixedSizeList': (v) => v === null ? null : this.transformer.safeParseList(v),
-      
+
       // Struct and map types
       'Struct': (v) => v === null ? null : this.transformer.safeParseStruct(v),
       'Map': (v) => v === null ? null : this.transformer.safeParseMap(v),
-      
+
       // Union types
       'Union': (v) => v === null ? null : v, // Union types are complex, pass through
       'DenseUnion': (v) => v === null ? null : v,
       'SparseUnion': (v) => v === null ? null : v,
-      
+
       // Dictionary types
       'Dictionary': (v) => v === null ? null : v, // Dictionary encoding handled by Arrow
-      
+
       // Fixed-size types
       'FixedSizeBinary': (v) => v === null ? null : this.transformer.safeParseBinary(v),
-      
+
       // Interval types
       'IntervalDayTime': (v) => v === null ? null : this.transformer.safeParseInterval(v),
       'IntervalYearMonth': (v) => v === null ? null : this.transformer.safeParseInterval(v),
       'IntervalMonthDayNano': (v) => v === null ? null : this.transformer.safeParseInterval(v),
-      
+
       // Duration types
       'DurationSecond': (v) => v === null ? null : this.transformer.safeParseDuration(v, 1000),
       'DurationMillisecond': (v) => v === null ? null : this.transformer.safeParseDuration(v, 1),
@@ -194,7 +193,7 @@ export class TypeRegistry {
   getTypeTransformer(arrowType) {
     const typeName = arrowType.constructor.name;
     const transformer = this.arrowTransformers.get(typeName);
-    
+
     // Return the appropriate transformer, or default to string conversion
     return transformer || ((v) => v === null ? null : String(v));
   }
@@ -229,7 +228,7 @@ export class TypeRegistry {
     if (definition.arrowType) {
       this.registerTypeMapping(logicalType, definition.arrowType);
     }
-    
+
     if (definition.transformer) {
       this.registerArrowTransformer(logicalType, definition.transformer);
     }
@@ -250,4 +249,4 @@ export class TypeRegistry {
   getRegisteredArrowTransformers() {
     return Array.from(this.arrowTransformers.keys());
   }
-} 
+}

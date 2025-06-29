@@ -19,7 +19,7 @@
 
 /**
  * TypeDetector - Encapsulates all logic for inferring types from sample values
- * 
+ *
  * This class provides methods to analyze sample data and determine the most
  * appropriate data type. It handles boolean, numeric, date, timestamp, and
  * string detection with configurable options.
@@ -61,7 +61,7 @@ export class TypeDetector {
     }
 
     // Date detection
-    if (this.isDateValue(strValue, mergedOptions.dateFormats)) {
+    if (this.isDateValue(strValue)) {
       return 'date';
     }
 
@@ -124,10 +124,9 @@ export class TypeDetector {
   /**
    * Check if a value represents a date
    * @param {string} value - String value to check
-   * @param {Array} dateFormats - Supported date formats
    * @returns {boolean}
    */
-  isDateValue(value, dateFormats = []) {
+  isDateValue(value) {
     // Simple date patterns
     const datePatterns = [
       /^\d{4}-\d{2}-\d{2}$/,           // YYYY-MM-DD
@@ -176,4 +175,4 @@ export class TypeDetector {
 
     return false;
   }
-} 
+}

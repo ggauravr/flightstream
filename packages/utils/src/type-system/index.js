@@ -71,4 +71,4 @@ export const safeParseStruct = (value) => transformer.safeParseStruct(value);
 export const safeParseMap = (value) => transformer.safeParseMap(value);
 export const safeParseInterval = (value) => transformer.safeParseInterval(value);
 export const safeParseDuration = (value, unitMultiplier) => transformer.safeParseDuration(value, unitMultiplier);
-export const parseDurationString = (durationStr) => transformer.parseDurationString(durationStr); 
+export const parseDurationString = (durationStr) => transformer.parseDurationString(durationStr);

@@ -17,11 +17,9 @@
  * under the License.
  */
 
-import * as arrow from 'apache-arrow';
-
 /**
  * TypeTransformer - Handles all data transformation/parsing logic
- * 
+ *
  * This class provides methods to safely convert raw values to Arrow-compatible
  * values. It handles null values, type conversion, and error recovery.
  */
@@ -154,7 +152,7 @@ export class TypeTransformer {
    * @param {arrow.DataType} arrowType - Arrow decimal type
    * @returns {*} Decimal value or null
    */
-  safeParseDecimal(value, arrowType) {
+  safeParseDecimal(value, _arrowType) {
     if (value === null || value === undefined) return null;
     try {
       // For now, return the value as-is and let Arrow handle the conversion
@@ -282,7 +280,7 @@ export class TypeTransformer {
       while ((match = regex.exec(durationStr)) !== null) {
         const value = parseInt(match[1], 10);
         const unit = match[2];
-        
+
         switch (unit) {
         case 'd': totalMs += value * 24 * 60 * 60 * 1000; break;
         case 'h': totalMs += value * 60 * 60 * 1000; break;
@@ -296,4 +294,4 @@ export class TypeTransformer {
       return null;
     }
   }
-} 
+}
