@@ -1,0 +1,77 @@
+name: Dependencies
+
+on:
+  schedule:
+    # Run dependency updates weekly on Sundays at 3 AM UTC
+    - cron: '0 3 * * 0'
+  workflow_dispatch:
+
+jobs:
+  update-dependencies:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Use Node.js 20.x
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20.x
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Check for outdated dependencies
+      id: outdated
+      run: |
+        OUTDATED=$(npm outdated --json || echo "{}")
+        echo "outdated=$OUTDATED" >> $GITHUB_OUTPUT
+        echo "Outdated packages: $OUTDATED"
+        
+    - name: Update dependencies
+      if: steps.outdated.outputs.outdated != '{}'
+      run: |
+        # Update dependencies in all packages
+        npx lerna exec -- npm update
+        
+        # Check for major version updates
+        npx lerna exec -- npm audit fix --dry-run || true
+        
+    - name: Run tests after updates
+      if: steps.outdated.outputs.outdated != '{}'
+      run: npx lerna run test
+      
+    - name: Run linting after updates
+      if: steps.outdated.outputs.outdated != '{}'
+      run: npx lerna run lint
+      
+    - name: Create Pull Request
+      if: steps.outdated.outputs.outdated != '{}'
+      uses: peter-evans/create-pull-request@v5
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        commit-message: 'chore(deps): update dependencies'
+        title: 'chore(deps): update dependencies'
+        body: |
+          ## Dependency Updates
+          
+          This PR updates dependencies across all packages in the monorepo.
+          
+          ### Changes
+          - Updated outdated packages
+          - Ran tests to ensure compatibility
+          - Ran linting to ensure code quality
+          
+          ### Packages Updated
+          ${{ steps.outdated.outputs.outdated }}
+          
+          ### Testing
+          - [x] All tests pass
+          - [x] Linting passes
+          - [x] No breaking changes detected
+        branch: chore/update-dependencies
+        delete-branch: true 

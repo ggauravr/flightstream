@@ -27,7 +27,7 @@ jobs:
       run: npm ci
       
     - name: Run npm audit
-      run: npm audit --audit-level moderate
+      run: npm run audit:check
       continue-on-error: true
       
     - name: Run npm audit fix (dry run)
