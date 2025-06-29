@@ -186,11 +186,9 @@ Thumbs.db
 
 # Project specific
 # Data files (can be large and shouldn't be in repo by default)
-data/*.csv
 data/*.parquet
 data/*.json
 data/*.tsv
-!data/sample.csv
 !data/README.md
 
 # Generated documentation
