@@ -99,6 +99,12 @@ export class CSVFlightService extends FlightServiceBase {
         const datasetId = path.basename(file, '.csv');
 
         try {
+          // Check if file exists before processing
+          if (!fs.existsSync(filePath)) {
+            console.warn(`CSV file not found: ${filePath}`);
+            continue;
+          }
+
           // Infer schema from CSV file
           const schema = await this._inferSchemaForDataset(filePath);
 

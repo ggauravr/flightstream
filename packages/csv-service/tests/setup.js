@@ -122,4 +122,10 @@ const CSVTestUtils = {
 };
 
 // Make available globally for tests
-global.CSVTestUtils = CSVTestUtils; 
+global.CSVTestUtils = CSVTestUtils;
+
+// Global teardown to ensure all async operations are cleaned up
+afterAll(() => {
+  // Wait a bit for any pending async operations to complete
+  return new Promise(resolve => setTimeout(resolve, 100));
+}); 

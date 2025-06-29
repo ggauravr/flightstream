@@ -43,6 +43,18 @@ describe('CSVFlightService', () => {
 
   afterEach(() => {
     global.CSVTestUtils.cleanupTestFiles();
+    
+    // Clean up service if it exists
+    if (service) {
+      // Stop any ongoing operations
+      if (service._initialized) {
+        service._initialized = false;
+      }
+      // Clear datasets to prevent async operations
+      if (service.datasets) {
+        service.datasets.clear();
+      }
+    }
   });
 
   describe('construction', () => {
