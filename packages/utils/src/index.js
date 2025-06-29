@@ -28,7 +28,7 @@
 // Core utilities
 export { ArrowBuilder } from './arrow-builder.js';
 export { inferSchema, inferColumnType, normalizeSchema, generateArrowSchema } from './schema-inference.js';
-export { streamingUtils } from './streaming-utils.js';
+export { default as streamingUtils } from './streaming-utils.js';
 
 // Type system (modular)
 export * from './type-system/index.js';

@@ -122,7 +122,7 @@ const CSVTestUtils = {
 };
 
 // Make available globally for tests
-global.CSVTestUtils = CSVTestUtils;
+global.CSVTestUtils = CSVTestUtils; 
 
 // Global teardown to ensure all async operations are cleaned up
 afterAll(() => {
