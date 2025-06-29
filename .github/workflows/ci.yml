@@ -48,7 +48,7 @@ jobs:
     
     strategy:
       matrix:
-        package: [@flightstream/utils, @flightstream/core, @flightstream/csv-service]
+        package: ['@flightstream/utils', '@flightstream/core', '@flightstream/csv-service']
         
     steps:
     - name: Checkout code
