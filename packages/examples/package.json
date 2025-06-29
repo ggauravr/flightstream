@@ -9,7 +9,8 @@
     "start": "node basic-server/index.js",
     "dev": "nodemon basic-server/index.js",
     "test-client": "node test-client/test-client.js",
-    "lint": "eslint **/*.js"
+    "lint": "eslint **/*.js",
+    "lint:fix": "eslint **/*.js --fix"
   },
   "keywords": [
     "arrow",

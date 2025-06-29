@@ -19,7 +19,7 @@
 
 /**
  * @fileoverview Basic Arrow Flight CSV Server Example
- * 
+ *
  * This example demonstrates how to create a complete Arrow Flight server
  * that serves CSV files using the @arrow-flight packages. This is a reference
  * implementation showing all the key concepts and patterns.
@@ -33,7 +33,7 @@ import { CSVFlightService } from '@flightstream/csv-service';
 
 /**
  * Basic Arrow Flight CSV Server
- * 
+ *
  * This server automatically discovers CSV files in the data directory
  * and makes them available via the Arrow Flight protocol with automatic
  * schema inference and efficient streaming.
@@ -46,7 +46,7 @@ class BasicCSVServer {
       dataDirectory: options.dataDirectory || process.env.DATA_DIRECTORY || './data',
       ...options
     };
-    
+
     // Create the generic Flight server
     this.flightServer = new FlightServer({
       host: this.options.host,
@@ -54,7 +54,7 @@ class BasicCSVServer {
       maxReceiveMessageLength: 100 * 1024 * 1024, // 100MB
       maxSendMessageLength: 100 * 1024 * 1024,    // 100MB
     });
-    
+
     // Create the CSV service service
     this.csvService = new CSVFlightService({
       dataDirectory: this.options.dataDirectory,
@@ -63,24 +63,24 @@ class BasicCSVServer {
       headers: process.env.CSV_HEADERS !== 'false',
     });
   }
-  
+
   async start() {
     try {
       console.log('🚀 Starting Arrow Flight CSV Server...');
       console.log(`📁 Data directory: ${this.options.dataDirectory}`);
-      
+
       // Initialize the CSV service (discover datasets)
       await this.csvService.initialize();
-      
+
       // Register the CSV service with the Flight server
       this.flightServer.setFlightService(this.csvService);
-      
+
       // Start the server
       const port = await this.flightServer.start();
-      
-      console.log(`✅ Server started successfully!`);
+
+      console.log('✅ Server started successfully!');
       console.log(`🌐 Arrow Flight Server listening on ${this.options.host}:${port}`);
-      
+
       // Display available datasets
       const datasetIds = this.csvService.getDatasets();
       console.log(`📊 Available datasets: ${datasetIds.length}`);
@@ -93,18 +93,18 @@ class BasicCSVServer {
         console.log(`\n⚠️  No CSV files found in ${this.options.dataDirectory}`);
         console.log('   Add some .csv files to start serving data!');
       }
-      
+
       console.log('\n🔗 Test with:');
-      console.log(`   npm run test`);
+      console.log('   npm run test');
       console.log('   or connect with any Arrow Flight client\n');
-      
+
       return port;
     } catch (error) {
       console.error('❌ Failed to start server:', error);
       throw error;
     }
   }
-  
+
   async stop() {
     try {
       console.log('🛑 Stopping server...');
@@ -120,7 +120,7 @@ class BasicCSVServer {
 // Main execution
 async function main() {
   const server = new BasicCSVServer();
-  
+
   // Graceful shutdown handling
   const gracefulShutdown = async (signal) => {
     console.log(`\n📡 Received ${signal}, shutting down gracefully...`);
@@ -132,11 +132,11 @@ async function main() {
       process.exit(1);
     }
   };
-  
+
   // Handle shutdown signals
   process.on('SIGINT', () => gracefulShutdown('SIGINT'));
   process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
-  
+
   try {
     await server.start();
   } catch (error) {
@@ -151,4 +151,4 @@ if (import.meta.url === `file://${process.argv[1]}`) {
 }
 
 export { BasicCSVServer };
-export default BasicCSVServer; 
+export default BasicCSVServer;
