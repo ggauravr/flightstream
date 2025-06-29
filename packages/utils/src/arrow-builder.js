@@ -19,6 +19,7 @@
 
 import * as arrow from 'apache-arrow';
 import { vectorFromArray, makeData } from 'apache-arrow';
+import { getTypeTransformer } from './type-system/index.js';
 
 /**
  * Abstract Arrow Builder Base Class
@@ -34,6 +35,7 @@ import { vectorFromArray, makeData } from 'apache-arrow';
  * 4. IPC serialization for Flight protocol
  * 5. Error handling for type conversion edge cases
  * 6. Table creation and schema management
+ * 7. Dynamic type support with runtime extensibility
  *
  * Subclasses must implement:
  * - _buildArrowSchema(): Create Arrow schema from source schema
@@ -140,7 +142,7 @@ export class ArrowBuilder {
 
   /**
    * Create Arrow vector from field definition and data array
-   * Generic method that handles all Arrow types
+   * Generic method that handles all Arrow types dynamically
    * @param {arrow.Field} field - Arrow field definition
    * @param {Array} data - Array of values for this column
    * @returns {arrow.Vector} Arrow vector
@@ -149,60 +151,12 @@ export class ArrowBuilder {
     const arrowType = field.type;
 
     try {
-      switch (arrowType.constructor) {
-      case arrow.Bool:
-        return vectorFromArray(
-          data.map(v => v === null ? null : Boolean(v)),
-          arrowType
-        );
-
-      case arrow.Int64:
-        return vectorFromArray(
-          data.map(v => {
-            if (v === null) return null;
-            const parsed = this._safeParseInt(v);
-            return parsed === null ? null : BigInt(parsed);
-          }),
-          arrowType
-        );
-
-      case arrow.Int32:
-        return vectorFromArray(
-          data.map(v => v === null ? null : this._safeParseInt(v)),
-          arrowType
-        );
-
-      case arrow.Float64:
-        return vectorFromArray(
-          data.map(v => v === null ? null : this._safeParseFloat(v)),
-          arrowType
-        );
-
-      case arrow.Float32:
-        return vectorFromArray(
-          data.map(v => v === null ? null : this._safeParseFloat(v)),
-          arrowType
-        );
-
-      case arrow.DateMillisecond:
-        return vectorFromArray(
-          data.map(v => v === null ? null : this._safeParseDateMillis(v)),
-          arrowType
-        );
-
-      case arrow.TimestampMillisecond:
-        return vectorFromArray(
-          data.map(v => v === null ? null : this._safeParseDateMillis(v)),
-          arrowType
-        );
-
-      case arrow.Utf8:
-      default:
-        return vectorFromArray(
-          data.map(v => v === null ? null : String(v)),
-          arrowType
-        );
-      }
+      // Use the centralized type system for dynamic type handling
+      const transformer = getTypeTransformer(arrowType);
+      const transformedData = data.map(v => transformer(v));
+      
+      // Create vector using Arrow's vectorFromArray
+      return vectorFromArray(transformedData, arrowType);
     } catch (error) {
       console.warn(`Error creating vector for field ${field.name}:`, error);
       // Fallback to string vector
@@ -210,45 +164,6 @@ export class ArrowBuilder {
         data.map(v => v === null ? null : String(v)),
         new arrow.Utf8()
       );
-    }
-  }
-
-  // ===== GENERIC UTILITY METHODS =====
-
-  /**
-   * Safe integer parsing with null handling
-   * @param {*} value - Value to parse
-   * @returns {number|null} Parsed integer or null
-   */
-  _safeParseInt(value) {
-    if (value === null || value === undefined) return null;
-    const parsed = parseInt(value, 10);
-    return isNaN(parsed) ? null : parsed;
-  }
-
-  /**
-   * Safe float parsing with null handling
-   * @param {*} value - Value to parse
-   * @returns {number|null} Parsed float or null
-   */
-  _safeParseFloat(value) {
-    if (value === null || value === undefined) return null;
-    const parsed = parseFloat(value);
-    return isNaN(parsed) ? null : parsed;
-  }
-
-  /**
-   * Safe date parsing to milliseconds with null handling
-   * @param {*} value - Value to parse as date
-   * @returns {number|null} Date in milliseconds or null
-   */
-  _safeParseDateMillis(value) {
-    if (value === null || value === undefined) return null;
-    try {
-      const date = value instanceof Date ? value : new Date(value);
-      return isNaN(date.getTime()) ? null : date.getTime();
-    } catch (error) {
-      return null;
     }
   }
 
@@ -262,7 +177,8 @@ export class ArrowBuilder {
       return null;
     }
 
-    return new arrow.Table(this.arrowSchema, recordBatches);
+    // Correct usage: pass only the recordBatches array
+    return new arrow.Table(recordBatches);
   }
 
   /**
@@ -340,3 +256,5 @@ export class ArrowBuilder {
     };
   }
 }
+
+export default ArrowBuilder;

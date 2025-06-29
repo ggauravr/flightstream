@@ -1,12 +1,13 @@
 /**
- * Tests for ArrowBuilder abstract base class
- * @fileoverview Comprehensive test suite for Arrow data builder functionality
+ * Tests for ArrowBuilder
+ * @fileoverview Comprehensive test suite for Arrow data building functionality
  */
 
 import { ArrowBuilder } from '../src/arrow-builder.js';
+import { safeParseInt, safeParseFloat, safeParseDateMillis } from '../src/type-system/index.js';
 import * as arrow from 'apache-arrow';
 
-// Create a concrete implementation for testing the abstract class
+// Test implementation of ArrowBuilder
 class TestArrowBuilder extends ArrowBuilder {
   constructor(schema, options) {
     super(schema, options);
@@ -14,9 +15,8 @@ class TestArrowBuilder extends ArrowBuilder {
 
   _buildArrowSchema() {
     const fields = [];
-    for (const [columnName, type] of Object.entries(this.sourceSchema)) {
-      const arrowType = this._mapSourceTypeToArrow(type);
-      fields.push(arrow.Field.new(columnName, arrowType, true));
+    for (const [name, type] of Object.entries(this.sourceSchema)) {
+      fields.push(arrow.Field.new(name, type, true));
     }
     this.arrowSchema = new arrow.Schema(fields);
   }
@@ -27,15 +27,17 @@ class TestArrowBuilder extends ArrowBuilder {
     }
 
     const columnData = {};
-    for (const field of this.arrowSchema.fields) {
-      columnData[field.name] = [];
+    const fieldNames = Object.keys(this.sourceSchema);
+
+    // Initialize columns
+    for (const fieldName of fieldNames) {
+      columnData[fieldName] = [];
     }
 
+    // Transform rows to columns
     for (const row of sourceData) {
-      for (const field of this.arrowSchema.fields) {
-        const columnName = field.name;
-        const value = row[columnName];
-        columnData[columnName].push(value);
+      for (const fieldName of fieldNames) {
+        columnData[fieldName].push(row[fieldName]);
       }
     }
 
@@ -154,35 +156,36 @@ describe('ArrowBuilder', () => {
     });
   });
 
-  describe('safe parsing utilities', () => {
-    it('should safely parse integers', () => {
-      expect(builder._safeParseInt('123')).toBe(123);
-      expect(builder._safeParseInt('abc')).toBeNull();
-      expect(builder._safeParseInt('0')).toBe(0);
-      expect(builder._safeParseInt('-456')).toBe(-456);
-      expect(builder._safeParseInt(null)).toBeNull();
-      expect(builder._safeParseInt(undefined)).toBeNull();
+  describe('type system integration', () => {
+    it('should use centralized type system for parsing', () => {
+      // Test that the type system functions work correctly
+      expect(safeParseInt('123')).toBe(123);
+      expect(safeParseInt('abc')).toBeNull();
+      expect(safeParseInt('0')).toBe(0);
+      expect(safeParseInt('-456')).toBe(-456);
+      expect(safeParseInt(null)).toBeNull();
+      expect(safeParseInt(undefined)).toBeNull();
     });
 
-    it('should safely parse floats', () => {
-      expect(builder._safeParseFloat('123.45')).toBeCloseTo(123.45);
-      expect(builder._safeParseFloat('abc')).toBeNull();
-      expect(builder._safeParseFloat('0.0')).toBe(0);
-      expect(builder._safeParseFloat('-456.789')).toBeCloseTo(-456.789);
-      expect(builder._safeParseFloat(null)).toBeNull();
-      expect(builder._safeParseFloat(undefined)).toBeNull();
+    it('should use centralized type system for float parsing', () => {
+      expect(safeParseFloat('123.45')).toBeCloseTo(123.45);
+      expect(safeParseFloat('abc')).toBeNull();
+      expect(safeParseFloat('0.0')).toBe(0);
+      expect(safeParseFloat('-456.789')).toBeCloseTo(-456.789);
+      expect(safeParseFloat(null)).toBeNull();
+      expect(safeParseFloat(undefined)).toBeNull();
     });
 
-    it('should safely parse dates', () => {
-      const validDate = builder._safeParseDateMillis('2023-01-01');
+    it('should use centralized type system for date parsing', () => {
+      const validDate = safeParseDateMillis('2023-01-01');
       expect(typeof validDate).toBe('number');
       expect(validDate).toBeGreaterThan(0);
       
-      const invalidDate = builder._safeParseDateMillis('invalid-date');
+      const invalidDate = safeParseDateMillis('invalid-date');
       expect(invalidDate).toBeNull();
       
-      expect(builder._safeParseDateMillis(null)).toBeNull();
-      expect(builder._safeParseDateMillis(undefined)).toBeNull();
+      expect(safeParseDateMillis(null)).toBeNull();
+      expect(safeParseDateMillis(undefined)).toBeNull();
     });
   });
 

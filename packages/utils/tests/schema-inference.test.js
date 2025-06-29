@@ -3,8 +3,8 @@
  * @fileoverview Comprehensive test suite for data type inference and schema generation
  */
 
+import { inferType } from '../src/type-system/index.js';
 import {
-  inferType,
   inferSchema,
   inferColumnType,
   normalizeSchema,

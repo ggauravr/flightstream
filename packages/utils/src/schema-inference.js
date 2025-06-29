@@ -17,6 +17,8 @@
  * under the License.
  */
 
+import { inferType, mapToArrowType, isValidArrowType } from './type-system/index.js';
+
 /**
  * Generic Schema Inference Utilities
  *
@@ -30,50 +32,6 @@
  * 4. Arrow schema generation
  * 5. Schema validation and normalization
  */
-
-/**
- * Infer data types from sample values
- * @param {*} value - Sample value to analyze
- * @param {Object} options - Type inference options
- * @returns {string} Inferred type name
- */
-export function inferType(value, options = {}) {
-  const {
-    strictMode = false,
-    dateFormats = ['YYYY-MM-DD', 'YYYY-MM-DD HH:mm:ss'],
-    integerThreshold = Number.MAX_SAFE_INTEGER
-  } = options;
-
-  if (value === null || value === undefined || value === '') {
-    return 'string'; // default to string for null/empty values
-  }
-
-  const strValue = String(value).trim();
-
-  // Boolean detection
-  if (isBooleanValue(strValue)) {
-    return 'boolean';
-  }
-
-  // Numeric detection
-  const numericType = inferNumericType(strValue, { strictMode, integerThreshold });
-  if (numericType) {
-    return numericType;
-  }
-
-  // Date detection
-  if (isDateValue(strValue, dateFormats)) {
-    return 'date';
-  }
-
-  // Timestamp detection
-  if (isTimestampValue(strValue)) {
-    return 'timestamp';
-  }
-
-  // Default to string
-  return 'string';
-}
 
 /**
  * Infer schema from a collection of sample data
@@ -177,109 +135,6 @@ export function inferColumnType(values, options = {}) {
 }
 
 /**
- * Check if a value represents a boolean
- * @param {string} value - String value to check
- * @returns {boolean}
- */
-function isBooleanValue(value) {
-  const lowerValue = value.toLowerCase();
-  return ['true', 'false', 'yes', 'no', '1', '0', 'y', 'n'].includes(lowerValue);
-}
-
-/**
- * Infer numeric type from string value
- * @param {string} value - String value to analyze
- * @param {Object} options - Numeric inference options
- * @returns {string|null} Numeric type or null if not numeric
- */
-function inferNumericType(value, options = {}) {
-  const { strictMode = false, integerThreshold = Number.MAX_SAFE_INTEGER } = options;
-
-  // Integer detection
-  if (/^-?\d+$/.test(value)) {
-    const intValue = parseInt(value, 10);
-    if (Math.abs(intValue) <= integerThreshold) {
-      return 'int64';
-    } else {
-      return 'string'; // Too large for safe integer
-    }
-  }
-
-  // Float detection
-  if (/^-?\d*\.\d+$/.test(value) || /^-?\d+\.?\d*[eE][+-]?\d+$/.test(value)) {
-    return 'float64';
-  }
-
-  // Percentage
-  if (/^-?\d*\.?\d+%$/.test(value)) {
-    return strictMode ? 'string' : 'float64';
-  }
-
-  // Currency (simple detection)
-  if (/^[$€£¥]\d+\.?\d*$/.test(value)) {
-    return strictMode ? 'string' : 'float64';
-  }
-
-  return null;
-}
-
-/**
- * Check if a value represents a date
- * @param {string} value - String value to check
- * @param {Array} _dateFormats - Supported date formats (for future use)
- * @returns {boolean}
- */
-function isDateValue(value, _dateFormats = []) {
-  // Simple date patterns
-  const datePatterns = [
-    /^\d{4}-\d{2}-\d{2}$/,           // YYYY-MM-DD
-    /^\d{2}\/\d{2}\/\d{4}$/,         // MM/DD/YYYY
-    /^\d{2}-\d{2}-\d{4}$/,           // MM-DD-YYYY
-    /^\d{4}\/\d{2}\/\d{2}$/,         // YYYY/MM/DD
-  ];
-
-  // Check against patterns
-  for (const pattern of datePatterns) {
-    if (pattern.test(value)) {
-      // Validate it's actually a valid date
-      const date = new Date(value);
-      return !isNaN(date.getTime());
-    }
-  }
-
-  return false;
-}
-
-/**
- * Check if a value represents a timestamp
- * @param {string} value - String value to check
- * @returns {boolean}
- */
-function isTimestampValue(value) {
-  // ISO timestamp
-  if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(value)) {
-    const date = new Date(value);
-    return !isNaN(date.getTime());
-  }
-
-  // Unix timestamp (seconds)
-  if (/^\d{10}$/.test(value)) {
-    const timestamp = parseInt(value, 10);
-    // Check if it's a reasonable timestamp (between 1970 and 2050)
-    return timestamp > 0 && timestamp < 2524608000;
-  }
-
-  // Unix timestamp (milliseconds)
-  if (/^\d{13}$/.test(value)) {
-    const timestamp = parseInt(value, 10);
-    // Check if it's a reasonable timestamp
-    return timestamp > 0 && timestamp < 2524608000000;
-  }
-
-  return false;
-}
-
-/**
  * Normalize schema by resolving type conflicts and applying rules
  * @param {Object} schema - Raw inferred schema
  * @param {Object} options - Normalization options
@@ -320,21 +175,6 @@ export function normalizeSchema(schema, options = {}) {
 }
 
 /**
- * Check if a type is valid for Arrow
- * @param {string} type - Type to validate
- * @returns {boolean}
- */
-function isValidArrowType(type) {
-  const validTypes = [
-    'boolean', 'int8', 'int16', 'int32', 'int64',
-    'uint8', 'uint16', 'uint32', 'uint64',
-    'float32', 'float64', 'string', 'binary',
-    'date', 'timestamp', 'time'
-  ];
-  return validTypes.includes(type);
-}
-
-/**
  * Generate Arrow schema from inferred schema
  * @param {Object} schema - Inferred schema
  * @param {Object} options - Arrow schema options
@@ -362,26 +202,7 @@ export function generateArrowSchema(schema, options = {}) {
   };
 }
 
-/**
- * Map inferred type to Arrow type
- * @param {string} type - Inferred type
- * @returns {string} Arrow type
- */
-function mapToArrowType(type) {
-  const typeMapping = {
-    'boolean': 'bool',
-    'int64': 'int64',
-    'float64': 'float64',
-    'date': 'date32',
-    'timestamp': 'timestamp',
-    'string': 'utf8'
-  };
-
-  return typeMapping[type] || 'utf8';
-}
-
 export default {
-  inferType,
   inferSchema,
   inferColumnType,
   normalizeSchema,

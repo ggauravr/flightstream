@@ -18,18 +18,17 @@
  */
 
 /**
- * @fileoverview Utilities for working with Arrow data and Flight protocol
+ * @fileoverview FlightStream Utilities Package
  *
- * This package provides essential utilities for Arrow data conversion, schema inference,
- * and streaming operations. These utilities can be used independently or with the
- * Arrow Flight server framework.
+ * This package provides utilities for working with Arrow data and Flight protocol
+ * in FlightStream. It includes schema inference, arrow building, and type system
+ * components.
  */
 
-// Arrow data utilities
+// Core utilities
 export { ArrowBuilder } from './arrow-builder.js';
+export { inferSchema, inferColumnType, normalizeSchema, generateArrowSchema } from './schema-inference.js';
+export { streamingUtils } from './streaming-utils.js';
 
-// Schema utilities
-export * from './schema-inference.js';
-
-// Streaming utilities
-export * from './streaming-utils.js';
+// Type system (modular)
+export * from './type-system/index.js';
