@@ -153,6 +153,7 @@ class FlightClient {
       const recordBatches = [];
       let totalRows = 0;
       
+      const startTime = Date.now();
       call.on('data', (flightData) => {
         try {
           if (flightData.data_body && flightData.data_body.length > 0) {
@@ -190,9 +191,12 @@ class FlightClient {
       });
       
       call.on('end', () => {
+        const endTime = Date.now();
+        const duration = (endTime - startTime) / 1000;
         console.log(`✅ Streaming complete for ${datasetId}`);
         console.log(`   Total batches: ${recordBatches.length}`);
         console.log(`   Total rows: ${totalRows}`);
+        console.log(`   Duration: ${duration.toFixed(2)} seconds`);
         
         // Create table from record batches
         if (recordBatches.length > 0) {
