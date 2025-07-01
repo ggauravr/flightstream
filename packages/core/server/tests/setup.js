@@ -1,5 +1,5 @@
 /**
- * Jest setup for @flightstream/core package
+ * Jest setup for @flightstream/core-server package
  */
 
 // Set test timeout for gRPC operations

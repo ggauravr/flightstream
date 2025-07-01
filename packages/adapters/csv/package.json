@@ -1,13 +1,14 @@
 {
-  "name": "@flightstream/csv-service",
+  "name": "@flightstream/adapters-csv",
   "version": "1.0.0",
-  "description": "CSV file service for FlightStream servers with streaming and schema inference for Node.js",
+  "description": "CSV file adapter for Arrow Flight streaming with automatic schema inference",
   "main": "src/index.js",
   "type": "module",
   "exports": {
     ".": "./src/index.js",
     "./csv-service": "./src/csv-service.js",
-    "./csv-streamer": "./src/csv-streamer.js"
+    "./csv-streamer": "./src/csv-streamer.js",
+    "./csv-arrow-builder": "./src/csv-arrow-builder.js"
   },
   "scripts": {
     "test": "NODE_OPTIONS=\"--experimental-vm-modules\" jest",
@@ -19,18 +20,18 @@
     "arrow-flight",
     "csv",
     "streaming",
-    "service",
-    "data-source",
+    "schema-inference",
+    "flight-protocol",
     "flightstream"
   ],
   "author": "gggauravr@gmail.com",
   "license": "Apache-2.0",
   "dependencies": {
-    "@flightstream/core": "^1.0.0",
-    "@flightstream/utils": "^1.0.0",
-    "fast-csv": "^4.3.6"
+    "fast-csv": "^5.0.0"
   },
   "peerDependencies": {
+    "@flightstream/core-server": "^1.0.0",
+    "@flightstream/utils-arrow": "^1.0.0",
     "apache-arrow": "^14.0.0"
   },
   "engines": {

@@ -18,7 +18,7 @@
  */
 
 import * as arrow from 'apache-arrow';
-import { ArrowBuilder } from '@flightstream/utils';
+import { ArrowBuilder } from '@flightstream/utils-arrow';
 
 /**
  * CSV-Specific Arrow Builder

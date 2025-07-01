@@ -1,5 +1,5 @@
 /**
- * Jest setup for @flightstream/utils package
+ * Jest setup for @flightstream/utils-arrow package
  */
 
 // Set test timeout for Arrow operations

@@ -1,5 +1,5 @@
 /**
- * Jest setup for @flightstream/csv-service package
+ * Jest setup for @flightstream/adapters-csv package
  */
 
 import fs from 'fs';

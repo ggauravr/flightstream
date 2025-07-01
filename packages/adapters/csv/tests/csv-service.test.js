@@ -4,7 +4,7 @@
  */
 
 import { CSVFlightService } from '../src/csv-service.js';
-import { FlightServiceBase } from '@flightstream/core';
+import { FlightServiceBase } from '@flightstream/core-server';
 import fs from 'fs';
 import path from 'path';
 

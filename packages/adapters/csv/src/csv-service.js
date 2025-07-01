@@ -21,7 +21,7 @@ import path from 'path';
 import fs from 'fs';
 
 // Import base service and utilities
-import { FlightServiceBase } from '@flightstream/core';
+import { FlightServiceBase } from '@flightstream/core-server';
 import { CSVStreamer } from './csv-streamer.js';
 import { CSVArrowBuilder } from './csv-arrow-builder.js';
 

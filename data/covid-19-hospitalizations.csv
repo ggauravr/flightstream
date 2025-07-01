@@ -1,8 +1,3 @@
-# Sample Dataset: COVID-19 Hospitalization Rates
-# Description: Monthly rates of laboratory-confirmed COVID-19 hospitalizations from the COVID-NET surveillance system
-# Source: Centers for Disease Control and Prevention (CDC) COVID-NET Surveillance System
-# Link: https://catalog.data.gov/dataset/monthly-rates-of-laboratory-confirmed-covid-19-hospitalizations-from-the-covid-net-surveil
-# Records: 41787
 State,Season,_YearMonth,AgeCategory_Legend,Sex_Label,Race_Label,MonthlyRate,Type
 Utah,2021-22,202202.0,6mo-<12 months,All,All,53.0,Crude Rate
 Utah,2021-22,202111.0,6mo-<12 months,All,All,39.7,Crude Rate

@@ -1,0 +1,46 @@
+{
+  "name": "@flightstream/frameworks-react",
+  "version": "0.1.0",
+  "description": "React hooks and components for Arrow Flight streaming with DuckDB",
+  "main": "src/index.js",
+  "type": "module",
+  "private": true,
+  "exports": {
+    ".": "./src/index.js",
+    "./hooks": "./src/hooks/index.js",
+    "./components": "./src/components/index.js"
+  },
+  "scripts": {
+    "test": "NODE_OPTIONS=\"--experimental-vm-modules\" jest",
+    "lint": "eslint src/**/*.js",
+    "lint:fix": "eslint src/**/*.js --fix",
+    "build": "webpack --mode production",
+    "build:dev": "webpack --mode development"
+  },
+  "keywords": [
+    "arrow",
+    "arrow-flight",
+    "react",
+    "hooks",
+    "components",
+    "duckdb",
+    "streaming",
+    "flightstream"
+  ],
+  "author": "gggauravr@gmail.com",
+  "license": "Apache-2.0",
+  "peerDependencies": {
+    "@flightstream/core-client-engine": "^0.1.0",
+    "@flightstream/utils-arrow": "^1.0.0",
+    "react": "^18.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "files": [
+    "src/",
+    "dist/",
+    "README.md",
+    "LICENSE"
+  ]
+} 
