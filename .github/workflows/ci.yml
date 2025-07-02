@@ -63,6 +63,15 @@ jobs:
     - name: Install dependencies
       run: npm ci
       
+    - name: Setup test data for CSV adapter
+      if: matrix.package == '@flightstream/adapters-csv'
+      run: |
+        mkdir -p data
+        echo "id,name,price" > data/sample.csv
+        echo "1,Product 1,29.99" >> data/sample.csv
+        echo "2,Product 2,39.99" >> data/sample.csv
+        echo "3,Product 3,49.99" >> data/sample.csv
+      
     - name: Test ${{ matrix.package }} package
       run: npx lerna run test --scope=${{ matrix.package }}
 
