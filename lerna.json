@@ -15,13 +15,16 @@
       "allowBranch": ["main", "master"],
       "message": "chore(release): publish %s",
       "conventionalCommits": true,
-      "conventionalGraduate": true
+      "conventionalGraduate": true,
+      "preid": "beta"
     },
     "publish": {
       "allowBranch": ["main", "master"],
       "conventionalCommits": true,
       "message": "chore(release): publish %s",
-      "registry": "https://registry.npmjs.org/"
+      "registry": "https://registry.npmjs.org/",
+      "dist-tag": "latest",
+      "preid": "beta"
     }
   },
   "ignoreChanges": [
