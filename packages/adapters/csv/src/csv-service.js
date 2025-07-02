@@ -87,7 +87,7 @@ export class CSVFlightService extends FlightServiceBase {
   async _initializeDatasets() {
     try {
       const dataDir = this.csvOptions.dataDirectory;
-      
+
       // Check if data directory exists
       if (!fs.existsSync(dataDir)) {
         console.warn(`Data directory ${dataDir} does not exist - no CSV datasets will be loaded`);
@@ -102,7 +102,7 @@ export class CSVFlightService extends FlightServiceBase {
       }
 
       const files = fs.readdirSync(dataDir).filter(file => file.endsWith('.csv'));
-      
+
       if (files.length === 0) {
         console.log(`No CSV files found in data directory: ${dataDir}`);
         return;
