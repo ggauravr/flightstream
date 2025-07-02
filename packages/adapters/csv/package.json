@@ -1,9 +1,12 @@
 {
   "name": "@flightstream/adapters-csv",
-  "version": "1.0.0",
+  "version": "1.0.0-alpha.1",
   "description": "CSV file adapter for Arrow Flight streaming with automatic schema inference",
   "main": "src/index.js",
   "type": "module",
+  "publishConfig": {
+    "access": "public"
+  },
   "exports": {
     ".": "./src/index.js",
     "./csv-service": "./src/csv-service.js",
@@ -30,8 +33,8 @@
     "fast-csv": "^5.0.0"
   },
   "peerDependencies": {
-    "@flightstream/core-server": "^1.0.0",
-    "@flightstream/utils-arrow": "^1.0.0",
+    "@flightstream/core-server": "^1.0.0-alpha.1",
+    "@flightstream/utils-arrow": "^1.0.0-alpha.1",
     "apache-arrow": "^14.0.0"
   },
   "engines": {
@@ -41,5 +44,6 @@
     "src/",
     "README.md",
     "LICENSE"
-  ]
-} 
+  ],
+  "gitHead": "644f8122a25461e560fd3920e4657c0f7598aeb7"
+}

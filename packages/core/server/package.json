@@ -1,9 +1,12 @@
 {
   "name": "@flightstream/core-server",
-  "version": "1.0.0",
+  "version": "1.0.0-alpha.1",
   "description": "Core Apache Arrow Flight server framework with plugin architecture for Node.js",
   "main": "src/index.js",
   "type": "module",
+  "publishConfig": {
+    "access": "public"
+  },
   "exports": {
     ".": "./src/index.js",
     "./flight-server": "./src/flight-server.js",
@@ -41,5 +44,6 @@
     "proto/",
     "README.md",
     "LICENSE"
-  ]
-} 
+  ],
+  "gitHead": "644f8122a25461e560fd3920e4657c0f7598aeb7"
+}
