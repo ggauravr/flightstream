@@ -3,7 +3,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Node.js Version](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg)](https://nodejs.org/)
 
-High-performance Apache Arrow Flight streaming framework with plugin architecture for Node.js and browser environments. This monorepo contains a complete ecosystem for building high-performance data streaming services and clients using the Arrow Flight protocol.
+High-performance Apache Arrow Flight streaming framework with a plugin architecture for Node.js and browser environments. This monorepo will house a complete ecosystem for building high-performance data streaming services and clients using the Arrow Flight protocol.
 
 ## 🚀 Quick Start
 
@@ -13,14 +13,14 @@ git clone https://github.com/ggauravr/flightstream.git
 cd flightstream
 npm install
 
-# Start the example CSV server
+# Start a sample Flight server with the CSV adapter
 npm start
 
-# Test with the included client
+# Test with the included sample client
 npm test
 ```
 
-The server will automatically discover CSV files in the `data/` directory and serve them via Arrow Flight protocol.
+The server will automatically discover CSV files in the `data/` directory and serve the first dataset found in Apache Arrow format in a streaming manner
 
 ## 📦 Package Structure
 
@@ -30,8 +30,8 @@ This monorepo is organized by domain for maximum scalability and extensibility:
 
 | Package | Description | Version |
 |---------|-------------|---------|
-| [`@flightstream/core-server`](packages/core/server/) | Core Arrow Flight server framework | ![npm](https://img.shields.io/npm/v/@flightstream/core-server) |
-| [`@flightstream/core-client-engine`](packages/core/client-engine/) | Core client engine with DuckDB WASM | ![npm](https://img.shields.io/npm/v/@flightstream/core-client-engine) |
+| [`@flightstream/core-server`](packages/core/server/) | Core Arrow Flight NodeJS server | ![npm](https://img.shields.io/npm/v/@flightstream/core-server) |
+| [`@flightstream/core-client-engine`](packages/core/client-engine/) | Core framework-agnostic client engine with DuckDB WASM (planned) | - |
 
 ### Adapters
 
@@ -39,16 +39,17 @@ This monorepo is organized by domain for maximum scalability and extensibility:
 |---------|-------------|---------|
 | [`@flightstream/adapters-csv`](packages/adapters/csv/) | CSV file adapter with streaming support | ![npm](https://img.shields.io/npm/v/@flightstream/adapters-csv) |
 | [`@flightstream/adapters-parquet`](packages/adapters/parquet/) | Parquet file adapter (planned) | - |
-| [`@flightstream/adapters-database`](packages/adapters/database/) | Database adapters (planned) | - |
 
 ### Framework Integrations
 
 | Package | Description | Version |
 |---------|-------------|---------|
-| [`@flightstream/frameworks-react`](packages/frameworks/react/) | React hooks and components | ![npm](https://img.shields.io/npm/v/@flightstream/frameworks-react) |
+| [`@flightstream/frameworks-react`](packages/frameworks/react/) | React hooks and components (planned) | - |
 | [`@flightstream/frameworks-svelte`](packages/frameworks/svelte/) | Svelte stores and components (planned) | - |
 | [`@flightstream/frameworks-vue`](packages/frameworks/vue/) | Vue composables (planned) | - |
 | [`@flightstream/frameworks-vanilla`](packages/frameworks/vanilla/) | Vanilla JS utilities (planned) | - |
+| [`@flightstream/frameworks-fastify`](packages/frameworks/vanilla/) | Fastify server plugin for Flight/gRPC-based data streaming (planned) | - |
+| [`@flightstream/frameworks-express`](packages/frameworks/vanilla/) | Express server plugin for Flight/gRPC-based data streaming (planned) | - |
 
 ### Utilities
 
@@ -107,15 +108,13 @@ The framework uses a domain-driven architecture where:
 
 ## 📊 Features
 
-### Production Ready
+### Comprehensiveness
 - ✅ High-performance gRPC streaming
 - ✅ Memory-efficient batch processing  
 - ✅ Automatic schema inference
-- ✅ Comprehensive error handling
-- ✅ Docker support
-- ✅ Monitoring hooks
+- ✅ Error handling
 
-### Developer Friendly
+### Developer-friendly
 - ✅ Domain-driven package architecture
 - ✅ Framework-agnostic client engine
 - ✅ TypeScript definitions
@@ -123,18 +122,19 @@ The framework uses a domain-driven architecture where:
 - ✅ Example implementations
 - ✅ Test clients in multiple languages
 
-### Arrow Flight Protocol
+### Arrow Flight Protocol Abstractions
 - ✅ All major Flight operations (ListFlights, GetFlightInfo, DoGet, etc.)
 - ✅ Efficient binary data transfer
 - ✅ Schema discovery and validation
 - ✅ Streaming with backpressure handling
 
-### Client-Side Features (Planned)
+### Framework-specific Features (Planned)
 - ✅ DuckDB WASM integration
 - ✅ OPFS storage support
 - ✅ Framework adapters (React, Svelte, Vue)
 - ✅ Offline data persistence
 - ✅ Real-time streaming updates
+- ✅ Fastify/Express plugins
 
 ## 🛠️ Installation & Usage
 
@@ -296,7 +296,7 @@ npm run lint:server
 
 ## 🤝 Contributing
 
-We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
+I welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
 
 ### Development Workflow
 
@@ -322,6 +322,7 @@ This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENS
 
 ## 🙏 Acknowledgments
 
-- [Apache Arrow](https://arrow.apache.org/) for the columnar data format and Flight protocol
-- [DuckDB](https://duckdb.org/) for the embedded analytical database
+- [Apache Arrow](https://arrow.apache.org/) for the columnar data format
+- [DuckDB](https://duckdb.org/) for the embedded analytical database and the mind-blowing single-node performance
 - [gRPC](https://grpc.io/) for the high-performance RPC framework 
+- [Apache Arrow Flight](https://arrow.apache.org/docs/format/Flight.html) for the amazing message transfer protocol
