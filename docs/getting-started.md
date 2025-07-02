@@ -4,248 +4,286 @@ title: Getting Started
 permalink: /getting-started/
 ---
 
-# 🚀 Getting Started
+# Getting Started with FlightStream
 
-Get up and running with Arrow Flight Server Node.js in minutes.
+This guide will help you get started with FlightStream's alpha release. FlightStream is a high-performance Apache Arrow Flight streaming framework for Node.js.
 
-## 📋 Prerequisites
+## Prerequisites
 
-- **Node.js 18+** - [Download here](https://nodejs.org/)
-- **npm 8+** (comes with Node.js)
-- **Basic JavaScript knowledge**
+- Node.js 18.0.0 or higher
+- npm or yarn package manager
+- Basic understanding of Apache Arrow and gRPC concepts
 
-## ⚡ Quick Installation
+## Quick Start
 
-### Option 1: Use the Complete Framework (Recommended)
+### 1. Install FlightStream Packages
 
 ```bash
-# Clone the full repository
+# Install core server framework (alpha)
+npm install @flightstream/core-server@alpha
+
+# Install CSV adapter for data sources
+npm install @flightstream/adapters-csv@alpha
+
+# Install Arrow utilities
+npm install @flightstream/utils-arrow@alpha
+```
+
+### 2. Create a Simple Flight Server
+
+#### Option A: Create Your Own Server
+
+Create a file called `server.js`:
+
+```javascript
+import { FlightServer } from '@flightstream/core-server';
+import { CSVFlightService } from '@flightstream/adapters-csv';
+
+async function main() {
+  // Create a Flight server
+  const server = new FlightServer({ 
+    port: 8080,
+    host: 'localhost'
+  });
+
+  // Create a CSV service that serves data from a directory
+  const csvService = new CSVFlightService({
+    dataDirectory: './data'  // Directory containing CSV files
+  });
+
+  // Register the service with the server
+  server.setFlightService(csvService);
+
+  // Start the server
+  await server.start();
+  
+  console.log('FlightStream server running on localhost:8080');
+  console.log('Available datasets:');
+  
+  // List available datasets
+  const datasets = await csvService.listDatasets();
+  datasets.forEach(dataset => {
+    console.log(`  - ${dataset.name} (${dataset.recordCount} records)`);
+  });
+}
+
+main().catch(console.error);
+```
+
+#### Option B: Use the Sample Server (Recommended for Quick Start)
+
+FlightStream includes a sample server that you can run immediately:
+
+```bash
+# Clone the FlightStream repository
 git clone https://github.com/ggauravr/flightstream.git
 cd flightstream
 
 # Install dependencies
 npm install
 
-# Start the example server
+# Start the sample server
 npm start
 ```
 
-### Option 2: Install Individual Packages
+The sample server will:
+- Automatically discover CSV files in the `data/` directory
+- Start on `localhost:8080`
+- Serve the first dataset found in Apache Arrow format
+- Display available datasets in the console
+
+**Sample server location**: `packages/examples/server/basic-server/index.js`
+
+### 3. Prepare Your Data
+
+Create a `data` directory and add some CSV files:
 
 ```bash
-# Create a new project
-mkdir my-flight-server
-cd my-flight-server
-npm init -y
-
-# Install the packages you need
-npm install @flightstream/core
-npm install @flightstream/csv-service
-npm install apache-arrow
-```
-
-## 🎯 First Server (2 minutes)
-
-### 1. Create Your Server File
-
-```javascript
-// server.js
-import { FlightServer } from '@flightstream/core';
-import { CSVFlightService } from '@flightstream/csv-service';
-
-const server = new FlightServer({ port: 8080 });
-const csvService = new CSVFlightService({ 
-  dataDirectory: './data' 
-});
-
-server.setFlightService(csvService);
-await server.start();
-
-console.log('🚀 Flight server running on port 8080');
-```
-
-### 2. Add Some Data
-
-```bash
-# Create data directory
 mkdir data
-
-# Add sample CSV
-cat > data/products.csv << 'EOF'
-id,name,price,category
-1,Laptop,999.99,Electronics
-2,Coffee Mug,12.50,Kitchen
-3,Book,24.95,Books
-EOF
+# Add your CSV files to the data directory
 ```
 
-### 3. Run Your Server
+### 4. Run the Server
 
 ```bash
 node server.js
 ```
 
-### 4. Test It
+### 5. Test with a Client
 
-```bash
-# Test with the included client (if using full repo)
-npm test
+#### Option A: Use Any Arrow Flight Client
 
-# Or test with Python
-python -c "
-import pyarrow.flight as flight
-client = flight.FlightClient('grpc://localhost:8080')
-print('Datasets:', list(client.list_flights()))
-"
-```
-
-## 📦 Package Overview
-
-Understanding what each package does:
-
-### Core Package
-```javascript
-import { 
-  FlightServer,      // Main server class that serves data via Arrow Flight protocol
-  FlightServiceBase  // Base class for services/adapters to convert data from various sources to Arrow Flight protocol
-} from '@flightstream/core';
-```
-
-### CSV Service
-```javascript
-import { 
-  CSVFlightService,  // Ready-to-use CSV service that reads data from CSV files and serves it via Arrow Flight protocol
-  CSVStreamer        // Low-level CSV streaming
-} from '@flightstream/csv-service';
-```
-
-### Utilities
-```javascript
-import {
-  ArrowBuilder,       // Generic Arrow data builder
-  CSVArrowBuilder,    // CSV-specific Arrow data builder
-  inferSchema,        // Automatic schema inference
-  StreamingUtils      // Streaming helpers for Arrow data
-} from '@flightstream/utils';
-```
-
-## 🔧 Configuration
-
-### Environment Variables
-
-```bash
-# Server configuration
-export FLIGHT_HOST=localhost
-export FLIGHT_PORT=8080
-
-# CSV service configuration
-export DATA_DIRECTORY=./data
-export CSV_BATCH_SIZE=10000
-export CSV_DELIMITER=,
-export CSV_HEADERS=true
-
-# Performance tuning
-export MAX_RECEIVE_MESSAGE_LENGTH=104857600  # 100MB
-export MAX_SEND_MESSAGE_LENGTH=104857600     # 100MB
-```
-
-### Programmatic Configuration
-
-```javascript
-const server = new FlightServer({
-  host: 'localhost',
-  port: 8080,
-  maxReceiveMessageLength: 100 * 1024 * 1024,
-  maxSendMessageLength: 100 * 1024 * 1024,
-});
-
-const csvService = new CSVFlightService({
-  dataDirectory: './data',
-  batchSize: 50000,
-  delimiter: ',',
-  headers: true,
-  skipEmptyLines: true,
-});
-```
-
-## 🌐 Client Connections
-
-### Python Client
+You can test the server using any Arrow Flight client. Here's a simple example using Python:
 
 ```python
 import pyarrow.flight as flight
-import pandas as pd
 
-# Connect
-client = flight.FlightClient("grpc://localhost:8080")
+# Connect to the server
+client = flight.FlightClient('grpc://localhost:8080')
 
-# List datasets
-for flight_info in client.list_flights():
-    print(f"Dataset: {flight_info.descriptor}")
+# List available flights
+flights = client.list_flights()
+for flight_info in flights:
+    print(f"Flight: {flight_info.descriptor}")
 
-# Get data
-descriptor = flight.FlightDescriptor.for_path(b"products")
-reader = client.do_get(client.get_flight_info(descriptor).endpoints[0].ticket)
+# Get data from a specific flight
+flight_info = client.get_flight_info(flight.FlightDescriptor.for_path("your-dataset.csv"))
+reader = client.do_get(flight_info.endpoints[0].ticket)
 table = reader.read_all()
-df = table.to_pandas()
-print(df)
+print(table)
 ```
 
-### JavaScript Client
+#### Option B: Use the Sample Client (Recommended for Quick Start)
+
+FlightStream includes a sample client that you can run to test the server:
+
+```bash
+# In a new terminal, from the FlightStream directory
+npm test
+```
+
+The sample client will:
+- Connect to the running server on `localhost:8080`
+- List all available datasets
+- Stream data from the first available dataset
+- Display statistics about the received data
+
+**Sample client location**: `packages/examples/server/test-client/test-client.js`
+
+#### Option C: Use the Built-in Test Client
+
+If you're running the sample server, you can also use the built-in test client:
+
+```bash
+# Start the server in one terminal
+npm start
+
+# In another terminal, run the test client
+node packages/examples/server/test-client/test-client.js
+```
+
+## Working with Arrow Data
+
+### Using Arrow Utilities
 
 ```javascript
-// Using the test client from examples
-import { FlightClient } from './packages/examples/test-client/test-client.js';
+import { ArrowBuilder, inferSchema } from '@flightstream/utils-arrow';
 
-const client = new FlightClient('localhost', 8080);
+// Infer schema from CSV data
+const schema = await inferSchema('./data/sample.csv');
+console.log('Inferred schema:', schema);
 
-// List datasets
-const flights = await client.listFlights();
-console.log('Available datasets:', flights);
-
-// Get data (implementation depends on your client)
+// Build Arrow data
+const builder = new ArrowBuilder();
+const table = await builder.fromCSV('./data/sample.csv');
+console.log('Arrow table:', table);
 ```
 
-### Java Client
+### Streaming Data
 
-```java
-// Maven dependency: org.apache.arrow:flight-core
-import org.apache.arrow.flight.*;
-import org.apache.arrow.memory.RootAllocator;
+```javascript
+import { streamingUtils } from '@flightstream/utils-arrow';
 
-RootAllocator allocator = new RootAllocator();
-FlightClient client = FlightClient.builder()
-    .location(Location.forGrpcInsecure("localhost", 8080))
-    .allocator(allocator)
-    .build();
+// Create a streaming pipeline
+const stream = streamingUtils.createStreamFromCSV('./data/large-file.csv');
 
-// List flights
-for (FlightInfo info : client.listFlights(Criteria.ALL)) {
-    System.out.println("Dataset: " + info.getDescriptor());
+stream.on('data', (batch) => {
+  console.log('Received batch:', batch.numRows, 'rows');
+});
+
+stream.on('end', () => {
+  console.log('Stream completed');
+});
+```
+
+## Configuration Options
+
+### Server Configuration
+
+```javascript
+const server = new FlightServer({
+  port: 8080,
+  host: 'localhost',
+  maxConcurrentStreams: 100,
+  keepAliveTimeMs: 30000,
+  keepAliveTimeoutMs: 5000
+});
+```
+
+### CSV Service Configuration
+
+```javascript
+const csvService = new CSVFlightService({
+  dataDirectory: './data',
+  maxBatchSize: 10000,
+  enableCaching: true,
+  cacheSize: 1000
+});
+```
+
+## Error Handling
+
+### Basic Error Handling
+
+```javascript
+try {
+  await server.start();
+} catch (error) {
+  console.error('Failed to start server:', error.message);
+  process.exit(1);
 }
+
+// Handle service errors
+csvService.on('error', (error) => {
+  console.error('CSV service error:', error);
+});
 ```
 
-## 🚀 Next Steps
+## Development Tips
 
-Now that you have a basic server running:
+### Debugging
 
-1. **📖 Follow the [Tutorial]({{ '/tutorial/' | relative_url }})** - Build a complete custom server
-2. **🔍 Browse [Examples]({{ '/examples/' | relative_url }})** - Learn from sample implementations
-3. **📚 Check [API Reference]({{ '/api-reference/' | relative_url }})** - Complete documentation
-4. **🛠️ Build a custom service/adapter** - Connect your own data sources
+Enable debug logging:
+
+```javascript
+import { FlightServer } from '@flightstream/core-server';
+
+const server = new FlightServer({
+  port: 8080,
+  debug: true  // Enable debug logging
+});
+```
+
+
+## Next Steps
+
+### What to Try Next
+
+1. **Add More Data Sources**: Try different CSV files with various schemas
+2. **Performance Testing**: Test with larger datasets to understand performance characteristics
+3. **Client Integration**: Build a custom client using Arrow Flight protocol
+4. **Plugin Development**: Create custom data source adapters
 
 ### Getting Help
 
-- **🐛 Bug Reports**: [GitHub Issues](https://github.com/ggauravr/flightstream/issues)
-- **💬 Questions**: [GitHub Discussions](https://github.com/ggauravr/flightstream/discussions)
-- **📖 Documentation**: [Full docs on this site]({{ '/' | relative_url }})
+- **GitHub Issues**: Report bugs and request features
+- **Documentation**: Check the API reference for detailed information
+- **Examples**: Explore the examples directory for more use cases
 
-## 🎉 You're Ready!
+### Contributing
 
-You now have:
-- ✅ A working Arrow Flight server
-- ✅ Understanding of the package structure  
-- ✅ Basic configuration knowledge
-- ✅ Client connection examples
+FlightStream is in alpha, and we welcome contributions! See the [Contributing Guide](../CONTRIBUTING.md) for details.
 
-Ready to build something awesome? 🚀 
+## Troubleshooting
+
+### Getting Help
+
+If you encounter issues not covered here:
+
+1. Check the [GitHub Issues](https://github.com/ggauravr/flightstream/issues)
+2. Create a new issue with detailed information
+3. Include error messages, system information, and steps to reproduce
+
+---
+
+**Note**: This is an alpha release. APIs may change, and some features are not yet implemented. For production use, consider waiting for the stable release. 
