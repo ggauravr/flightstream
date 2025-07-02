@@ -2,8 +2,11 @@
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Node.js Version](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg)](https://nodejs.org/)
+[![Alpha Release](https://img.shields.io/badge/version-alpha-yellow.svg)](https://www.npmjs.com/package/@flightstream/core-server)
 
 High-performance Apache Arrow Flight streaming framework with a plugin architecture for Node.js and browser environments. This monorepo will house a complete ecosystem for building high-performance data streaming services and clients using the Arrow Flight protocol.
+
+> **⚠️ Alpha Release**: This is currently in alpha. APIs may change between releases. This is not production-ready software. For production use, consider waiting for the stable release or pinning to a specific alpha version.
 
 ## 🚀 Quick Start
 
@@ -31,42 +34,42 @@ This monorepo is organized by domain for maximum scalability and extensibility:
 | Package | Description | Version |
 |---------|-------------|---------|
 | [`@flightstream/core-server`](packages/core/server/) | Core Arrow Flight NodeJS server | ![npm](https://img.shields.io/npm/v/@flightstream/core-server) |
-| [`@flightstream/core-client-engine`](packages/core/client-engine/) | Core framework-agnostic client engine with DuckDB WASM (planned) | - |
+| [`@flightstream/core-client-engine`](packages/core/client-engine/) | 🚧 Core framework-agnostic client engine with DuckDB WASM (planned) | - |
 
 ### Adapters
 
 | Package | Description | Version |
 |---------|-------------|---------|
 | [`@flightstream/adapters-csv`](packages/adapters/csv/) | CSV file adapter with streaming support | ![npm](https://img.shields.io/npm/v/@flightstream/adapters-csv) |
-| [`@flightstream/adapters-parquet`](packages/adapters/parquet/) | Parquet file adapter (planned) | - |
+| [`@flightstream/adapters-parquet`](packages/adapters/parquet/) | 🚧 Parquet file adapter (planned) | - |
 
 ### Framework Integrations
 
 | Package | Description | Version |
 |---------|-------------|---------|
-| [`@flightstream/frameworks-react`](packages/frameworks/react/) | React hooks and components (planned) | - |
-| [`@flightstream/frameworks-svelte`](packages/frameworks/svelte/) | Svelte stores and components (planned) | - |
-| [`@flightstream/frameworks-vue`](packages/frameworks/vue/) | Vue composables (planned) | - |
-| [`@flightstream/frameworks-vanilla`](packages/frameworks/vanilla/) | Vanilla JS utilities (planned) | - |
-| [`@flightstream/frameworks-fastify`](packages/frameworks/vanilla/) | Fastify server plugin for Flight/gRPC-based data streaming (planned) | - |
-| [`@flightstream/frameworks-express`](packages/frameworks/vanilla/) | Express server plugin for Flight/gRPC-based data streaming (planned) | - |
+| [`@flightstream/frameworks-react`](packages/frameworks/react/) | 🚧 React hooks and components (planned) | - |
+| [`@flightstream/frameworks-svelte`](packages/frameworks/svelte/) | 🚧 Svelte stores and components (planned) | - |
+| [`@flightstream/frameworks-vue`](packages/frameworks/vue/) | 🚧 Vue composables (planned) | - |
+| [`@flightstream/frameworks-vanilla`](packages/frameworks/vanilla/) | 🚧 Vanilla JS utilities (planned) | - |
+| [`@flightstream/frameworks-fastify`](packages/frameworks/vanilla/) | 🚧 Fastify server plugin for Flight/gRPC-based data streaming (planned) | - |
+| [`@flightstream/frameworks-express`](packages/frameworks/vanilla/) | 🚧 Express server plugin for Flight/gRPC-based data streaming (planned) | - |
 
 ### Utilities
 
 | Package | Description | Version |
 |---------|-------------|---------|
 | [`@flightstream/utils-arrow`](packages/utils/arrow/) | Arrow utilities and schema inference | ![npm](https://img.shields.io/npm/v/@flightstream/utils-arrow) |
-| [`@flightstream/utils-streaming`](packages/utils/streaming/) | Streaming utilities (planned) | - |
-| [`@flightstream/utils-storage`](packages/utils/storage/) | Storage utilities (planned) | - |
+| [`@flightstream/utils-streaming`](packages/utils/streaming/) | 🚧 Streaming utilities (planned) | - |
+| [`@flightstream/utils-storage`](packages/utils/storage/) | 🚧 Storage utilities (planned) | - |
 
 ### Examples & Tools
 
 | Package | Description |
 |---------|-------------|
 | [`@flightstream/examples-server`](packages/examples/server/) | Server examples and reference implementations |
-| [`@flightstream/examples-client`](packages/examples/client/) | Client examples and demos |
-| [`@flightstream/tools-cli`](packages/tools/cli/) | Command-line tools (planned) |
-| [`@flightstream/tools-dev`](packages/tools/dev/) | Development utilities (planned) |
+| [`@flightstream/examples-client`](packages/examples/client/) | 🚧 Client examples and demos (planned) |
+| [`@flightstream/tools-cli`](packages/tools/cli/) | 🚧 Command-line tools (planned) |
+| [`@flightstream/tools-dev`](packages/tools/dev/) | 🚧 Development utilities (planned) |
 
 ## 🏗️ Architecture
 
@@ -138,17 +141,47 @@ The framework uses a domain-driven architecture where:
 
 ## 🛠️ Installation & Usage
 
+### Alpha Release Status
+
+FlightStream is currently in **alpha**. This means:
+
+- ✅ Core functionality is implemented and working
+- ✅ Comes with a sample client and a CSV adapter, with a plugin architecture to support other adapters
+- ⚠️ APIs may change between releases
+- ⚠️ Not recommended for production use
+- ⚠️ Limited error handling and edge cases
+- ⚠️ Performance optimizations pending
+
+You can install different release types:
+
+```bash
+# Latest stable (when available)
+npm install @flightstream/core-server
+
+# Latest alpha (current - recommended for testing)
+npm install @flightstream/core-server@alpha
+
+# Latest beta (when available)
+npm install @flightstream/core-server@beta
+
+# Latest experimental (very early development)
+npm install @flightstream/core-server@experimental
+
+# Specific alpha version
+npm install @flightstream/core-server@1.0.0-alpha.1
+```
+
 ### Server-Side Development
 
 ```bash
-# Core server framework
-npm install @flightstream/core-server
+# Core server framework (alpha)
+npm install @flightstream/core-server@alpha
 
-# CSV adapter
-npm install @flightstream/adapters-csv
+# CSV adapter (alpha)
+npm install @flightstream/adapters-csv@alpha
 
-# Arrow utilities
-npm install @flightstream/utils-arrow
+# Arrow utilities (alpha)
+npm install @flightstream/utils-arrow@alpha
 ```
 
 ```javascript
