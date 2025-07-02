@@ -87,12 +87,28 @@ export class CSVFlightService extends FlightServiceBase {
   async _initializeDatasets() {
     try {
       const dataDir = this.csvOptions.dataDirectory;
+      
+      // Check if data directory exists
       if (!fs.existsSync(dataDir)) {
-        console.warn(`Data directory ${dataDir} does not exist`);
+        console.warn(`Data directory ${dataDir} does not exist - no CSV datasets will be loaded`);
+        return;
+      }
+
+      // Check if data directory is actually a directory
+      const stats = fs.statSync(dataDir);
+      if (!stats.isDirectory()) {
+        console.warn(`Data directory ${dataDir} is not a directory`);
         return;
       }
 
       const files = fs.readdirSync(dataDir).filter(file => file.endsWith('.csv'));
+      
+      if (files.length === 0) {
+        console.log(`No CSV files found in data directory: ${dataDir}`);
+        return;
+      }
+
+      console.log(`Found ${files.length} CSV file(s) in ${dataDir}`);
 
       for (const file of files) {
         const filePath = path.join(dataDir, file);
@@ -102,6 +118,13 @@ export class CSVFlightService extends FlightServiceBase {
           // Check if file exists before processing
           if (!fs.existsSync(filePath)) {
             console.warn(`CSV file not found: ${filePath}`);
+            continue;
+          }
+
+          // Check if file is actually a file
+          const fileStats = fs.statSync(filePath);
+          if (!fileStats.isFile()) {
+            console.warn(`CSV path is not a file: ${filePath}`);
             continue;
           }
 
@@ -116,8 +139,8 @@ export class CSVFlightService extends FlightServiceBase {
             metadata: {
               name: file,
               totalRecords: -1, // Unknown until full scan
-              totalBytes: fs.statSync(filePath).size,
-              created: fs.statSync(filePath).birthtime,
+              totalBytes: fileStats.size,
+              created: fileStats.birthtime,
               type: 'csv'
             }
           });
