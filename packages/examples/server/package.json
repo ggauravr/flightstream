@@ -23,9 +23,9 @@
   "author": "FlightStream Contributors",
   "license": "Apache-2.0",
   "dependencies": {
-    "@flightstream/core-server": "^1.0.0",
-    "@flightstream/adapters-csv": "^1.0.0",
-    "@flightstream/utils-arrow": "^1.0.0",
+    "@flightstream/core-server": "^1.0.0-alpha.1",
+    "@flightstream/adapters-csv": "^1.0.0-alpha.1",
+    "@flightstream/utils-arrow": "^1.0.0-alpha.1",
     "apache-arrow": "^14.0.2"
   },
   "devDependencies": {
