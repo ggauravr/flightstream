@@ -1,16 +1,17 @@
-# Contributing to Arrow Flight Server Framework
+# Contributing to FlightStream Arrow Flight Server Framework
 
-Thank you for your interest in contributing to the Arrow Flight Server Framework! This guide will help you get started with contributing to this open-source project.
+Thank you for your interest in contributing to FlightStream - Arrow Flight Server Framework! This guide will help you get started with contributing to this open-source project.
 
 ## 🎯 How to Contribute
 
-We welcome contributions in many forms:
+I welcome contributions in many forms:
 - 🐛 **Bug reports and fixes**
 - ✨ **New features and enhancements**
 - 📚 **Documentation improvements**
 - 🧪 **Tests and examples**
 - 🎨 **Performance optimizations**
 - 🔌 **New adapter plugins**
+- 🏗️ **Framework integrations**
 
 ## 🚀 Getting Started
 
@@ -21,113 +22,73 @@ We welcome contributions in many forms:
 
 ### Development Setup
 
-1. **Fork the repository**
+1. **Fork and clone the repository**
    ```bash
-   # Fork on GitHub, then clone your fork
-   git clone https://github.com/YOUR_USERNAME/arrow-flight-server-js.git
-   cd arrow-flight-server-js
-   ```
-
-2. **Install dependencies**
-   ```bash
+   git clone https://github.com/YOUR_USERNAME/flightstream.git
+   cd flightstream
    npm install
    ```
 
-3. **Verify setup**
+2. **Verify setup**
    ```bash
-   # Run tests
-   npm test
-   
-   # Start example server
-   npm start
+   npm run test:all  # Run all tests
+   npm start         # Start example server
+   npm test          # Run test client
    ```
 
-### Monorepo Structure
+### Project Structure
 
-This project uses a monorepo structure with multiple packages:
+This project uses a monorepo structure organized by domain:
 
 ```
 packages/
-├── core/           # @flightstream/core
-├── csv-service/    # @flightstream/csv-service
-├── utils/          # @flightstream/utils
-└── examples/       # @flightstream/examples
+├── core/           # Core server and client engine
+│   ├── server/     # @flightstream/core-server
+│   └── client-engine/ # @flightstream/core-client-engine
+├── adapters/       # Data source adapters
+│   └── csv/        # @flightstream/adapters-csv
+├── frameworks/     # Framework integrations
+│   └── react/      # @flightstream/frameworks-react
+├── utils/          # Utility libraries
+│   ├── arrow/      # @flightstream/utils-arrow
+│   └── streaming/  # @flightstream/utils-streaming
+├── examples/       # Example applications
+└── tools/          # Development tools
 ```
 
-Each package has its own:
-- `package.json` with dependencies
-- `src/` directory with source code
-- `README.md` with package-specific docs
+### Monorepo Management
 
-## 🔧 Development Workflow
+Useful Lerna commands:
+```bash
+npm run list        # List all packages
+npm run test:all    # Test all packages
+npm run test:server # Test server and adapter packages
+npm run test:client # Test client and framework packages
+npm run lint        # Lint all packages
+npm run build       # Build all packages
+```
 
-### Making Changes
+## 📝 Coding Standards & Conventions
 
-1. **Create a feature branch**
-   ```bash
-   git checkout -b feature/your-feature-name
-   ```
-
-2. **Make your changes**
-   - Write code following our style guidelines
-   - Add tests for new functionality
-   - Update documentation as needed
-
-3. **Test your changes**
-   ```bash
-   # Run all tests
-   npm test
-   
-   # Test specific package
-   cd packages/core
-   npm test
-   
-   # Lint code
-   npm run lint
-   ```
-
-4. **Commit your changes**
-   ```bash
-   git add .
-   git commit -m "feat: add new adapter for PostgreSQL"
-   ```
-
-### Pull Request Process
-
-1. **Push to your fork**
-   ```bash
-   git push origin feature/your-feature-name
-   ```
-
-2. **Create a Pull Request**
-   - Use a descriptive title
-   - Include a detailed description
-   - Reference any related issues
-   - Add tests and documentation
-
-3. **Code Review**
-   - Address reviewer feedback
-   - Make requested changes
-   - Ensure all checks pass
-
-## 📝 Coding Standards
+### Naming Conventions
+- **Package names**: `@flightstream/domain-name` (kebab-case)
+- **Directories**: `packages/domain/package-name/` (kebab-case)
+- **Source files**: `feature-name.js` (kebab-case)
+- **Test files**: `feature-name.test.js`
+- **Classes**: PascalCase (`FlightServer`)
+- **Functions/Variables**: camelCase (`buildArrowTable`)
 
 ### Code Style
-- Use ESLint configuration (runs with `npm run lint`)
+- Use ESLint configuration (`npm run lint`)
 - Follow existing code patterns
-- Use meaningful variable and function names
 - Keep functions small and focused
-
-### Documentation
-- Add JSDoc comments for all public APIs
+- Add JSDoc comments for public APIs
 - Include usage examples in README files
-- Update relevant documentation files
-- Add inline comments for complex logic
 
 ### Testing
 - Write unit tests for new functionality
-- Ensure good test coverage
 - Test edge cases and error conditions
+- Ensure good test coverage
 - Include integration tests where appropriate
 
 ### License Headers
@@ -154,21 +115,74 @@ All source files must include the Apache 2.0 license header:
  */
 ```
 
-## 🔌 Creating New Adapters
+## 🔧 Development Workflow
 
-We encourage community contributions of new data source adapters!
+### Making Changes
+
+1. **Create a feature branch**
+   ```bash
+   git checkout -b feature/your-feature-name
+   ```
+
+2. **Make your changes**
+   - Write code following style guidelines
+   - Add tests for new functionality
+   - Update documentation as needed
+
+3. **Test your changes**
+   ```bash
+   npm run test:all
+   npm run lint
+   ```
+
+4. **Commit your changes**
+   ```bash
+   git add .
+   git commit -m "feat(scope): description"
+   ```
+
+### Pull Request Process
+
+1. **Push to your fork**
+   ```bash
+   git push origin feature/your-feature-name
+   ```
+
+2. **Create a Pull Request**
+   - **Title**: Use conventional commit format with scope
+     - `feat(adapters): add PostgreSQL adapter`
+     - `fix(core-server): handle connection timeout`
+   
+   - **Description**: Include what, why, and how
+     - Brief description of changes
+     - Type of change (bug fix, feature, docs)
+     - Testing completed
+     - Related issues (Closes #123)
+
+3. **Pre-PR Checklist**
+   - [ ] Code follows style guidelines
+   - [ ] Tests added/updated
+   - [ ] Documentation updated
+   - [ ] Error handling implemented
+
+4. **Code Review**
+   - **For Contributors**: Respond within 24-48 hours, keep changes focused
+   - **For Reviewers**: Be constructive, check code quality and test coverage
+   - **Merge Requirements**: All checks pass, at least one maintainer approval
+
+## 🔌 Creating New Adapters
 
 ### Adapter Development
 
 1. **Create package structure**
    ```bash
-   mkdir packages/your-adapter
-   cd packages/your-adapter
+   mkdir packages/adapters/your-adapter
+   cd packages/adapters/your-adapter
    ```
 
 2. **Extend FlightServiceBase**
    ```javascript
-   import { FlightServiceBase } from '@flightstream/core';
+   import { FlightServiceBase } from '@flightstream/core-server/flight-service-base';
    
    export class YourAdapter extends FlightServiceBase {
      async _initialize() {
@@ -181,62 +195,42 @@ We encourage community contributions of new data source adapters!
    }
    ```
 
-   ```javascript
-   // Build adapters without touching core:
-
-   // Build a PostgreSQL adapter
-   class PostgreSQLFlightService extends FlightServiceBase {
-   // Only depends on core package
-   }
-
-   // Build a Parquet adapter  
-   class ParquetFlightService extends FlightServiceBase {
-   // Uses both core + utils packages
-   }
-
-   // Build a Redis adapter
-   class RedisFlightService extends FlightServiceBase {
-   // Minimal dependencies
-   }
-
-   ```
-
-3. **Add comprehensive tests**
-4. **Create documentation and examples**
-5. **Submit as a pull request**
+3. **Add comprehensive tests, documentation, and examples**
 
 ### Adapter Guidelines
-- Follow consistent naming conventions
 - Handle errors gracefully
 - Support configurable batch sizes
 - Implement proper schema inference
 - Add comprehensive logging
 - Include performance considerations
 
-## 🐛 Reporting Issues
+## 🏗️ Creating New Framework Integrations
 
-When reporting issues, please include:
+### Framework Integration Development
 
-- **Description**: Clear description of the problem
-- **Reproduction**: Steps to reproduce the issue
-- **Expected behavior**: What should happen
-- **Actual behavior**: What actually happens
-- **Environment**: Node.js version, OS, package versions
-- **Code examples**: Minimal code to reproduce the issue
+1. **Create package structure**
+   ```bash
+   mkdir packages/frameworks/your-framework
+   cd packages/frameworks/your-framework
+   ```
 
-Use our issue templates for:
-- 🐛 Bug reports
-- ✨ Feature requests
-- 📚 Documentation improvements
-- ❓ Questions and support
+2. **Follow the existing pattern**
+   - Create plugin/middleware for the framework
+   - Integrate with `@flightstream/core-server`
+   - Provide easy-to-use APIs for developers
+   - Include comprehensive examples
 
-## 🚀 Feature Requests
+3. **Examples** (Planned)
+   - **Fastify plugin**: `@flightstream/frameworks-fastify`
+   - **Express middleware**: `@flightstream/frameworks-express`
+   - **React hooks**: `@flightstream/frameworks-react`
 
-For feature requests, please provide:
-- **Use case**: Why is this feature needed?
-- **Description**: Detailed description of the feature
-- **Examples**: Code examples of how it would work
-- **Alternatives**: Other solutions you've considered
+### Framework Integration Guidelines
+- Handle errors gracefully
+- Support configuration options
+- Add comprehensive logging
+- Include performance considerations
+- Provide TypeScript definitions where applicable
 
 ## 📋 Commit Message Guidelines
 
@@ -255,32 +249,44 @@ type(scope): description
 - `feat`: New feature
 - `fix`: Bug fix
 - `docs`: Documentation changes
-- `style`: Code style changes (formatting, etc.)
+- `style`: Code style changes
 - `refactor`: Code refactoring
 - `test`: Adding or updating tests
 - `chore`: Maintenance tasks
 
 ### Examples
 ```bash
-feat(csv-service): add support for custom delimiters
-fix(core): handle gRPC connection errors gracefully
+feat(adapters-csv): add support for custom delimiters
+fix(core-server): handle gRPC connection errors gracefully
 docs(readme): update installation instructions
-test(utils): add tests for schema inference
+test(utils-arrow): add tests for schema inference
+feat(frameworks-fastify): add Fastify plugin integration
 ```
 
-## 🔍 Code Review Process
+## 🐛 Reporting Issues
 
-### For Contributors
-- Be responsive to feedback
-- Make requested changes promptly
-- Ask questions if feedback is unclear
-- Keep changes focused and atomic
+When reporting issues, please include:
+- **Description**: Clear description of the problem
+- **Reproduction**: Steps to reproduce the issue
+- **Expected vs Actual behavior**: What should happen vs what happens
+- **Environment**: Node.js version, OS, package versions
+- **Code examples**: Minimal code to reproduce the issue
 
-### For Reviewers
-- Be constructive and helpful
-- Explain reasoning behind suggestions
-- Focus on code quality and maintainability
-- Approve when ready, or request changes with clear guidance
+## 🚀 Feature Requests
+
+For feature requests, please provide:
+- **Use case**: Why is this feature needed?
+- **Description**: Detailed description of the feature
+- **Examples**: Code examples of how it would work
+- **Alternatives**: Other solutions you've considered
+
+## 🆘 Getting Help
+
+If you need help:
+- 📖 Check the [documentation](docs/)
+- 💬 Start a [GitHub Discussion](https://github.com/ggauravr/flightstream/discussions)
+- 🐛 Search existing [issues](https://github.com/ggauravr/flightstream/issues)
+- 📧 Reach out to maintainers
 
 ## 🏆 Recognition
 
@@ -289,14 +295,6 @@ Contributors will be recognized in:
 - Release notes for significant contributions
 - GitHub contributor graphs
 - Package.json contributor lists
-
-## 🆘 Getting Help
-
-If you need help:
-- 📖 Check the [documentation](docs/)
-- 💬 Start a [GitHub Discussion](https://github.com/apache/arrow-flight-server-js/discussions)
-- 🐛 Search existing [issues](https://github.com/apache/arrow-flight-server-js/issues)
-- 📧 Reach out to maintainers
 
 ## 📜 Code of Conduct
 
@@ -308,4 +306,4 @@ By contributing to this project, you agree that your contributions will be licen
 
 ---
 
-Thank you for contributing to the Arrow Flight Server Framework! 🚀 
+Thank you for contributing to the FlightStream Arrow Flight Server Framework! 🚀 
