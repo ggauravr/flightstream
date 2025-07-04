@@ -20,8 +20,8 @@
     "tutorial",
     "flightstream"
   ],
-  "author": "FlightStream Contributors",
-  "license": "Apache-2.0",
+  "author": "ggauravr@gmail.com",
+  "license": "MIT",
   "dependencies": {
     "@flightstream/core-server": "^1.0.0-alpha.1",
     "@flightstream/adapters-csv": "^1.0.0-alpha.1",

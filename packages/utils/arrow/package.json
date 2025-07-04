@@ -28,7 +28,7 @@
     "flightstream"
   ],
   "author": "gggauravr@gmail.com",
-  "license": "Apache-2.0",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ggauravr/flightstream.git",
