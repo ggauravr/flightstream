@@ -13,7 +13,9 @@
     "apache-arrow": "^12.0.0",
     "cors": "^2.8.5",
     "dotenv": "^16.0.3",
-    "express": "^4.18.2"
+    "express": "^4.18.2",
+    "pino": "^8.17.0",
+    "pino-pretty": "^10.3.0"
   },
   "devDependencies": {
     "jest": "^29.5.0"
