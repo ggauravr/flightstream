@@ -44,7 +44,7 @@
     "publish:from-package": "lerna publish from-package",
     "publish:beta": "lerna publish --dist-tag beta --preid beta",
     "publish:alpha": "lerna publish --dist-tag alpha --preid alpha",
-    "publish:latest": "lerna publish --dist-tag latest",
+    "publish:latest": "lerna publish from-package --dist-tag latest",
     "publish:rc": "lerna publish --dist-tag rc --preid rc",
     "publish:experimental": "lerna publish --dist-tag experimental --preid experimental",
     "version:beta": "lerna version prerelease --preid beta",
