@@ -40,7 +40,7 @@
     "version:patch": "lerna version patch",
     "version:minor": "lerna version minor",
     "version:major": "lerna version major",
-    "publish": "lerna publish",
+    "publish:version-and-release": "lerna publish",
     "publish:from-package": "lerna publish from-package",
     "publish:beta": "lerna publish --dist-tag beta --preid beta",
     "publish:alpha": "lerna publish --dist-tag alpha --preid alpha",
