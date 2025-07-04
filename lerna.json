@@ -14,12 +14,13 @@
       "allowBranch": ["main", "master"],
       "message": "chore(release): publish %s",
       "conventionalCommits": true,
-      "conventionalGraduate": true,
+      "conventionalGraduate": false,
       "preid": "beta"
     },
     "publish": {
       "allowBranch": ["main", "master"],
       "conventionalCommits": true,
+      "conventionalGraduate": false,
       "message": "chore(release): publish %s",
       "registry": "https://registry.npmjs.org/",
       "dist-tag": "latest",
