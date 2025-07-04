@@ -29,6 +29,15 @@
   ],
   "author": "gggauravr@gmail.com",
   "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ggauravr/flightstream.git",
+    "directory": "packages/core/server"
+  },
+  "bugs": {
+    "url": "https://github.com/ggauravr/flightstream/issues"
+  },
+  "homepage": "https://github.com/ggauravr/flightstream#readme",
   "dependencies": {
     "@grpc/grpc-js": "^1.9.14",
     "@grpc/proto-loader": "^0.7.10",
