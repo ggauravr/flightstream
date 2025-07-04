@@ -7,7 +7,6 @@
     "packages/adapters/*",
     "packages/frameworks/*",
     "packages/utils/*",
-    "packages/examples/*",
     "packages/tools/*"
   ],
   "command": {
@@ -28,7 +27,6 @@
     }
   },
   "ignoreChanges": [
-    "**/*.md",
     "**/*.test.js",
     "**/*.spec.js",
     "**/jest.config.js",

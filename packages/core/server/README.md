@@ -1,4 +1,4 @@
-# �� @flightstream/core-server
+# ✈️ @flightstream/core-server
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](../../LICENSE)
 [![Node.js](https://img.shields.io/badge/Node.js-%3E%3D18.0.0-green.svg)](https://nodejs.org/)
