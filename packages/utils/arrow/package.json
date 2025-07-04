@@ -29,6 +29,15 @@
   ],
   "author": "gggauravr@gmail.com",
   "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ggauravr/flightstream.git",
+    "directory": "packages/utils/arrow"
+  },
+  "bugs": {
+    "url": "https://github.com/ggauravr/flightstream/issues"
+  },
+  "homepage": "https://github.com/ggauravr/flightstream#readme",
   "dependencies": {
     "pino": "^8.17.0",
     "pino-pretty": "^10.3.0"
