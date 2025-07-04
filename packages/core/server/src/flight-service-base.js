@@ -18,6 +18,7 @@
  */
 
 import { EventEmitter } from 'events';
+import { createLogger } from './logger.js';
 
 /**
  * Abstract Base Class for Arrow Flight Services
@@ -44,6 +45,13 @@ export class FlightServiceBase extends EventEmitter {
     // Dataset registry: Maps dataset IDs to their metadata and schema information
     this.datasets = new Map();
 
+    // Logger
+    this.logger = createLogger({
+      name: 'flight-service',
+      host: this.options.host,
+      port: this.options.port
+    });
+
     // Initialize datasets after construction completes
     setImmediate(() => this._initializeAsync());
   }
@@ -56,7 +64,13 @@ export class FlightServiceBase extends EventEmitter {
     try {
       await this._initialize();
     } catch (error) {
-      console.error('Error during service initialization:', error);
+      this.logger.error({
+        error: {
+          message: error.message,
+          stack: error.stack,
+          name: error.name
+        }
+      }, 'Error during service initialization');
       this.emit('error', error);
     }
   }
@@ -108,7 +122,7 @@ export class FlightServiceBase extends EventEmitter {
    * This is a server streaming RPC that sends FlightInfo objects for each dataset.
    */
   async listFlights(call) {
-    console.log('ListFlights called');
+    this.logger.debug('ListFlights called');
 
     try {
       // Stream FlightInfo for each registered dataset
@@ -118,7 +132,13 @@ export class FlightServiceBase extends EventEmitter {
       }
       call.end();
     } catch (error) {
-      console.error('Error in listFlights:', error);
+      this.logger.error({
+        error: {
+          message: error.message,
+          stack: error.stack,
+          name: error.name
+        }
+      }, 'Error in listFlights');
       call.emit('error', error);
     }
   }
@@ -130,13 +150,17 @@ export class FlightServiceBase extends EventEmitter {
    */
   async getFlightInfo(call) {
     try {
-      console.log('GetFlightInfo called with request:', call.request);
+      this.logger.debug({
+        request: call.request
+      }, 'GetFlightInfo called');
 
       const descriptor = call.request;
       const datasetId = this._extractDatasetId(descriptor);
 
-      console.log('Available datasets:', Array.from(this.datasets.keys()));
-      console.log('Requested dataset ID:', datasetId);
+      this.logger.debug({
+        available_datasets: Array.from(this.datasets.keys()),
+        requested_dataset_id: datasetId
+      }, 'Flight info request details');
 
       if (!this.datasets.has(datasetId)) {
         const error = new Error(`Dataset not found: ${datasetId}`);
@@ -149,7 +173,13 @@ export class FlightServiceBase extends EventEmitter {
 
       call.callback(null, flightInfo);
     } catch (error) {
-      console.error('Error in getFlightInfo:', error);
+      this.logger.error({
+        error: {
+          message: error.message,
+          stack: error.stack,
+          name: error.name
+        }
+      }, 'Error in getFlightInfo');
       call.callback(error);
     }
   }
@@ -161,7 +191,7 @@ export class FlightServiceBase extends EventEmitter {
    */
   async getSchema(call) {
     try {
-      console.log('GetSchema called');
+      this.logger.debug('GetSchema called');
 
       const descriptor = call.request;
       const datasetId = this._extractDatasetId(descriptor);
@@ -183,7 +213,14 @@ export class FlightServiceBase extends EventEmitter {
         const emptyTable = new arrow.Table(dataset.schema, []);
         serializedSchema = arrow.tableToIPC(emptyTable);
       } catch (error) {
-        console.warn('Error serializing schema, using fallback:', error);
+        this.logger.warn({
+          error: {
+            message: error.message,
+            stack: error.stack,
+            name: error.name
+          },
+          dataset_id: datasetId
+        }, 'Error serializing schema, using fallback');
         // Fallback: create a simple buffer representation
         const schemaInfo = {
           fields: dataset.schema.fields.map(f => ({
@@ -200,7 +237,13 @@ export class FlightServiceBase extends EventEmitter {
 
       call.callback(null, schemaResult);
     } catch (error) {
-      console.error('Error in getSchema:', error);
+      this.logger.error({
+        error: {
+          message: error.message,
+          stack: error.stack,
+          name: error.name
+        }
+      }, 'Error in getSchema');
       call.callback(error);
     }
   }
@@ -212,7 +255,7 @@ export class FlightServiceBase extends EventEmitter {
    */
   async doGet(call) {
     try {
-      console.log('DoGet called');
+      this.logger.debug('DoGet called');
 
       const ticket = call.request;
       const datasetId = ticket.ticket ? ticket.ticket.toString() : '';
@@ -227,7 +270,13 @@ export class FlightServiceBase extends EventEmitter {
       await this._streamDataset(call, dataset);
 
     } catch (error) {
-      console.error('Error in doGet:', error);
+      this.logger.error({
+        error: {
+          message: error.message,
+          stack: error.stack,
+          name: error.name
+        }
+      }, 'Error in doGet');
       call.emit('error', error);
     }
   }
@@ -239,7 +288,7 @@ export class FlightServiceBase extends EventEmitter {
    * This is a server streaming RPC that sends ActionType objects for each available action.
    */
   async listActions(call) {
-    console.log('ListActions called');
+    this.logger.debug('ListActions called');
 
     try {
       const actions = [
@@ -262,7 +311,13 @@ export class FlightServiceBase extends EventEmitter {
 
       call.end();
     } catch (error) {
-      console.error('Error in listActions:', error);
+      this.logger.error({
+        error: {
+          message: error.message,
+          stack: error.stack,
+          name: error.name
+        }
+      }, 'Error in listActions');
       call.emit('error', error);
     }
   }
@@ -282,7 +337,14 @@ export class FlightServiceBase extends EventEmitter {
       const emptyTable = new arrow.Table(dataset.schema, []);
       serializedSchema = arrow.tableToIPC(emptyTable);
     } catch (error) {
-      console.warn('Error serializing schema, using fallback:', error);
+      this.logger.warn({
+        error: {
+          message: error.message,
+          stack: error.stack,
+          name: error.name
+        },
+        dataset_id: datasetId
+      }, 'Error serializing schema, using fallback');
       // Fallback: create a simple buffer representation
       const schemaInfo = {
         fields: dataset.schema.fields.map(f => ({
@@ -350,10 +412,12 @@ export class FlightServiceBase extends EventEmitter {
    * Refresh datasets from data source
    */
   async refreshDatasets() {
-    console.log('Refreshing datasets...');
+    this.logger.info('Refreshing datasets...');
     this.datasets.clear();
     await this._initializeDatasets();
-    console.log(`Refreshed ${this.datasets.size} datasets`);
+    this.logger.info({
+      dataset_count: this.datasets.size
+    }, 'Refreshed datasets');
   }
 }
 

@@ -24,6 +24,7 @@ import fs from 'fs';
 import { FlightServiceBase } from '@flightstream/core-server';
 import { CSVStreamer } from './csv-streamer.js';
 import { CSVArrowBuilder } from './csv-arrow-builder.js';
+import { createLogger } from './logger.js';
 
 /**
  * CSV Service for Arrow Flight Server
@@ -51,6 +52,12 @@ export class CSVFlightService extends FlightServiceBase {
       skipEmptyLines: options.skipEmptyLines !== false, // default true
       ...(options.csv || {})
     };
+
+    // CSV-specific logger
+    this.csvLogger = createLogger({
+      data_directory: this.csvOptions.dataDirectory,
+      batch_size: this.csvOptions.batchSize
+    });
   }
 
   /**
@@ -90,25 +97,34 @@ export class CSVFlightService extends FlightServiceBase {
 
       // Check if data directory exists
       if (!fs.existsSync(dataDir)) {
-        console.warn(`Data directory ${dataDir} does not exist - no CSV datasets will be loaded`);
+        this.csvLogger.warn({
+          data_directory: dataDir
+        }, 'Data directory does not exist - no CSV datasets will be loaded');
         return;
       }
 
       // Check if data directory is actually a directory
       const stats = fs.statSync(dataDir);
       if (!stats.isDirectory()) {
-        console.warn(`Data directory ${dataDir} is not a directory`);
+        this.csvLogger.warn({
+          data_directory: dataDir
+        }, 'Data directory is not a directory');
         return;
       }
 
       const files = fs.readdirSync(dataDir).filter(file => file.endsWith('.csv'));
 
       if (files.length === 0) {
-        console.log(`No CSV files found in data directory: ${dataDir}`);
+        this.csvLogger.info({
+          data_directory: dataDir
+        }, 'No CSV files found in data directory');
         return;
       }
 
-      console.log(`Found ${files.length} CSV file(s) in ${dataDir}`);
+      this.csvLogger.info({
+        data_directory: dataDir,
+        file_count: files.length
+      }, 'Found CSV files in data directory');
 
       for (const file of files) {
         const filePath = path.join(dataDir, file);
@@ -117,14 +133,18 @@ export class CSVFlightService extends FlightServiceBase {
         try {
           // Check if file exists before processing
           if (!fs.existsSync(filePath)) {
-            console.warn(`CSV file not found: ${filePath}`);
+            this.csvLogger.warn({
+              file_path: filePath
+            }, 'CSV file not found');
             continue;
           }
 
           // Check if file is actually a file
           const fileStats = fs.statSync(filePath);
           if (!fileStats.isFile()) {
-            console.warn(`CSV path is not a file: ${filePath}`);
+            this.csvLogger.warn({
+              file_path: filePath
+            }, 'CSV path is not a file');
             continue;
           }
 
@@ -145,13 +165,31 @@ export class CSVFlightService extends FlightServiceBase {
             }
           });
 
-          console.log(`Registered CSV dataset: ${datasetId} (${file})`);
+          this.csvLogger.info({
+            dataset_id: datasetId,
+            file_name: file,
+            file_path: filePath,
+            file_size: fileStats.size
+          }, 'Registered CSV dataset');
         } catch (error) {
-          console.warn(`Failed to register CSV dataset ${file}:`, error.message);
+          this.csvLogger.warn({
+            file_name: file,
+            error: {
+              message: error.message,
+              stack: error.stack,
+              name: error.name
+            }
+          }, 'Failed to register CSV dataset');
         }
       }
     } catch (error) {
-      console.error('Error initializing CSV datasets:', error);
+      this.csvLogger.error({
+        error: {
+          message: error.message,
+          stack: error.stack,
+          name: error.name
+        }
+      }, 'Error initializing CSV datasets');
     }
   }
 
@@ -201,7 +239,11 @@ export class CSVFlightService extends FlightServiceBase {
    * @param {Object} dataset - Dataset metadata
    */
   async _streamDataset(call, dataset) {
-    console.log(`Streaming CSV dataset: ${dataset.id}`);
+    this.csvLogger.info({
+      dataset_id: dataset.id,
+      file_path: dataset.filePath,
+      batch_size: this.csvOptions.batchSize
+    }, 'Streaming CSV dataset');
 
     try {
       // Create CSV streamer with configured options
@@ -219,7 +261,10 @@ export class CSVFlightService extends FlightServiceBase {
 
       // Handle schema inference
       streamer.on('schema', (csvSchema) => {
-        console.log(`CSV Schema inferred for ${dataset.id}:`, csvSchema);
+        this.csvLogger.debug({
+          dataset_id: dataset.id,
+          csv_schema: csvSchema
+        }, 'CSV Schema inferred');
         arrowBuilder = new CSVArrowBuilder(csvSchema);
       });
 
@@ -227,21 +272,27 @@ export class CSVFlightService extends FlightServiceBase {
       streamer.on('batch', (csvBatch) => {
         try {
           if (!arrowBuilder) {
-            console.warn('Arrow builder not ready, skipping batch');
+            this.csvLogger.warn({
+              dataset_id: dataset.id
+            }, 'Arrow builder not ready, skipping batch');
             return;
           }
 
           // Convert CSV batch to Arrow record batch
           const recordBatch = arrowBuilder.createRecordBatch(csvBatch);
           if (!recordBatch) {
-            console.warn('Failed to create record batch');
+            this.csvLogger.warn({
+              dataset_id: dataset.id
+            }, 'Failed to create record batch');
             return;
           }
 
           // Serialize record batch for Flight protocol
           const serializedBatch = arrowBuilder.serializeRecordBatch(recordBatch);
           if (!serializedBatch) {
-            console.warn('Failed to serialize record batch');
+            this.csvLogger.warn({
+              dataset_id: dataset.id
+            }, 'Failed to serialize record batch');
             return;
           }
 
@@ -258,31 +309,60 @@ export class CSVFlightService extends FlightServiceBase {
           totalBatches++;
           totalRows += csvBatch.length;
 
-          console.log(`Sent batch ${totalBatches} with ${csvBatch.length} rows (total: ${totalRows})`);
+          this.csvLogger.debug({
+            dataset_id: dataset.id,
+            batch_number: totalBatches,
+            batch_rows: csvBatch.length,
+            total_rows: totalRows
+          }, 'Sent batch');
 
         } catch (error) {
-          console.error('Error processing batch:', error);
+          this.csvLogger.error({
+            dataset_id: dataset.id,
+            error: {
+              message: error.message,
+              stack: error.stack,
+              name: error.name
+            }
+          }, 'Error processing batch');
         }
       });
 
       // Handle streaming errors
       streamer.on('error', (error) => {
-        console.error('CSV streaming error:', error);
+        this.csvLogger.error({
+          dataset_id: dataset.id,
+          error: {
+            message: error.message,
+            stack: error.stack,
+            name: error.name
+          }
+        }, 'CSV streaming error');
         call.emit('error', error);
       });
 
       // Handle row-level errors (non-fatal)
       streamer.on('row-error', ({ row: _row, error }) => {
-        console.warn(`Row error in ${dataset.id}:`, error);
+        this.csvLogger.warn({
+          dataset_id: dataset.id,
+          error: {
+            message: error.message,
+            stack: error.stack,
+            name: error.name
+          }
+        }, 'Row error in CSV dataset');
       });
 
       // Handle streaming completion
       streamer.on('end', (stats) => {
-        console.log(`CSV streaming completed for ${dataset.id}:`, {
-          totalBatches,
-          totalRows: stats.totalRows,
-          processingTime: Date.now() - startTime
-        });
+        this.csvLogger.info({
+          dataset_id: dataset.id,
+          streaming_stats: {
+            total_batches: totalBatches,
+            total_rows: stats.totalRows,
+            processing_time: Date.now() - startTime
+          }
+        }, 'CSV streaming completed');
         call.end();
       });
 
@@ -291,7 +371,14 @@ export class CSVFlightService extends FlightServiceBase {
       await streamer.start();
 
     } catch (error) {
-      console.error(`Error streaming CSV dataset ${dataset.id}:`, error);
+      this.csvLogger.error({
+        dataset_id: dataset.id,
+        error: {
+          message: error.message,
+          stack: error.stack,
+          name: error.name
+        }
+      }, 'Error streaming CSV dataset');
       call.emit('error', error);
     }
   }

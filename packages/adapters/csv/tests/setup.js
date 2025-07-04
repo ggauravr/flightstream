@@ -14,10 +14,13 @@ if (typeof jest !== 'undefined') {
   jest.setTimeout(30000);
 }
 
-// Mock console output to avoid noise
+// Mock console output and logger to avoid noise
 global.originalConsoleLog = console.log;
 global.originalConsoleWarn = console.warn;
 beforeEach(() => {
+  // Set LOG_SILENT environment variable for tests
+  process.env.LOG_SILENT = 'true';
+  
   if (typeof jest !== 'undefined') {
     console.log = jest.fn();
     console.warn = jest.fn();
@@ -28,6 +31,9 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  // Restore original environment
+  delete process.env.LOG_SILENT;
+  
   console.log = global.originalConsoleLog;
   console.warn = global.originalConsoleWarn;
 });

@@ -29,6 +29,10 @@
   ],
   "author": "gggauravr@gmail.com",
   "license": "Apache-2.0",
+  "dependencies": {
+    "pino": "^8.17.0",
+    "pino-pretty": "^10.3.0"
+  },
   "peerDependencies": {
     "apache-arrow": "^14.0.2"
   },

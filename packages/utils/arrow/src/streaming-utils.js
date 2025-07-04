@@ -18,6 +18,38 @@
  */
 
 import { EventEmitter } from 'events';
+import pino from 'pino';
+
+/**
+ * Create a configured pino logger instance
+ */
+const createLogger = (options = {}) => {
+  const env = process.env.NODE_ENV || 'development';
+  const logLevel = process.env.LOG_LEVEL || 'info';
+  const logFormat = process.env.LOG_FORMAT || (env === 'development' ? 'pretty' : 'json');
+  const logSilent = process.env.LOG_SILENT === 'true';
+
+  const config = {
+    level: logLevel,
+    silent: logSilent,
+    timestamp: pino.stdTimeFunctions.isoTime,
+    ...options
+  };
+
+  // Use pretty printing for development
+  if (logFormat === 'pretty' && !logSilent) {
+    config.transport = {
+      target: 'pino-pretty',
+      options: {
+        colorize: true,
+        translateTime: 'HH:MM:ss',
+        ignore: 'pid,hostname'
+      }
+    };
+  }
+
+  return pino(config);
+};
 
 /**
  * Streaming Utilities for Data Processing
@@ -163,6 +195,11 @@ export class BatchProcessor extends StreamProcessor {
     super(options);
     this.processor = processor;
     this.activeBatches = new Set();
+    this.logger = createLogger({
+      name: 'streaming',
+      batch_size: this.options.batchSize,
+      max_concurrency: this.options.maxConcurrency
+    });
   }
 
   /**
@@ -188,7 +225,16 @@ export class BatchProcessor extends StreamProcessor {
 
       // Retry logic
       if (this.errorCount <= this.options.errorRetries) {
-        console.warn(`Batch processing failed, retrying (${this.errorCount}/${this.options.errorRetries}):`, error.message);
+        this.logger.warn({
+          batch_id: batchId,
+          error_count: this.errorCount,
+          max_retries: this.options.errorRetries,
+          error: {
+            message: error.message,
+            stack: error.stack,
+            name: error.name
+          }
+        }, 'Batch processing failed, retrying');
         return this.processBatch(batch);
       }
 

@@ -27,6 +27,9 @@ import { fileURLToPath } from 'url';
 // Protocol handlers for Arrow Flight operations
 import { createProtocolHandlers } from './flight-protocol-handler.js';
 
+// Logger
+import { createLogger } from './logger.js';
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -65,6 +68,13 @@ export class FlightServer {
 
     // Protocol handlers
     this.protocolHandlers = null;
+
+    // Logger
+    this.logger = createLogger({
+      name: 'flight-server',
+      host: this.options.host,
+      port: this.options.port
+    });
   }
 
   /**
@@ -144,17 +154,30 @@ export class FlightServer {
 
       this.server.bindAsync(serverAddress, grpc.ServerCredentials.createInsecure(), (error, port) => {
         if (error) {
-          console.error('Failed to bind server:', error);
+          this.logger.error({
+            error: {
+              message: error.message,
+              stack: error.stack,
+              name: error.name
+            },
+            server_address: serverAddress
+          }, 'Failed to bind server');
           reject(error);
           return;
         }
 
-        console.log(`🚀 Arrow Flight Server bound to ${serverAddress}`);
+        this.logger.info({
+          server_address: serverAddress,
+          port: port
+        }, 'Arrow Flight Server bound');
 
         // Start the server
         this.server.start();
 
-        console.log(`✅ Arrow Flight Server started on port ${port}`);
+        this.logger.info({
+          port: port,
+          host: this.options.host
+        }, 'Arrow Flight Server started');
         resolve(port);
       });
     });
@@ -171,17 +194,23 @@ export class FlightServer {
         return;
       }
 
-      console.log('🛑 Stopping Arrow Flight Server...');
+      this.logger.info('Stopping Arrow Flight Server...');
 
       // Try graceful shutdown first
       this.server.tryShutdown((error) => {
         if (error) {
-          console.warn('Graceful shutdown failed, forcing shutdown:', error);
+          this.logger.warn({
+            error: {
+              message: error.message,
+              stack: error.stack,
+              name: error.name
+            }
+          }, 'Graceful shutdown failed, forcing shutdown');
           // Force shutdown
           this.server.forceShutdown();
         }
 
-        console.log('✅ Arrow Flight Server stopped');
+        this.logger.info('Arrow Flight Server stopped');
         this.server = null;
         resolve();
       });
