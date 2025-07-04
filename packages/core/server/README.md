@@ -18,6 +18,31 @@ The `@flightstream/core-server` package provides a generic, extensible framework
 - **Easy Integration**: Simple API for building Flight servers
 - **Lifecycle Management**: Built-in server startup, shutdown, and status monitoring
 
+## 🏗️ Architecture
+
+The core package follows a plugin architecture pattern:
+
+```
+┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
+│   gRPC Client   │    │   FlightServer   │    │ FlightService   │
+│                 │◄──►│                  │◄──►│   (Plugin)      │
+│                 │    │                  │    │                 │
+└─────────────────┘    └──────────────────┘    └─────────────────┘
+                              │
+                              ▼
+                       ┌──────────────────┐
+                       │Protocol Handlers │
+                       │                  │
+                       └──────────────────┘
+```
+
+### Components
+
+1. **FlightServer**: Main server class that manages gRPC connections and delegates to service plugins
+2. **FlightService (Plugin)**: Data source adapters (CSV, Parquet, Database, etc.)
+3. **Protocol Handlers**: Standard implementations of Arrow Flight RPC methods
+4. **gRPC Client**: Any Arrow Flight client that connects to the server
+
 ## 📦 Installation
 
 ```bash
