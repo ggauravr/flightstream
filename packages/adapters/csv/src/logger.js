@@ -34,4 +34,4 @@ export const createLogger = (options = {}) => {
   return pino(config);
 };
 
-export default createLogger; 
+export default createLogger;
