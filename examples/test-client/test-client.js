@@ -17,7 +17,7 @@ class FlightClient {
 
   _initializeClient() {
     // Load the proto file
-    const PROTO_PATH = path.join(__dirname, '../../../core/server/proto/flight.proto');
+    const PROTO_PATH = path.join(__dirname, '../../packages/core/server/proto/flight.proto');
 
     const packageDefinition = protoLoader.loadSync(PROTO_PATH, {
       keepCase: true,
