@@ -18,7 +18,7 @@ git clone https://github.com/ggauravr/flightstream.git
 cd flightstream
 npm install
 
-# Start the development server (with auto-reload)
+# Start the development server using data from the `data` directory and the CSV adapter (with auto-reload)
 npm run dev
 ```
 
@@ -36,7 +36,7 @@ npm test
 #### Client Terminal (`npm test`):
 ![FlightStream Client Streaming Data](docs/images/client-streaming.png)
 
-That's it! The server will automatically discover CSV files in the `data/` directory and stream them via Arrow Flight protocol. The test client will connect and display the streamed data in real-time.
+That's it! The server will automatically discover CSV files in the `data/` directory and stream them via Arrow Flight protocol. The test client will connect and display the streamed data in real-time. As you can see a CSV with ~41k rows is streamed to the client in .025s!
 
 ### What just happened?
 - 🚀 **Flight Server**: Started on `localhost:8080` with CSV adapter
@@ -66,11 +66,6 @@ This monorepo is organized by domain for maximum scalability and extensibility:
 |---------|-------------|---------|
 | [`@flightstream/utils-arrow`](packages/utils/arrow/) | Arrow utilities and schema inference | ![npm](https://img.shields.io/npm/v/@flightstream/utils-arrow) |
 
-### Examples ✅
-
-| Package | Description |
-|---------|-------------|
-| [`@flightstream/examples-server`](packages/examples/server/) | Server examples and reference implementations |
 
 ### Planned Packages 🚧
 
@@ -86,7 +81,6 @@ This monorepo is organized by domain for maximum scalability and extensibility:
 | `@flightstream/frameworks-express` | Express server plugin for Flight/gRPC-based data streaming | Planned |
 | `@flightstream/utils-streaming` | Streaming utilities | Planned |
 | `@flightstream/utils-storage` | Storage utilities | Planned |
-| `@flightstream/examples-client` | Client examples and demos | Planned |
 | `@flightstream/tools-cli` | Command-line tools | Planned |
 | `@flightstream/tools-dev` | Development utilities | Planned |
 
