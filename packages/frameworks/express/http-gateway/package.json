@@ -4,20 +4,25 @@
   "private": true,
   "main": "src/index.js",
   "scripts": {
-    "start": "node src/index.js",
-    "dev": "node --watch src/index.js"
+    "test": "jest",
+    "example:simple": "cd examples && npm run simple",
+    "example:advanced": "cd examples && npm run advanced",
+    "link:local": "npm link ../../../core/server",
+    "link:remote": "npm unlink @flightstream/core-server && npm install @flightstream/core-server",
+    "check:proto": "node -e \"console.log('Proto path:', require('./src/flight-client.js').PROTO_PATH || 'Not exported - check resolveProtoPath()')\""
   },
   "dependencies": {
     "@grpc/grpc-js": "^1.8.14",
     "@grpc/proto-loader": "^0.7.7",
     "apache-arrow": "^12.0.0",
     "cors": "^2.8.5",
-    "dotenv": "^16.0.3",
     "express": "^4.18.2",
-    "pino": "^8.17.0",
-    "pino-pretty": "^10.3.0"
+    "@flightstream/core-server": "^0.1.0"
   },
   "devDependencies": {
-    "jest": "^29.5.0"
+    "jest": "^29.5.0",
+    "pino": "^8.17.0",
+    "pino-pretty": "^10.3.0",
+    "dotenv": "^16.0.3"
   }
 } 

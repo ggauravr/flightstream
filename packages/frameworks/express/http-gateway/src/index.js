@@ -1,11 +1,18 @@
 require('dotenv').config();
-const createServer = require('./server');
 
-const port = process.env.PORT || 3001;
-const flightServerUrl = process.env.FLIGHT_SERVER_URL || 'grpc://localhost:8080';
+// Main gateway function for simple usage
+const createFlightGateway = require('./flight-gateway');
 
-const app = createServer(flightServerUrl);
+// Individual components for advanced usage
+const createFlightClient = require('./flight-client');
+const createQueryHandler = require('./query-handler');
+const createErrorHandler = require('./error-handler');
 
-app.listen(port, () => {
-  console.log(`HTTP Gateway listening at http://localhost:${port}`);
-}); 
+// Simple usage: app.use('/api/v1', flightGateway(flightServerUrl, { logger }))
+module.exports = createFlightGateway;
+
+// Advanced usage: const { createFlightClient, createQueryHandler, createErrorHandler } = require(...)
+module.exports.createFlightClient = createFlightClient;
+module.exports.createQueryHandler = createQueryHandler;
+module.exports.createErrorHandler = createErrorHandler;
+module.exports.createFlightGateway = createFlightGateway; 
