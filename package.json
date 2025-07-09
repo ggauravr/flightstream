@@ -14,9 +14,9 @@
     "packages/tools/*"
   ],
   "scripts": {
-    "start": "node packages/examples/server/basic-server/index.js",
-    "dev": "nodemon packages/examples/server/basic-server/index.js",
-    "test": "node packages/examples/server/test-client/test-client.js",
+    "start": "node examples/basic-server/index.js",
+    "dev": "nodemon examples/basic-server/index.js",
+    "test": "node examples/test-client/test-client.js",
     "build": "lerna run build",
     "lint": "lerna run lint",
     "clean": "lerna clean",
