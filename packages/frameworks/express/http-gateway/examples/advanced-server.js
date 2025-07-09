@@ -1,7 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const pino = require('pino');
-const { createFlightClient, createQueryHandler, createErrorHandler } = require('../src');
+const { createFlightClient, createQueryHandler, createListHandler, createErrorHandler } = require('../src');
 
 const app = express();
 const port = process.env.PORT || 3002;
@@ -23,6 +23,7 @@ const logger = pino({
 // Advanced usage - use individual components for more control
 const flightClient = createFlightClient(flightServerUrl, { logger });
 const queryHandler = createQueryHandler(flightClient, { logger });
+const listHandler = createListHandler(flightClient, { logger });
 const errorHandler = createErrorHandler({ logger });
 
 // Custom middleware
@@ -48,6 +49,7 @@ app.get('/', (req, res) => {
   res.json({ 
     message: 'Flightstream HTTP Gateway - Advanced Example',
     endpoints: {
+      list: 'GET /api/v1/list',
       query: 'POST /api/v1/query',
       health: 'GET /health'
     }
@@ -58,7 +60,8 @@ app.get('/health', (req, res) => {
   res.json({ status: 'healthy', timestamp: new Date().toISOString() });
 });
 
-// Flight query endpoint
+// Flight endpoints
+app.get('/api/v1/list', listHandler);
 app.post('/api/v1/query', queryHandler);
 
 // Custom error handling

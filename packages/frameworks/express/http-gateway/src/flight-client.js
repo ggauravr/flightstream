@@ -66,7 +66,13 @@ function createFlightClient(serverUrl, options = {}) {
                 
                 logger.debug(`📦 Batch ${batchCount}: ${batchSize.toLocaleString()} bytes`);
                 
-                // Parse each Flight batch to RecordBatch and collect them
+                /**
+                 * TODO: 
+                 * Not ideal. We're collecting all batches in memory.
+                 * We should write them to a file or something, but previous attempts have not worked.
+                 * What's interesting is that the frontend client reports getting data in batches, despite
+                 * writing all the data to the stream at once.
+                 */
                 const reader = RecordBatchReader.from(flightData.data_body);
                 for (const recordBatch of reader) {
                     batches.push(recordBatch);
@@ -115,11 +121,49 @@ function createFlightClient(serverUrl, options = {}) {
         return stream;
     }
 
+    function listFlights() {
+        return new Promise((resolve, reject) => {
+            const criteria = {}; // Empty criteria to list all flights
+            const flights = [];
+
+            logger.info('📋 Listing available flights');
+
+            const stream = client.listFlights(criteria);
+
+            stream.on('data', (flightInfo) => {
+                const flight = {
+                    descriptor: flightInfo.flight_descriptor ? {
+                        type: flightInfo.flight_descriptor.type,
+                        cmd: flightInfo.flight_descriptor.cmd ? flightInfo.flight_descriptor.cmd.toString() : null,
+                        path: flightInfo.flight_descriptor.path || []
+                    } : null,
+                    endpoints: flightInfo.endpoint || [],
+                    total_records: flightInfo.total_records || -1,
+                    total_bytes: flightInfo.total_bytes || -1
+                };
+
+                flights.push(flight);
+                logger.debug(`📄 Found flight: ${flight.descriptor?.cmd || 'unnamed'}`);
+            });
+
+            stream.on('end', () => {
+                logger.info(`✅ Listed ${flights.length} available flights`);
+                resolve(flights);
+            });
+
+            stream.on('error', (err) => {
+                logger.error(`❌ Error listing flights:`, err.message);
+                reject(err);
+            });
+        });
+    }
+
     return {
-        getFlightStream
+        getFlightStream,
+        listFlights
     };
 }
 
-module.exports = createFlightClient;
+module.exports = createFlightClient; 
 // Export for debugging
 module.exports.PROTO_PATH = PROTO_PATH; 

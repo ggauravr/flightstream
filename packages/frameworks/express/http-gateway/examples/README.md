@@ -48,18 +48,43 @@ This example demonstrates:
 
 ## Usage
 
-Both examples expose the same Flight query endpoint:
+Both examples expose the same Flight endpoints:
+
+### List Available Datasets
 
 ```bash
-POST /api/v1/query
-Content-Type: application/json
+curl -X GET http://localhost:3001/api/v1/list
+```
 
+This returns a JSON response with all available datasets:
+
+```json
 {
-  "resource": "your-resource-identifier"
+  "datasets": [
+    {
+      "name": "dataset-name",
+      "path": [],
+      "type": "unknown",
+      "total_records": -1,
+      "total_bytes": -1,
+      "endpoints": 1
+    }
+  ],
+  "count": 1
 }
 ```
 
-The response will be an Apache Arrow stream with `Content-Type: application/vnd.apache.arrow.stream`.
+### Query a Dataset
+
+```bash
+curl -X POST \
+  -H "Content-Type: application/json" \
+  -d '{"resource": "your-resource-identifier"}' \
+  --output response.arrow \
+  http://localhost:3001/api/v1/query
+```
+
+The resource identifier is the name of the dataset that's exposed by the Flight server. The response will be an Apache Arrow stream with `Content-Type: application/vnd.apache.arrow.stream` saved to `response.arrow`.
 
 ## Environment Variables
 
