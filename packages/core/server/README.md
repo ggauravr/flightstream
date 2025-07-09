@@ -1,6 +1,6 @@
 # ✈️ @flightstream/core-server
 
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](../../LICENSE)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](../../LICENSE)
 [![Node.js](https://img.shields.io/badge/Node.js-%3E%3D18.0.0-green.svg)](https://nodejs.org/)
 [![Apache Arrow](https://img.shields.io/badge/Apache%20Arrow-%3E%3D14.0.0-orange.svg)](https://arrow.apache.org/)
 
@@ -42,6 +42,74 @@ The core package follows a plugin architecture pattern:
 2. **FlightService (Plugin)**: Data source adapters (CSV, Parquet, Database, etc.)
 3. **Protocol Handlers**: Standard implementations of Arrow Flight RPC methods
 4. **gRPC Client**: Any Arrow Flight client that connects to the server
+
+
+## Complete Setup
+
+This diagram shows how to build a complete Flight server application using the core server package:
+
+```mermaid
+graph TB
+    subgraph "Core Server Package"
+        FS["FlightServer<br/>(gRPC Server)"]
+        FSB["FlightServiceBase<br/>(Abstract Class)"]
+        PH["Protocol Handlers<br/>(Flight RPC Methods)"]
+    end
+    
+    subgraph "Service Plugin Package"
+        CSV["CustomFlightService<br/>(extends FlightServiceBase) (e.g. CSVFlightService)"]
+    end
+    
+    subgraph "Your Application Server"
+        APP["Application Code<br/>(imports & configures)"]
+    end
+    
+    subgraph "Data Sources"
+        DATA["Database/CSV Files(./data/*.csv)"]
+    end
+    
+    %% Relationships
+    CSV -.->|extends| FSB
+    APP -->|imports| FS
+    APP -->|imports| CSV
+    APP -->|configures| FS
+    APP -->|sets service| CSV
+    CSV -->|reads| DATA
+    FS -->|delegates to| CSV
+    FS -->|uses| PH
+    
+    %% Styling
+    classDef corePackage fill:#e1f5fe,stroke:#01579b,stroke-width:2px
+    classDef servicePackage fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
+    classDef appPackage fill:#e8f5e8,stroke:#1b5e20,stroke-width:2px
+    classDef dataPackage fill:#fff3e0,stroke:#e65100,stroke-width:2px
+    
+    class FS,FSB,PH corePackage
+    class CSV servicePackage
+    class APP appPackage
+    class DATA dataPackage
+```
+
+### Setup Flow
+
+1. **Core Server Package** (`@flightstream/core-server`) provides the foundation:
+   - `FlightServer`: Main gRPC server implementing Arrow Flight protocol
+   - `FlightServiceBase`: Abstract base class for data service plugins
+   - `Protocol Handlers`: Standard Flight RPC method implementations
+
+2. **Service Plugin Package** (e.g., `@flightstream/adapters-csv`) extends the core:
+   - `CSVFlightService`: Concrete implementation extending `FlightServiceBase`
+   - Handles CSV-specific data reading and Arrow conversion
+
+3. **Your Application Server** brings it all together:
+   - Imports `FlightServer` from core package
+   - Imports service plugin (e.g., `CSVFlightService`)
+   - Configures and connects the components
+   - Manages lifecycle (start/stop)
+
+4. **Data Sources** provide the actual data:
+   - CSV files, databases, APIs, etc.
+   - Service plugins handle the data access layer
 
 ## 📦 Installation
 
@@ -132,6 +200,87 @@ node server.js
 
 The server will automatically discover and serve all CSV files in the `./data` directory.
 
+## 📝 Logging
+
+The core server provides simple, flexible logging that works with any logger or the built-in console.
+
+### Default Console Logging
+
+By default, the server uses the standard `console` object:
+
+```javascript
+const server = new FlightServer({
+  host: 'localhost',
+  port: 8080
+  // Uses console for logging
+});
+```
+
+### Custom Logger
+
+You can provide any logger that implements the basic logging interface:
+
+```javascript
+import pino from 'pino';
+
+const logger = pino({
+  level: 'info',
+  transport: {
+    target: 'pino-pretty'
+  }
+});
+
+const server = new FlightServer({
+  host: 'localhost',
+  port: 8080,
+  logger: logger
+});
+```
+
+### Logger Interface
+
+Your logger must implement these methods:
+- `info(data, message)`: Informational messages with structured data
+- `debug(data, message)`: Debug messages with structured data  
+- `warn(data, message)`: Warning messages with structured data
+- `error(data, message)`: Error messages with structured data
+
+The server uses structured logging with data objects as the first parameter:
+
+```javascript
+// Example of how the server calls your logger
+logger.info({ port: 8080, host: 'localhost' }, 'Arrow Flight Server started');
+logger.error({ error: { message: err.message } }, 'Failed to start server');
+```
+
+### Compatible Loggers
+
+The server works with popular logging libraries:
+
+#### Pino (Recommended)
+```javascript
+import pino from 'pino';
+const logger = pino();
+```
+
+#### Winston
+```javascript
+import winston from 'winston';
+const logger = winston.createLogger({
+  level: 'info',
+  format: winston.format.combine(
+    winston.format.timestamp(),
+    winston.format.json()
+  ),
+  transports: [
+    new winston.transports.Console()
+  ]
+});
+```
+
+#### Console (Default)
+The built-in console works out of the box and will stringify data objects automatically.
+
 ## 📚 API Reference
 
 ### FlightServer
@@ -149,6 +298,7 @@ new FlightServer(options)
 - `port` (number): Server port (default: 8080)
 - `maxReceiveMessageLength` (number): Maximum message size in bytes (default: 100MB)
 - `maxSendMessageLength` (number): Maximum send message size in bytes (default: 100MB)
+- `logger` (object): Custom logger instance (default: `console`)
 
 #### Methods
 
@@ -161,6 +311,16 @@ new FlightServer(options)
 ### FlightServiceBase
 
 Abstract base class for implementing Flight service adapters.
+
+#### Constructor
+
+```javascript
+new FlightServiceBase(options)
+```
+
+**Options:**
+- `logger` (object): Custom logger instance (default: `console`)
+- Additional options specific to your service implementation
 
 #### Required Methods (implement in your subclass)
 
@@ -221,7 +381,7 @@ See [CONTRIBUTING.md](../../../CONTRIBUTING.md) for detailed guidelines.
 
 ## 📄 License
 
-Apache License 2.0 - see [LICENSE](../../../LICENSE) for details.
+MIT License - see [LICENSE](../../../LICENSE) for details.
 
 ## 🔗 Learn More
 
