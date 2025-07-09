@@ -45,6 +45,7 @@
     "publish:beta": "lerna publish --dist-tag beta --preid beta",
     "publish:alpha": "lerna publish --dist-tag alpha --preid alpha",
     "publish:latest": "lerna publish from-package --dist-tag latest",
+    "promote:latest": "npm dist-tag add @flightstream/core-server@$(npm view @flightstream/core-server version) latest && npm dist-tag add @flightstream/adapters-csv@$(npm view @flightstream/adapters-csv version) latest && npm dist-tag add @flightstream/utils-arrow@$(npm view @flightstream/utils-arrow version) latest",
     "publish:rc": "lerna publish --dist-tag rc --preid rc",
     "publish:experimental": "lerna publish --dist-tag experimental --preid experimental",
     "version:beta": "lerna version prerelease --preid beta",
