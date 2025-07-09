@@ -8,8 +8,7 @@ import { fileURLToPath } from 'url';
 // Protocol handlers for Arrow Flight operations
 import { createProtocolHandlers } from './flight-protocol-handler.js';
 
-// Logger
-import { createLogger } from './logger.js';
+// No logger import needed - use options.logger || console
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -50,12 +49,8 @@ export class FlightServer {
     // Protocol handlers
     this.protocolHandlers = null;
 
-    // Logger
-    this.logger = createLogger({
-      name: 'flight-server',
-      host: this.options.host,
-      port: this.options.port
-    });
+    // Logger - use provided logger or console
+    this.logger = options.logger || console;
   }
 
   /**
