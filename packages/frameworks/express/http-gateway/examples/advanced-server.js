@@ -1,7 +1,14 @@
 require('dotenv').config();
 const express = require('express');
 const pino = require('pino');
-const { createFlightClient, createQueryHandler, createListHandler, createErrorHandler } = require('../src');
+const { 
+  createFlightClient, 
+  createQueryHandler, 
+  createListHandler, 
+  createFlightInfoHandler,
+  createSchemaHandler,
+  createErrorHandler 
+} = require('../src');
 
 const app = express();
 const port = process.env.PORT || 3002;
@@ -24,6 +31,8 @@ const logger = pino({
 const flightClient = createFlightClient(flightServerUrl, { logger });
 const queryHandler = createQueryHandler(flightClient, { logger });
 const listHandler = createListHandler(flightClient, { logger });
+const flightInfoHandler = createFlightInfoHandler(flightClient, { logger });
+const schemaHandler = createSchemaHandler(flightClient, { logger });
 const errorHandler = createErrorHandler({ logger });
 
 // Custom middleware
@@ -63,6 +72,8 @@ app.get('/health', (req, res) => {
 // Flight endpoints
 app.get('/api/v1/list', listHandler);
 app.post('/api/v1/query', queryHandler);
+app.post('/api/v1/info', flightInfoHandler);
+app.post('/api/v1/schema', schemaHandler);
 
 // Custom error handling
 app.use(errorHandler);

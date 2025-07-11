@@ -40,20 +40,36 @@ curl -X POST \
   -d '{"resource": "dataset-name"}' \
   --output data.arrow \
   http://localhost:3000/api/v1/query
+
+# Get flight info for a dataset
+curl -X POST \
+  -H "Content-Type: application/json" \
+  -d '{"resource": "dataset-name"}' \
+  http://localhost:3000/api/v1/info
+
+# Get schema for a dataset
+curl -X POST \
+  -H "Content-Type: application/json" \
+  -d '{"resource": "dataset-name"}' \
+  http://localhost:3000/api/v1/schema
 ```
 
 ### Advanced Usage
 
 ```javascript
-const { createFlightClient, createQueryHandler, createListHandler, createErrorHandler } = require('@flightstream/http-gateway');
+const { createFlightClient, createQueryHandler, createListHandler, createFlightInfoHandler, createSchemaHandler, createErrorHandler } = require('@flightstream/http-gateway');
 
 const flightClient = createFlightClient('grpc://localhost:8080', { logger });
 const queryHandler = createQueryHandler(flightClient, { logger });
 const listHandler = createListHandler(flightClient, { logger });
+const flightInfoHandler = createFlightInfoHandler(flightClient, { logger });
+const schemaHandler = createSchemaHandler(flightClient, { logger });
 const errorHandler = createErrorHandler({ logger });
 
 app.get('/api/v1/list', listHandler);
 app.post('/api/v1/query', queryHandler);
+app.post('/api/v1/info', flightInfoHandler);
+app.post('/api/v1/schema', schemaHandler);
 app.use(errorHandler);
 ```
 
@@ -197,6 +213,102 @@ curl -X POST http://localhost:3000/api/v1/query \
   -H "Content-Type: application/json" \
   -d '{"resource": "my-dataset"}' \
   --output data.arrow
+```
+
+#### POST `/info`
+Get detailed metadata about a specific dataset.
+
+**Request:**
+```json
+{
+  "resource": "dataset-identifier",
+  "type": 2
+}
+```
+
+**Parameters:**
+- `resource` (required): Dataset identifier (name or path)
+- `type` (optional): Flight descriptor type (1 for PATH, 2 for CMD, defaults to 2)
+
+**Response:**
+```json
+{
+  "flight_descriptor": {
+    "type": 2,
+    "cmd": "dataset-identifier",
+    "path": []
+  },
+  "endpoints": [
+    {
+      "location": [{"uri": "grpc://localhost:8080"}],
+      "ticket": {"ticket": "..."}
+    }
+  ],
+  "total_records": 1000,
+  "total_bytes": 45000,
+  "schema_available": true
+}
+```
+
+**Example:**
+```bash
+curl -X POST http://localhost:3000/api/v1/info \
+  -H "Content-Type: application/json" \
+  -d '{"resource": "my-dataset"}'
+```
+
+#### POST `/schema`
+Get the Arrow schema for a dataset.
+
+**Request:**
+```json
+{
+  "resource": "dataset-identifier",
+  "type": 2,
+  "format": "json"
+}
+```
+
+**Parameters:**
+- `resource` (required): Dataset identifier (name or path)
+- `type` (optional): Flight descriptor type (1 for PATH, 2 for CMD, defaults to 2)
+- `format` (optional): Response format ("json" for parsed schema, "binary" for raw Arrow schema)
+
+**Response (JSON format):**
+```json
+{
+  "resource": "dataset-identifier",
+  "schema": {
+    "fields": [
+      {
+        "name": "id",
+        "type": "int64"
+      },
+      {
+        "name": "name", 
+        "type": "string"
+      }
+    ]
+  }
+}
+```
+
+**Response (Binary format):**
+- **Content-Type**: `application/vnd.apache.arrow.stream`
+- **Body**: Raw Arrow schema in binary format
+
+**Examples:**
+```bash
+# Get schema as JSON
+curl -X POST http://localhost:3000/api/v1/schema \
+  -H "Content-Type: application/json" \
+  -d '{"resource": "my-dataset"}'
+
+# Get schema as binary Arrow format
+curl -X POST http://localhost:3000/api/v1/schema \
+  -H "Content-Type: application/json" \
+  -d '{"resource": "my-dataset", "format": "binary"}' \
+  --output schema.arrow
 ```
 
 ### Configuration Options

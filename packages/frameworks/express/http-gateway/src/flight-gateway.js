@@ -3,6 +3,8 @@ const cors = require('cors');
 const createFlightClient = require('./flight-client');
 const createQueryHandler = require('./query-handler');
 const createListHandler = require('./list-handler');
+const createFlightInfoHandler = require('./flight-info-handler');
+const createSchemaHandler = require('./schema-handler');
 const createErrorHandler = require('./error-handler');
 
 function createFlightGateway(flightServerUrl, options = {}) {
@@ -10,6 +12,8 @@ function createFlightGateway(flightServerUrl, options = {}) {
     const flightClient = createFlightClient(flightServerUrl, options);
     const queryHandler = createQueryHandler(flightClient, options);
     const listHandler = createListHandler(flightClient, options);
+    const flightInfoHandler = createFlightInfoHandler(flightClient, options);
+    const schemaHandler = createSchemaHandler(flightClient, options);
     const errorHandler = createErrorHandler(options);
 
     // Middleware
@@ -22,6 +26,12 @@ function createFlightGateway(flightServerUrl, options = {}) {
     
     // fetch data by dataset identifier
     router.post('/query', queryHandler);
+    
+    // get flight info for a dataset
+    router.post('/info', flightInfoHandler);
+    
+    // get schema for a dataset
+    router.post('/schema', schemaHandler);
 
     // Error handling
     router.use(errorHandler);

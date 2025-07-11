@@ -158,9 +158,101 @@ function createFlightClient(serverUrl, options = {}) {
         });
     }
 
+    function listActions() {
+        return new Promise((resolve, reject) => {
+            logger.info('📋 Listing available actions');
+            
+            const actions = [];
+            const stream = client.listActions({});
+            
+            stream.on('data', (actionType) => {
+                const action = {
+                    type: actionType.type,
+                    description: actionType.description
+                };
+                actions.push(action);
+                logger.debug(`📄 Found action: ${action.type} - ${action.description}`);
+            });
+            
+            stream.on('end', () => {
+                logger.info(`✅ Listed ${actions.length} available actions`);
+                resolve(actions);
+            });
+            
+            stream.on('error', (err) => {
+                logger.error('❌ Error listing actions:', err.message);
+                reject(err);
+            });
+        });
+    }
+
+    function getFlightInfo(flightDescriptor) {
+        return new Promise((resolve, reject) => {
+            const resourceId = flightDescriptor.cmd || flightDescriptor.path?.join('/') || 'unknown';
+            logger.info(`📋 Getting flight info for: ${resourceId}`);
+            
+            const descriptor = {
+                type: flightDescriptor.type || 2, // CMD type
+                cmd: flightDescriptor.cmd ? Buffer.from(flightDescriptor.cmd) : null,
+                path: flightDescriptor.path || []
+            };
+            
+            client.getFlightInfo(descriptor, (error, flightInfo) => {
+                if (error) {
+                    logger.error(`❌ Error getting flight info for ${resourceId}:`, error.message);
+                    reject(error);
+                    return;
+                }
+                
+                const info = {
+                    schema: flightInfo.schema,
+                    flight_descriptor: flightInfo.flight_descriptor ? {
+                        type: flightInfo.flight_descriptor.type,
+                        cmd: flightInfo.flight_descriptor.cmd ? flightInfo.flight_descriptor.cmd.toString() : null,
+                        path: flightInfo.flight_descriptor.path || []
+                    } : null,
+                    endpoints: flightInfo.endpoint || [],
+                    total_records: flightInfo.total_records || -1,
+                    total_bytes: flightInfo.total_bytes || -1
+                };
+                
+                logger.info(`✅ Flight info retrieved for ${resourceId}: ${info.total_records} records, ${info.total_bytes} bytes`);
+                resolve(info);
+            });
+        });
+    }
+
+    function getSchema(flightDescriptor) {
+        return new Promise((resolve, reject) => {
+            const resourceId = flightDescriptor.cmd || flightDescriptor.path?.join('/') || 'unknown';
+            logger.info(`📐 Getting schema for: ${resourceId}`);
+            
+            const descriptor = {
+                type: flightDescriptor.type || 2, // CMD type
+                cmd: flightDescriptor.cmd ? Buffer.from(flightDescriptor.cmd) : null,
+                path: flightDescriptor.path || []
+            };
+            
+            client.getSchema(descriptor, (error, schemaResult) => {
+                if (error) {
+                    logger.error(`❌ Error getting schema for ${resourceId}:`, error.message);
+                    reject(error);
+                    return;
+                }
+                
+                logger.info(`✅ Schema retrieved for ${resourceId}`);
+                resolve({
+                    schema: schemaResult.schema
+                });
+            });
+        });
+    }
+
     return {
         getFlightStream,
-        listFlights
+        listFlights,
+        getFlightInfo,
+        getSchema
     };
 }
 

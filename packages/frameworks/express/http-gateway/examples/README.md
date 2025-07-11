@@ -86,6 +86,36 @@ curl -X POST \
 
 The resource identifier is the name of the dataset that's exposed by the Flight server. The response will be an Apache Arrow stream with `Content-Type: application/vnd.apache.arrow.stream` saved to `response.arrow`.
 
+### Get Dataset Info
+
+```bash
+curl -X POST \
+  -H "Content-Type: application/json" \
+  -d '{"resource": "your-resource-identifier"}' \
+  http://localhost:3001/api/v1/info
+```
+
+This returns detailed metadata about the dataset including total records, total bytes, and endpoint information.
+
+### Get Dataset Schema
+
+```bash
+# Get schema as JSON
+curl -X POST \
+  -H "Content-Type: application/json" \
+  -d '{"resource": "your-resource-identifier"}' \
+  http://localhost:3001/api/v1/schema
+
+# Get schema as binary Arrow format
+curl -X POST \
+  -H "Content-Type: application/json" \
+  -d '{"resource": "your-resource-identifier", "format": "binary"}' \
+  --output schema.arrow \
+  http://localhost:3001/api/v1/schema
+```
+
+The schema endpoint returns the Arrow schema information for the dataset, either as JSON or binary format.
+
 ## Environment Variables
 
 - `FLIGHT_SERVER_URL`: gRPC URL of the Flight server (default: `grpc://localhost:8080`)
