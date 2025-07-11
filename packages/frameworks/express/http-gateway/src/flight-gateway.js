@@ -1,10 +1,10 @@
 const express = require('express');
 const cors = require('cors');
 const createFlightClient = require('./flight-client');
-const createQueryHandler = require('./query-handler');
-const createListHandler = require('./list-handler');
-const createFlightInfoHandler = require('./flight-info-handler');
-const createSchemaHandler = require('./schema-handler');
+const createQueryHandler = require('./handlers/do-get');
+const createListHandler = require('./handlers/list-flights');
+const createFlightInfoHandler = require('./handlers/get-flight-info');
+const createSchemaHandler = require('./handlers/get-schema');
 const createErrorHandler = require('./error-handler');
 
 function createFlightGateway(flightServerUrl, options = {}) {
