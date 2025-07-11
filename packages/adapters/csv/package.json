@@ -39,9 +39,7 @@
   },
   "homepage": "https://github.com/ggauravr/flightstream#readme",
   "dependencies": {
-    "fast-csv": "^5.0.0",
-    "pino": "^8.17.0",
-    "pino-pretty": "^10.3.0"
+    "fast-csv": "^5.0.0"
   },
   "peerDependencies": {
     "@flightstream/core-server": "^1.0.0-alpha.1",

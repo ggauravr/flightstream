@@ -14,28 +14,35 @@ if (typeof jest !== 'undefined') {
   jest.setTimeout(30000);
 }
 
-// Mock console output and logger to avoid noise
+// Mock console output to avoid noise in tests
 global.originalConsoleLog = console.log;
 global.originalConsoleWarn = console.warn;
+global.originalConsoleError = console.error;
+global.originalConsoleInfo = console.info;
+global.originalConsoleDebug = console.debug;
+
 beforeEach(() => {
-  // Set LOG_SILENT environment variable for tests
-  process.env.LOG_SILENT = 'true';
-  
   if (typeof jest !== 'undefined') {
     console.log = jest.fn();
     console.warn = jest.fn();
+    console.error = jest.fn();
+    console.info = jest.fn();
+    console.debug = jest.fn();
   } else {
     console.log = () => {};
     console.warn = () => {};
+    console.error = () => {};
+    console.info = () => {};
+    console.debug = () => {};
   }
 });
 
 afterEach(() => {
-  // Restore original environment
-  delete process.env.LOG_SILENT;
-  
   console.log = global.originalConsoleLog;
   console.warn = global.originalConsoleWarn;
+  console.error = global.originalConsoleError;
+  console.info = global.originalConsoleInfo;
+  console.debug = global.originalConsoleDebug;
 });
 
 // Test utilities for CSV operations

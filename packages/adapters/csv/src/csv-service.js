@@ -5,7 +5,6 @@ import fs from 'fs';
 import { FlightServiceBase } from '@flightstream/core-server';
 import { CSVStreamer } from './csv-streamer.js';
 import { CSVArrowBuilder } from './csv-arrow-builder.js';
-import { createLogger } from './logger.js';
 
 /**
  * CSV Service for Arrow Flight Server
@@ -34,11 +33,8 @@ export class CSVFlightService extends FlightServiceBase {
       ...(options.csv || {})
     };
 
-    // CSV-specific logger
-    this.csvLogger = createLogger({
-      data_directory: this.csvOptions.dataDirectory,
-      batch_size: this.csvOptions.batchSize
-    });
+    // Logger - accept from options or default to console
+    this.logger = options.logger || console;
   }
 
   /**
@@ -78,7 +74,7 @@ export class CSVFlightService extends FlightServiceBase {
 
       // Check if data directory exists
       if (!fs.existsSync(dataDir)) {
-        this.csvLogger.warn({
+        this.logger.warn({
           data_directory: dataDir
         }, 'Data directory does not exist - no CSV datasets will be loaded');
         return;
@@ -87,7 +83,7 @@ export class CSVFlightService extends FlightServiceBase {
       // Check if data directory is actually a directory
       const stats = fs.statSync(dataDir);
       if (!stats.isDirectory()) {
-        this.csvLogger.warn({
+        this.logger.warn({
           data_directory: dataDir
         }, 'Data directory is not a directory');
         return;
@@ -96,13 +92,13 @@ export class CSVFlightService extends FlightServiceBase {
       const files = fs.readdirSync(dataDir).filter(file => file.endsWith('.csv'));
 
       if (files.length === 0) {
-        this.csvLogger.info({
+        this.logger.info({
           data_directory: dataDir
         }, 'No CSV files found in data directory');
         return;
       }
 
-      this.csvLogger.info({
+      this.logger.info({
         data_directory: dataDir,
         file_count: files.length
       }, 'Found CSV files in data directory');
@@ -114,7 +110,7 @@ export class CSVFlightService extends FlightServiceBase {
         try {
           // Check if file exists before processing
           if (!fs.existsSync(filePath)) {
-            this.csvLogger.warn({
+            this.logger.warn({
               file_path: filePath
             }, 'CSV file not found');
             continue;
@@ -123,7 +119,7 @@ export class CSVFlightService extends FlightServiceBase {
           // Check if file is actually a file
           const fileStats = fs.statSync(filePath);
           if (!fileStats.isFile()) {
-            this.csvLogger.warn({
+            this.logger.warn({
               file_path: filePath
             }, 'CSV path is not a file');
             continue;
@@ -146,14 +142,14 @@ export class CSVFlightService extends FlightServiceBase {
             }
           });
 
-          this.csvLogger.info({
+          this.logger.info({
             dataset_id: datasetId,
             file_name: file,
             file_path: filePath,
             file_size: fileStats.size
           }, 'Registered CSV dataset');
         } catch (error) {
-          this.csvLogger.warn({
+          this.logger.warn({
             file_name: file,
             error: {
               message: error.message,
@@ -164,7 +160,7 @@ export class CSVFlightService extends FlightServiceBase {
         }
       }
     } catch (error) {
-      this.csvLogger.error({
+      this.logger.error({
         error: {
           message: error.message,
           stack: error.stack,
@@ -220,7 +216,7 @@ export class CSVFlightService extends FlightServiceBase {
    * @param {Object} dataset - Dataset metadata
    */
   async _streamDataset(call, dataset) {
-    this.csvLogger.info({
+    this.logger.info({
       dataset_id: dataset.id,
       file_path: dataset.filePath,
       batch_size: this.csvOptions.batchSize
@@ -242,7 +238,7 @@ export class CSVFlightService extends FlightServiceBase {
 
       // Handle schema inference
       streamer.on('schema', (csvSchema) => {
-        this.csvLogger.debug({
+        this.logger.debug({
           dataset_id: dataset.id,
           csv_schema: csvSchema
         }, 'CSV Schema inferred');
@@ -253,7 +249,7 @@ export class CSVFlightService extends FlightServiceBase {
       streamer.on('batch', (csvBatch) => {
         try {
           if (!arrowBuilder) {
-            this.csvLogger.warn({
+            this.logger.warn({
               dataset_id: dataset.id
             }, 'Arrow builder not ready, skipping batch');
             return;
@@ -262,7 +258,7 @@ export class CSVFlightService extends FlightServiceBase {
           // Convert CSV batch to Arrow record batch
           const recordBatch = arrowBuilder.createRecordBatch(csvBatch);
           if (!recordBatch) {
-            this.csvLogger.warn({
+            this.logger.warn({
               dataset_id: dataset.id
             }, 'Failed to create record batch');
             return;
@@ -271,7 +267,7 @@ export class CSVFlightService extends FlightServiceBase {
           // Serialize record batch for Flight protocol
           const serializedBatch = arrowBuilder.serializeRecordBatch(recordBatch);
           if (!serializedBatch) {
-            this.csvLogger.warn({
+            this.logger.warn({
               dataset_id: dataset.id
             }, 'Failed to serialize record batch');
             return;
@@ -290,7 +286,7 @@ export class CSVFlightService extends FlightServiceBase {
           totalBatches++;
           totalRows += csvBatch.length;
 
-          this.csvLogger.debug({
+          this.logger.debug({
             dataset_id: dataset.id,
             batch_number: totalBatches,
             batch_rows: csvBatch.length,
@@ -298,7 +294,7 @@ export class CSVFlightService extends FlightServiceBase {
           }, 'Sent batch');
 
         } catch (error) {
-          this.csvLogger.error({
+          this.logger.error({
             dataset_id: dataset.id,
             error: {
               message: error.message,
@@ -311,7 +307,7 @@ export class CSVFlightService extends FlightServiceBase {
 
       // Handle streaming errors
       streamer.on('error', (error) => {
-        this.csvLogger.error({
+        this.logger.error({
           dataset_id: dataset.id,
           error: {
             message: error.message,
@@ -324,7 +320,7 @@ export class CSVFlightService extends FlightServiceBase {
 
       // Handle row-level errors (non-fatal)
       streamer.on('row-error', ({ row: _row, error }) => {
-        this.csvLogger.warn({
+        this.logger.warn({
           dataset_id: dataset.id,
           error: {
             message: error.message,
@@ -336,7 +332,7 @@ export class CSVFlightService extends FlightServiceBase {
 
       // Handle streaming completion
       streamer.on('end', (stats) => {
-        this.csvLogger.info({
+        this.logger.info({
           dataset_id: dataset.id,
           streaming_stats: {
             total_batches: totalBatches,
@@ -352,7 +348,7 @@ export class CSVFlightService extends FlightServiceBase {
       await streamer.start();
 
     } catch (error) {
-      this.csvLogger.error({
+      this.logger.error({
         dataset_id: dataset.id,
         error: {
           message: error.message,
