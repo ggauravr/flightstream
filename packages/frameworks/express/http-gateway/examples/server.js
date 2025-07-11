@@ -23,11 +23,6 @@ const logger = pino({
 // Simple usage - just pass the flight server URL and logger
 app.use('/api/v1', flightGateway(flightServerUrl, { logger }));
 
-app.get('/api/v1/list', flightGateway.createListHandler());
-app.post('/api/v1/query', flightGateway.createQueryHandler());
-app.post('/api/v1/info', flightGateway.createFlightInfoHandler());
-app.post('/api/v1/schema', flightGateway.createSchemaHandler());
-
 // Basic route
 app.get('/', (req, res) => {
   res.send('Flightstream HTTP Gateway Example');
