@@ -1,7 +1,7 @@
 {
-  "name": "@flightstream/adapters-csv",
-  "version": "1.0.0-alpha.4",
-  "description": "CSV file adapter for Arrow Flight streaming with automatic schema inference",
+  "name": "@csv-arrow-stream/core",
+  "version": "1.0.0",
+  "description": "High-performance streaming CSV to Apache Arrow converter with automatic schema inference",
   "main": "src/index.js",
   "type": "module",
   "publishConfig": {
@@ -9,23 +9,30 @@
   },
   "exports": {
     ".": "./src/index.js",
-    "./csv-service": "./src/csv-service.js",
-    "./csv-streamer": "./src/csv-streamer.js",
-    "./csv-arrow-builder": "./src/csv-arrow-builder.js"
+    "./parser": "./src/parser.js",
+    "./converter": "./src/converter.js",
+    "./schema": "./src/schema.js",
+    "./stream": "./src/stream.js",
+    "./utils": "./src/utils.js"
   },
   "scripts": {
     "test": "NODE_OPTIONS=\"--experimental-vm-modules\" jest",
+    "test:watch": "NODE_OPTIONS=\"--experimental-vm-modules\" jest --watch",
+    "test:coverage": "NODE_OPTIONS=\"--experimental-vm-modules\" jest --coverage",
     "lint": "eslint src/**/*.js",
-    "lint:fix": "eslint src/**/*.js --fix"
+    "lint:fix": "eslint src/**/*.js --fix",
+    "build": "echo 'No build step required for ES modules'",
+    "prepublishOnly": "npm test && npm run lint"
   },
   "keywords": [
-    "arrow",
-    "arrow-flight",
     "csv",
+    "arrow",
+    "apache-arrow",
     "streaming",
     "schema-inference",
-    "flight-protocol",
-    "flightstream"
+    "data-processing",
+    "nodejs",
+    "performance"
   ],
   "author": "gggauravr@gmail.com",
   "license": "MIT",
@@ -39,12 +46,12 @@
   },
   "homepage": "https://github.com/ggauravr/flightstream#readme",
   "dependencies": {
-    "fast-csv": "^5.0.0"
-  },
-  "peerDependencies": {
-    "@flightstream/core-server": "^1.0.0-alpha.1",
-    "@flightstream/utils-arrow": "^1.0.0-alpha.1",
+    "fast-csv": "^5.0.0",
     "apache-arrow": "^14.0.0"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "eslint": "^8.55.0"
   },
   "engines": {
     "node": ">=18.0.0"
@@ -53,6 +60,5 @@
     "src/",
     "README.md",
     "LICENSE"
-  ],
-  "gitHead": "efd042fd47735902cc69903708f87cedcbe13907"
+  ]
 }

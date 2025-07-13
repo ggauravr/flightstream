@@ -1,0 +1,33 @@
+{
+  "name": "csv-arrow-express-example",
+  "version": "1.0.0",
+  "description": "Sample Express server using @csv-arrow-stream/core to stream CSV as Arrow",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js --watch ../src --watch server.js",
+    "benchmark": "node benchmark.js",
+    "benchmark:profile": "node profile-benchmark.js",
+    "compare": "node compare-streaming.js",
+    "compare:profile": "clinic doctor -- node compare-streaming.js",
+    "compare:heap": "clinic heap -- node compare-streaming.js",
+    "compare:flame": "clinic flame -- node compare-streaming.js",
+    "profile:doctor": "clinic doctor -- node server.js",
+    "profile:heap": "clinic heap -- node server.js",
+    "profile:flame": "clinic flame -- node server.js",
+    "profile:benchmark": "clinic doctor -- node benchmark.js",
+    "profile:benchmark-detailed": "clinic doctor -- node profile-benchmark.js",
+    "profile:server-heap": "clinic heap -- node server.js",
+    "profile:server-flame": "clinic flame -- node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1",
+    "clinic": "^13.0.0",
+    "node-fetch": "^3.3.2"
+  }
+}

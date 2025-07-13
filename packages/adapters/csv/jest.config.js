@@ -1,7 +1,6 @@
 export default {
-  displayName: 'csv-service',
+  displayName: '@csv-arrow-stream/core',
   testMatch: ['<rootDir>/tests/**/*.test.js'],
   testEnvironment: 'node',
-  setupFilesAfterEnv: ['<rootDir>/tests/setup.js'],
   transform: {}
 }; 
