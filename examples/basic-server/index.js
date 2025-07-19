@@ -10,7 +10,7 @@
 import { FlightServer } from '@flightstream/core-server/flight-server';
 
 // Import the CSV service
-import { CSVFlightService } from '@flightstream/adapters-csv';
+import { CSVFlightService } from '@flightstream/adapters-csv/csv-service';
 
 /**
  * Basic Arrow Flight CSV Server
@@ -24,7 +24,6 @@ class BasicCSVServer {
     this.options = {
       host: options.host || process.env.FLIGHT_HOST || 'localhost',
       port: options.port || process.env.FLIGHT_PORT || 8080,
-      dataDirectory: options.dataDirectory || process.env.DATA_DIRECTORY || './data',
       ...options
     };
 
@@ -36,9 +35,9 @@ class BasicCSVServer {
       maxSendMessageLength: 100 * 1024 * 1024,    // 100MB
     });
 
-    // Create the CSV service service
+    // Create the CSV service with its own data directory configuration
     this.csvService = new CSVFlightService({
-      dataDirectory: this.options.dataDirectory,
+      dataDirectory: options.dataDirectory || process.env.DATA_DIRECTORY || './data',
       batchSize: parseInt(process.env.CSV_BATCH_SIZE) || 10000,
       delimiter: process.env.CSV_DELIMITER || ',',
       headers: process.env.CSV_HEADERS !== 'false',
@@ -48,7 +47,6 @@ class BasicCSVServer {
   async start() {
     try {
       console.log('🚀 Starting Arrow Flight CSV Server...');
-      console.log(`📁 Data directory: ${this.options.dataDirectory}`);
 
       // Initialize the CSV service (discover datasets)
       await this.csvService.initialize();
@@ -71,7 +69,7 @@ class BasicCSVServer {
           console.log(`  • ${datasetId}`);
         });
       } else {
-        console.log(`\n⚠️  No CSV files found in ${this.options.dataDirectory}`);
+        console.log(`\n⚠️  No CSV files found in the configured data directory`);
         console.log('   Add some .csv files to start serving data!');
       }
 
