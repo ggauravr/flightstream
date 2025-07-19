@@ -5,7 +5,7 @@
  * These actions extend the standard Flight protocol with server-specific operations.
  */
 
-import { convertToGrpcError, FLIGHT_PROTOCOL } from '@flightstream/core-shared';
+import { FLIGHT_PROTOCOL } from '@flightstream/core-shared';
 import { getLogger } from '../utils/logger.js';
 
 /**
@@ -15,7 +15,7 @@ import { getLogger } from '../utils/logger.js';
  */
 export async function handleRefreshDatasets(call, flightService) {
   const logger = getLogger();
-  
+
   try {
     logger.info('Refreshing datasets...');
     await flightService.refreshDatasets();
@@ -51,7 +51,7 @@ export async function handleRefreshDatasets(call, flightService) {
  */
 export function handleGetServerInfo(call, flightService) {
   const logger = getLogger();
-  
+
   try {
     const datasets = flightService.getDatasets();
     const serverInfo = {
@@ -107,4 +107,4 @@ export function getAvailableActions() {
  */
 export function isValidActionType(actionType) {
   return Object.values(FLIGHT_PROTOCOL.ACTION_TYPES).includes(actionType);
-} 
+}

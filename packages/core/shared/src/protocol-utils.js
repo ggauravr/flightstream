@@ -127,8 +127,8 @@ export function convertToGrpcError(error) {
  * @returns {boolean} True if valid
  */
 export function validateFlightDescriptor(descriptor) {
-  return descriptor && 
-         typeof descriptor.type === 'number' && 
+  return descriptor &&
+         typeof descriptor.type === 'number' &&
          Array.isArray(descriptor.path) &&
          descriptor.path.length > 0;
 }
@@ -139,8 +139,8 @@ export function validateFlightDescriptor(descriptor) {
  * @returns {boolean} True if valid
  */
 export function validateFlightTicket(ticket) {
-  return ticket && 
-         ticket.ticket && 
+  return ticket &&
+         ticket.ticket &&
          Buffer.isBuffer(ticket.ticket);
 }
 
@@ -150,8 +150,8 @@ export function validateFlightTicket(ticket) {
  * @returns {boolean} True if valid
  */
 export function validateFlightAction(action) {
-  return action && 
-         typeof action.type === 'string' && 
+  return action &&
+         typeof action.type === 'string' &&
          action.type.length > 0;
 }
 
@@ -165,7 +165,7 @@ export function createServerCredentials(options = {}) {
     // For secure connections, you would load certificates here
     throw new Error('Secure connections not yet implemented');
   }
-  
+
   return grpc.ServerCredentials.createInsecure();
 }
 
@@ -179,7 +179,7 @@ export function createClientCredentials(options = {}) {
     // For secure connections, you would load certificates here
     throw new Error('Secure connections not yet implemented');
   }
-  
+
   return grpc.credentials.createInsecure();
 }
 
@@ -201,4 +201,4 @@ export function mergeConfig(userConfig = {}, defaultConfig = {}) {
       return acc;
     }, {})
   };
-} 
+}
