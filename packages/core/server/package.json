@@ -11,7 +11,7 @@
     ".": "./src/index.js",
     "./flight-server": "./src/flight-server.js",
     "./flight-service-base": "./src/flight-service-base.js",
-    "./flight-protocol-handler": "./src/flight-protocol-handler.js"
+    "./flight-protocol-handler": "./src/protocol/handlers.js"
   },
   "scripts": {
     "test": "NODE_OPTIONS=\"--experimental-vm-modules\" jest",

@@ -9,4 +9,4 @@
 // Core server components
 export { FlightServer } from './flight-server.js';
 export { FlightServiceBase } from './flight-service-base.js';
-export { createProtocolHandlers } from './flight-protocol-handler.js';
+export { createProtocolHandlers } from './protocol/handlers.js';
