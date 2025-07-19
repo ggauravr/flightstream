@@ -18,6 +18,7 @@ import {
   getAvailableActions,
   isValidActionType 
 } from './actions.js';
+import { getLogger } from '../utils/logger.js';
 
 /**
  * Create protocol handlers for a Flight service instance
@@ -25,6 +26,8 @@ import {
  * @returns {Object} gRPC method handlers
  */
 export function createProtocolHandlers(flightService) {
+  const logger = getLogger();
+  
   return {
     /**
      * Handshake Handler
@@ -35,11 +38,11 @@ export function createProtocolHandlers(flightService) {
      * - Session establishment
      */
     handshake: (call) => {
-      console.log('Handshake called');
+      logger.debug('Handshake called');
 
       // Handle incoming handshake requests from client
       call.on('data', (request) => {
-        console.log('Handshake request received:', request);
+        logger.debug('Handshake request received:', request);
 
         // Send handshake response back to client
         // In a production system, this would include authentication validation
@@ -56,7 +59,7 @@ export function createProtocolHandlers(flightService) {
 
       // Handle handshake errors
       call.on('error', (error) => {
-        console.error('Handshake error:', error);
+        logger.error('Handshake error:', error);
       });
     },
 
@@ -67,11 +70,11 @@ export function createProtocolHandlers(flightService) {
      * This is a server streaming RPC that returns a stream of FlightInfo objects.
      */
     listFlights: (call) => {
-      console.log('ListFlights called');
+      logger.debug('ListFlights called');
       try {
         flightService.listFlights(call);
       } catch (error) {
-        console.error('Error in listFlights handler:', error);
+        logger.error('Error in listFlights handler:', error);
         call.emit('error', convertToGrpcError(error));
       }
     },
@@ -83,13 +86,13 @@ export function createProtocolHandlers(flightService) {
      * This is a unary RPC (single request, single response).
      */
     getFlightInfo: (call, callback) => {
-      console.log('GetFlightInfo called');
+      logger.debug('GetFlightInfo called');
       try {
         // gRPC unary calls use callbacks, so we pass the callback to FlightService
         const callWithCallback = { ...call, callback };
         flightService.getFlightInfo(callWithCallback);
       } catch (error) {
-        console.error('Error in getFlightInfo handler:', error);
+        logger.error('Error in getFlightInfo handler:', error);
         callback(convertToGrpcError(error));
       }
     },
@@ -102,13 +105,13 @@ export function createProtocolHandlers(flightService) {
      * without actually retrieving the full dataset.
      */
     getSchema: (call, callback) => {
-      console.log('GetSchema called');
+      logger.debug('GetSchema called');
       try {
         // gRPC unary calls use callbacks, so we pass the callback to FlightService
         const callWithCallback = { ...call, callback };
         flightService.getSchema(callWithCallback);
       } catch (error) {
-        console.error('Error in getSchema handler:', error);
+        logger.error('Error in getSchema handler:', error);
         callback(convertToGrpcError(error));
       }
     },
@@ -121,11 +124,11 @@ export function createProtocolHandlers(flightService) {
      * Arrow record batches in IPC format.
      */
     doGet: (call) => {
-      console.log('DoGet called');
+      logger.debug('DoGet called');
       try {
         flightService.doGet(call);
       } catch (error) {
-        console.error('Error in doGet handler:', error);
+        logger.error('Error in doGet handler:', error);
         call.emit('error', convertToGrpcError(error));
       }
     },
@@ -137,18 +140,18 @@ export function createProtocolHandlers(flightService) {
      * where the client sends Arrow data and the server processes it.
      */
     doPut: (call) => {
-      console.log('DoPut called - not implemented');
+      logger.debug('DoPut called - not implemented');
 
       // Collect incoming data
       const recordBatches = [];
 
       call.on('data', (flightData) => {
-        console.log('Received flight data:', flightData);
+        logger.debug('Received flight data:', flightData);
         recordBatches.push(flightData);
       });
 
       call.on('end', () => {
-        console.log(`DoPut completed with ${recordBatches.length} record batches`);
+        logger.debug(`DoPut completed with ${recordBatches.length} record batches`);
 
         // Send response indicating success
         call.write({
@@ -162,7 +165,7 @@ export function createProtocolHandlers(flightService) {
       });
 
       call.on('error', (error) => {
-        console.error('DoPut error:', error);
+        logger.error('DoPut error:', error);
       });
     },
 
@@ -173,14 +176,14 @@ export function createProtocolHandlers(flightService) {
      * beyond the standard Flight protocol.
      */
     doAction: (call) => {
-      console.log('DoAction called');
+      logger.debug('DoAction called');
 
       try {
         const action = call.request;
         const actionType = action.type;
         // const _actionBody = action.body ? action.body.toString() : '';
 
-        console.log(`Executing action: ${actionType}`);
+        logger.debug(`Executing action: ${actionType}`);
 
         switch (actionType) {
         case FLIGHT_PROTOCOL.ACTION_TYPES.REFRESH_DATASETS:
@@ -192,7 +195,7 @@ export function createProtocolHandlers(flightService) {
           break;
 
         default:
-          console.warn(`Unknown action type: ${actionType}`);
+          logger.warn(`Unknown action type: ${actionType}`);
           call.write({
             type: 'error',
             body: Buffer.from(JSON.stringify({
@@ -203,7 +206,7 @@ export function createProtocolHandlers(flightService) {
           call.end();
         }
       } catch (error) {
-        console.error('Error in doAction:', error);
+        logger.error('Error in doAction:', error);
         call.emit('error', convertToGrpcError(error));
       }
     },
@@ -214,11 +217,11 @@ export function createProtocolHandlers(flightService) {
      * List available custom actions that can be executed via DoAction.
      */
     listActions: (call) => {
-      console.log('ListActions called');
+      logger.debug('ListActions called');
       try {
         flightService.listActions(call);
       } catch (error) {
-        console.error('Error in listActions handler:', error);
+        logger.error('Error in listActions handler:', error);
         call.emit('error', convertToGrpcError(error));
       }
     }

@@ -6,6 +6,7 @@
  */
 
 import { convertToGrpcError, FLIGHT_PROTOCOL } from '@flightstream/core-shared';
+import { getLogger } from '../utils/logger.js';
 
 /**
  * Handle refresh-datasets action
@@ -13,8 +14,10 @@ import { convertToGrpcError, FLIGHT_PROTOCOL } from '@flightstream/core-shared';
  * @param {Object} flightService - Flight service instance
  */
 export async function handleRefreshDatasets(call, flightService) {
+  const logger = getLogger();
+  
   try {
-    console.log('Refreshing datasets...');
+    logger.info('Refreshing datasets...');
     await flightService.refreshDatasets();
 
     const datasets = flightService.getDatasets();
@@ -29,7 +32,7 @@ export async function handleRefreshDatasets(call, flightService) {
 
     call.end();
   } catch (error) {
-    console.error('Error refreshing datasets:', error);
+    logger.error('Error refreshing datasets:', error);
     call.write({
       type: 'error',
       body: Buffer.from(JSON.stringify({
@@ -47,6 +50,8 @@ export async function handleRefreshDatasets(call, flightService) {
  * @param {Object} flightService - Flight service instance
  */
 export function handleGetServerInfo(call, flightService) {
+  const logger = getLogger();
+  
   try {
     const datasets = flightService.getDatasets();
     const serverInfo = {
@@ -75,7 +80,7 @@ export function handleGetServerInfo(call, flightService) {
 
     call.end();
   } catch (error) {
-    console.error('Error getting server info:', error);
+    logger.error('Error getting server info:', error);
     call.write({
       type: 'error',
       body: Buffer.from(JSON.stringify({

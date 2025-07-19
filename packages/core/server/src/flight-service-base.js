@@ -1,6 +1,6 @@
 import { EventEmitter } from 'events';
 import { createServerConfig } from './config/server-config.js';
-// No logger import needed - use options.logger || console
+import { getLogger } from './utils/logger.js';
 
 /**
  * Abstract Base Class for Arrow Flight Services
@@ -23,8 +23,8 @@ export class FlightServiceBase extends EventEmitter {
     // Dataset registry: Maps dataset IDs to their metadata and schema information
     this.datasets = new Map();
 
-    // Logger - use provided logger or console
-    this.logger = options.logger || console;
+    // Use package logger
+    this.logger = getLogger();
 
     // Initialize datasets after construction completes
     setImmediate(() => this._initializeAsync());

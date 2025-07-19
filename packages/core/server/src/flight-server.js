@@ -15,6 +15,9 @@ import { createServerConfig } from './config/server-config.js';
 // Protocol handlers for Arrow Flight operations
 import { createProtocolHandlers } from './protocol/handlers.js';
 
+// Logger utilities
+import { setLogger, getLogger } from './utils/logger.js';
+
 /**
  * Generic Arrow Flight Server
  *
@@ -30,6 +33,14 @@ import { createProtocolHandlers } from './protocol/handlers.js';
  * 5. Lifecycle management (start, stop, graceful shutdown)
  */
 export class FlightServer {
+  /**
+   * Set the logger for the entire Flight Server package
+   * @param {Object} logger - Logger instance with debug, info, warn, error methods
+   */
+  static setLogger(logger) {
+    setLogger(logger);
+  }
+
   constructor(options = {}) {
     this.options = createServerConfig({
       protoPath: options.protoPath || getDefaultProtoPath(),
@@ -45,8 +56,13 @@ export class FlightServer {
     // Protocol handlers
     this.protocolHandlers = null;
 
-    // Logger - use provided logger or console
-    this.logger = options.logger || console;
+    // Set package logger if provided
+    if (options.logger) {
+      setLogger(options.logger);
+    }
+
+    // Use package logger
+    this.logger = getLogger();
   }
 
   /**

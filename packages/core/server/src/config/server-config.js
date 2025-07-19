@@ -6,6 +6,7 @@
  */
 
 import { DEFAULT_FLIGHT_CONFIG, ENV_VARS } from '@flightstream/core-shared';
+import { getLogger } from '../utils/logger.js';
 
 /**
  * Default server configuration
@@ -89,7 +90,7 @@ export function createServerConfig(userConfig = {}) {
   }
 
   if (validation.warnings.length > 0) {
-    console.warn('Server configuration warnings:', validation.warnings);
+    getLogger().warn('Server configuration warnings:', validation.warnings);
   }
 
   return config;

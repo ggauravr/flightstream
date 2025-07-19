@@ -10,3 +10,6 @@
 export { FlightServer } from './flight-server.js';
 export { FlightServiceBase } from './flight-service-base.js';
 export { createProtocolHandlers } from './protocol/handlers.js';
+
+// Logger utilities
+export { setLogger, getLogger } from './utils/logger.js';
