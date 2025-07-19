@@ -6,11 +6,30 @@
  * implementation showing all the key concepts and patterns.
  */
 
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+
 // Import the Arrow Flight server framework
 import { FlightServer } from '@flightstream/core-server/flight-server';
 
 // Import the CSV service
 import { CSVFlightService } from '@flightstream/adapters-csv/csv-service';
+
+/**
+ * Get the default data directory path
+ * @returns {string} Path to the default data directory
+ */
+function getDefaultDataDirectory() {
+  // Get the directory of the current file
+  const __filename = fileURLToPath(import.meta.url);
+  const __dirname = dirname(__filename);
+  
+  // Navigate to project root (examples/basic-server -> examples -> root)
+  const projectRoot = join(__dirname, '..', '..');
+  
+  // Return the data directory path
+  return join(projectRoot, 'data');
+}
 
 /**
  * Basic Arrow Flight CSV Server
@@ -35,9 +54,12 @@ class BasicCSVServer {
       maxSendMessageLength: 100 * 1024 * 1024,    // 100MB
     });
 
+    // Get the default data directory path
+    const dataDirectory = options.dataDirectory || process.env.DATA_DIRECTORY || getDefaultDataDirectory();
+
     // Create the CSV service with its own data directory configuration
     this.csvService = new CSVFlightService({
-      dataDirectory: options.dataDirectory || process.env.DATA_DIRECTORY || '../../data',
+      dataDirectory: dataDirectory,
       batchSize: parseInt(process.env.CSV_BATCH_SIZE) || 10000,
       delimiter: process.env.CSV_DELIMITER || ',',
       headers: process.env.CSV_HEADERS !== 'false',
