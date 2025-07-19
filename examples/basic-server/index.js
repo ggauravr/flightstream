@@ -37,7 +37,7 @@ class BasicCSVServer {
 
     // Create the CSV service with its own data directory configuration
     this.csvService = new CSVFlightService({
-      dataDirectory: options.dataDirectory || process.env.DATA_DIRECTORY || './data',
+      dataDirectory: options.dataDirectory || process.env.DATA_DIRECTORY || '../../data',
       batchSize: parseInt(process.env.CSV_BATCH_SIZE) || 10000,
       delimiter: process.env.CSV_DELIMITER || ',',
       headers: process.env.CSV_HEADERS !== 'false',

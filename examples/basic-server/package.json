@@ -1,0 +1,30 @@
+{
+  "name": "basic-server-example",
+  "version": "1.0.0",
+  "description": "Basic Arrow Flight CSV Server Example",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "test": "echo \"No tests specified\" && exit 0"
+  },
+  "dependencies": {
+    "@flightstream/core-server": "file:../../packages/core/server",
+    "@flightstream/adapters-csv": "file:../../packages/adapters/csv",
+    "apache-arrow": "^14.0.0"
+  },
+  "keywords": [
+    "arrow",
+    "arrow-flight",
+    "server",
+    "csv",
+    "example",
+    "flightstream"
+  ],
+  "author": "gggauravr@gmail.com",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  }
+} 
