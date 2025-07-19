@@ -12,11 +12,10 @@
  */
 
 import { convertToGrpcError, FLIGHT_PROTOCOL } from '@flightstream/core-shared';
-import { 
-  handleRefreshDatasets, 
-  handleGetServerInfo, 
-  getAvailableActions,
-  isValidActionType 
+import {
+  handleRefreshDatasets,
+  handleGetServerInfo,
+  getAvailableActions
 } from './actions.js';
 import { getLogger } from '../utils/logger.js';
 
@@ -27,7 +26,7 @@ import { getLogger } from '../utils/logger.js';
  */
 export function createProtocolHandlers(flightService) {
   const logger = getLogger();
-  
+
   return {
     /**
      * Handshake Handler

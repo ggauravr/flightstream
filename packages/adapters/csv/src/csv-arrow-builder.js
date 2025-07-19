@@ -59,10 +59,10 @@ export class CSVArrowBuilder extends ArrowBuilder {
     for (const field of this.arrowSchema.fields) {
       const columnName = field.name;
       const arrowType = field.type;
-      
+
       // Extract column data directly from rows
       const columnData = csvBatch.map(row => row[columnName]);
-      
+
       // Create vector directly using optimized method
       const vector = this._createOptimizedVector(arrowType, columnData);
       vectors.push(vector);
@@ -179,12 +179,12 @@ export class CSVArrowBuilder extends ArrowBuilder {
     }
 
     const batches = [];
-    
+
     // Process data in batches for better memory efficiency
     for (let i = 0; i < csvRows.length; i += batchSize) {
       const batch = csvRows.slice(i, i + batchSize);
       const recordBatch = this.createRecordBatch(batch);
-      
+
       if (recordBatch) {
         batches.push(recordBatch);
       }

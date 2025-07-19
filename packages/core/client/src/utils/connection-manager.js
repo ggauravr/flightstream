@@ -32,7 +32,7 @@ export class ConnectionManager extends EventEmitter {
    */
   setClient(client) {
     this.client = client;
-    
+
     // Listen to client events
     client.on('connected', () => {
       this.isHealthy = true;
@@ -88,10 +88,10 @@ export class ConnectionManager extends EventEmitter {
 
     try {
       const isConnected = await this.client.testConnection();
-      
+
       if (isConnected !== this.isHealthy) {
         this.isHealthy = isConnected;
-        
+
         if (isConnected) {
           this.emit('healthy');
         } else {
@@ -121,7 +121,7 @@ export class ConnectionManager extends EventEmitter {
     this.emit('reconnecting', this.reconnectAttempts);
 
     // Wait before attempting reconnection
-    await new Promise(resolve => 
+    await new Promise(resolve =>
       setTimeout(resolve, this.options.reconnectDelay * this.reconnectAttempts)
     );
 
@@ -155,4 +155,4 @@ export class ConnectionManager extends EventEmitter {
     this._stopHealthCheck();
     this.removeAllListeners();
   }
-} 
+}

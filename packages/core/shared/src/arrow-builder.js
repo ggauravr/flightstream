@@ -79,7 +79,7 @@ export class ArrowBuilder {
     try {
       // Create vectors directly from source data (no intermediate transformations)
       const vectors = this._createVectorsFromSource(sourceData);
-      
+
       if (!vectors || vectors.length === 0) {
         return null;
       }
@@ -107,12 +107,12 @@ export class ArrowBuilder {
     try {
       // Handle type-specific conversions before creating vector
       const convertedData = this._convertDataForArrowType(arrowType, data);
-      
+
       // Use Arrow's native vector creation with converted data
       return vectorFromArray(convertedData, arrowType);
     } catch (error) {
       console.warn(`Error creating vector with type ${arrowType}:`, error);
-      
+
       // Fallback: convert to strings and create Utf8 vector
       const stringData = data.map(v => v === null ? null : String(v));
       return vectorFromArray(stringData, new arrow.Utf8());
@@ -134,35 +134,35 @@ export class ArrowBuilder {
         return BigInt(v);
       });
     }
-    
+
     if (arrowType instanceof arrow.Int32) {
       return data.map(v => {
         if (v === null || v === undefined) return null;
         return parseInt(v, 10);
       });
     }
-    
+
     if (arrowType instanceof arrow.Float64) {
       return data.map(v => {
         if (v === null || v === undefined) return null;
         return parseFloat(v);
       });
     }
-    
+
     if (arrowType instanceof arrow.Bool) {
       return data.map(v => {
         if (v === null || v === undefined) return null;
         return Boolean(v);
       });
     }
-    
+
     if (arrowType instanceof arrow.DateMillisecond) {
       return data.map(v => {
         if (v === null || v === undefined) return null;
         return new Date(v);
       });
     }
-    
+
     // Default: return as-is for strings and other types
     return data;
   }
@@ -241,4 +241,4 @@ export class ArrowBuilder {
   }
 }
 
-export default ArrowBuilder; 
+export default ArrowBuilder;

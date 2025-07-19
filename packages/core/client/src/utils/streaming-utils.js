@@ -1,5 +1,3 @@
-import * as arrow from 'apache-arrow';
-
 /**
  * Streaming Utilities for Arrow Flight Data
  *
@@ -35,9 +33,9 @@ export class StreamingUtils {
           const column = recordBatch.getChildAt(colIndex);
           row[field.name] = column.get(i);
         });
-        
+
         currentChunk.push(row);
-        
+
         if (currentChunk.length >= chunkSize) {
           yield await processor(currentChunk, totalProcessed);
           totalProcessed += currentChunk.length;
@@ -60,17 +58,17 @@ export class StreamingUtils {
    */
   static async *transformData(dataStream, format = 'json') {
     switch (format.toLowerCase()) {
-      case 'json':
-        yield* this._toJson(dataStream);
-        break;
-      case 'csv':
-        yield* this._toCsv(dataStream);
-        break;
-      case 'arrow':
-        yield* dataStream;
-        break;
-      default:
-        throw new Error(`Unsupported format: ${format}`);
+    case 'json':
+      yield* this._toJson(dataStream);
+      break;
+    case 'csv':
+      yield* this._toCsv(dataStream);
+      break;
+    case 'arrow':
+      yield* dataStream;
+      break;
+    default:
+      throw new Error(`Unsupported format: ${format}`);
     }
   }
 
@@ -83,7 +81,7 @@ export class StreamingUtils {
   static async *_toJson(dataStream) {
     for await (const recordBatch of dataStream) {
       const jsonData = [];
-      
+
       for (let i = 0; i < recordBatch.numRows; i++) {
         const row = {};
         recordBatch.schema.fields.forEach((field, colIndex) => {
@@ -92,7 +90,7 @@ export class StreamingUtils {
         });
         jsonData.push(row);
       }
-      
+
       yield jsonData;
     }
   }
@@ -178,7 +176,7 @@ class StreamingProcessor {
    */
   async _processBatch(recordBatch, processor) {
     const data = [];
-    
+
     for (let i = 0; i < recordBatch.numRows; i++) {
       const row = {};
       recordBatch.schema.fields.forEach((field, colIndex) => {
@@ -279,4 +277,4 @@ class DataCollector {
       maxMemoryUsage: this.options.maxMemoryUsage
     };
   }
-} 
+}
