@@ -1,4 +1,5 @@
 import { EventEmitter } from 'events';
+import { DEFAULT_FLIGHT_CONFIG } from '@flightstream/core-shared';
 
 /**
  * Connection Manager for Flight Clients
@@ -14,7 +15,7 @@ export class ConnectionManager extends EventEmitter {
       healthCheckInterval: options.healthCheckInterval || 30000, // 30 seconds
       maxReconnectAttempts: options.maxReconnectAttempts || 5,
       reconnectDelay: options.reconnectDelay || 1000,
-      connectionTimeout: options.connectionTimeout || 5000,
+      connectionTimeout: options.connectionTimeout || DEFAULT_FLIGHT_CONFIG.connectionTimeout,
       logger: options.logger || console,
       ...options
     };

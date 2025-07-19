@@ -11,6 +11,14 @@
  * 4. Handles errors and converts them to appropriate gRPC status codes
  */
 
+import { convertToGrpcError, FLIGHT_PROTOCOL } from '@flightstream/core-shared';
+import { 
+  handleRefreshDatasets, 
+  handleGetServerInfo, 
+  getAvailableActions,
+  isValidActionType 
+} from './actions.js';
+
 /**
  * Create protocol handlers for a Flight service instance
  * @param {FlightServiceBase} flightService - Flight service implementation
@@ -175,11 +183,11 @@ export function createProtocolHandlers(flightService) {
         console.log(`Executing action: ${actionType}`);
 
         switch (actionType) {
-        case 'refresh-datasets':
+        case FLIGHT_PROTOCOL.ACTION_TYPES.REFRESH_DATASETS:
           handleRefreshDatasets(call, flightService);
           break;
 
-        case 'get-server-info':
+        case FLIGHT_PROTOCOL.ACTION_TYPES.GET_SERVER_INFO:
           handleGetServerInfo(call, flightService);
           break;
 
@@ -189,7 +197,7 @@ export function createProtocolHandlers(flightService) {
             type: 'error',
             body: Buffer.from(JSON.stringify({
               error: `Unknown action type: ${actionType}`,
-              available_actions: ['refresh-datasets', 'get-server-info']
+              available_actions: getAvailableActions()
             }))
           });
           call.end();
@@ -217,102 +225,6 @@ export function createProtocolHandlers(flightService) {
   };
 }
 
-/**
- * Handle refresh-datasets action
- */
-async function handleRefreshDatasets(call, flightService) {
-  try {
-    console.log('Refreshing datasets...');
-    await flightService.refreshDatasets();
-
-    const datasets = flightService.getDatasets();
-    call.write({
-      type: 'refresh-datasets',
-      body: Buffer.from(JSON.stringify({
-        status: 'success',
-        message: `Refreshed ${datasets.length} datasets`,
-        datasets: datasets
-      }))
-    });
-
-    call.end();
-  } catch (error) {
-    console.error('Error refreshing datasets:', error);
-    call.write({
-      type: 'error',
-      body: Buffer.from(JSON.stringify({
-        error: 'Failed to refresh datasets',
-        details: error.message
-      }))
-    });
-    call.end();
-  }
-}
-
-/**
- * Handle get-server-info action
- */
-function handleGetServerInfo(call, flightService) {
-  try {
-    const datasets = flightService.getDatasets();
-    const serverInfo = {
-      server: 'Arrow Flight Server',
-      version: '1.0.0',
-      protocol_version: 1,
-      datasets: {
-        count: datasets.length,
-        list: datasets
-      },
-      capabilities: [
-        'listFlights',
-        'getFlightInfo',
-        'getSchema',
-        'doGet',
-        'doAction',
-        'listActions'
-      ],
-      timestamp: new Date().toISOString()
-    };
-
-    call.write({
-      type: 'get-server-info',
-      body: Buffer.from(JSON.stringify(serverInfo, null, 2))
-    });
-
-    call.end();
-  } catch (error) {
-    console.error('Error getting server info:', error);
-    call.write({
-      type: 'error',
-      body: Buffer.from(JSON.stringify({
-        error: 'Failed to get server info',
-        details: error.message
-      }))
-    });
-    call.end();
-  }
-}
-
-/**
- * Convert JavaScript errors to gRPC errors with appropriate status codes
- */
-function convertToGrpcError(error) {
-  const grpcError = new Error(error.message);
-
-  // Map error types to gRPC status codes
-  if (error.message.includes('not found')) {
-    grpcError.code = 5; // NOT_FOUND
-  } else if (error.message.includes('invalid')) {
-    grpcError.code = 3; // INVALID_ARGUMENT
-  } else if (error.message.includes('unauthorized')) {
-    grpcError.code = 16; // UNAUTHENTICATED
-  } else if (error.message.includes('permission')) {
-    grpcError.code = 7; // PERMISSION_DENIED
-  } else {
-    grpcError.code = 13; // INTERNAL
-  }
-
-  return grpcError;
-}
+// Action handlers are now imported from ./actions.js
 
 export default createProtocolHandlers;

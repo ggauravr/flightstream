@@ -1,0 +1,24 @@
+{
+  "name": "basic-client-example",
+  "version": "1.0.0",
+  "description": "Basic Arrow Flight Client Example",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"No tests specified\" && exit 0"
+  },
+  "dependencies": {
+    "@flightstream/core-client": "file:../../packages/core/client",
+    "apache-arrow": "^14.0.0"
+  },
+  "keywords": [
+    "arrow",
+    "arrow-flight",
+    "client",
+    "example",
+    "flightstream"
+  ],
+  "author": "gggauravr@gmail.com",
+  "license": "MIT"
+} 

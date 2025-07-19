@@ -1,4 +1,5 @@
 import { EventEmitter } from 'events';
+import { DEFAULT_FLIGHT_CONFIG } from '@flightstream/core-shared';
 
 /**
  * Base Flight Client Interface
@@ -12,27 +13,8 @@ export class FlightClientBase extends EventEmitter {
     super();
 
     this.options = {
-      // Connection settings
-      host: options.host || 'localhost',
-      port: options.port || 8080,
-      
-      // Performance settings
-      maxReceiveMessageLength: options.maxReceiveMessageLength || 100 * 1024 * 1024, // 100MB
-      maxSendMessageLength: options.maxSendMessageLength || 100 * 1024 * 1024, // 100MB
-      
-      // Reliability settings
-      retryAttempts: options.retryAttempts || 3,
-      retryDelay: options.retryDelay || 1000,
-      connectionTimeout: options.connectionTimeout || 5000,
-      
-      // Advanced settings
-      keepAlive: options.keepAlive !== false,
-      keepAliveTimeout: options.keepAliveTimeout || 20000,
-      keepAliveInterval: options.keepAliveInterval || 10000,
-      
-      // Logging
+      ...DEFAULT_FLIGHT_CONFIG,
       logger: options.logger || console,
-      
       ...options
     };
 

@@ -1,4 +1,5 @@
 import { EventEmitter } from 'events';
+import { createServerConfig } from './config/server-config.js';
 // No logger import needed - use options.logger || console
 
 /**
@@ -17,11 +18,7 @@ import { EventEmitter } from 'events';
 export class FlightServiceBase extends EventEmitter {
   constructor(options = {}) {
     super();
-    this.options = {
-      host: options.host || 'localhost',
-      port: options.port || 8080,
-      ...options
-    };
+    this.options = createServerConfig(options);
 
     // Dataset registry: Maps dataset IDs to their metadata and schema information
     this.datasets = new Map();

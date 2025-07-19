@@ -1,17 +1,19 @@
 // gRPC imports
 import grpc from '@grpc/grpc-js';
-import protoLoader from '@grpc/proto-loader';
 
-import path from 'path';
-import { fileURLToPath } from 'url';
+// Shared utilities
+import { 
+  loadFlightProto, 
+  createServerOptions, 
+  createServerCredentials,
+  getDefaultProtoPath 
+} from '@flightstream/core-shared';
+
+// Configuration management
+import { createServerConfig } from './config/server-config.js';
 
 // Protocol handlers for Arrow Flight operations
-import { createProtocolHandlers } from './flight-protocol-handler.js';
-
-// No logger import needed - use options.logger || console
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import { createProtocolHandlers } from './protocol/handlers.js';
 
 /**
  * Generic Arrow Flight Server
@@ -29,16 +31,10 @@ const __dirname = path.dirname(__filename);
  */
 export class FlightServer {
   constructor(options = {}) {
-    this.options = {
-      host: options.host || 'localhost',
-      port: options.port || 8080,
-      // Large message limits for Arrow data transfer
-      maxReceiveMessageLength: options.maxReceiveMessageLength || 100 * 1024 * 1024, // 100MB
-      maxSendMessageLength: options.maxSendMessageLength || 100 * 1024 * 1024, // 100MB
-      // Proto file location (default to bundled proto)
-      protoPath: options.protoPath || path.join(__dirname, '../proto/flight.proto'),
+    this.options = createServerConfig({
+      protoPath: options.protoPath || getDefaultProtoPath(),
       ...options
-    };
+    });
 
     // The underlying gRPC server instance
     this.server = null;
@@ -71,29 +67,11 @@ export class FlightServer {
       return; // Already initialized
     }
 
-    // Load the Arrow Flight protocol definition
-    const PROTO_PATH = this.options.protoPath;
+    // Load the Arrow Flight protocol definition using shared utilities
+    this.flightProto = loadFlightProto(this.options.protoPath);
 
-    // Parse the protocol buffer definition
-    const packageDefinition = protoLoader.loadSync(PROTO_PATH, {
-      keepCase: true,     // Preserve field name casing from proto file
-      longs: String,      // Convert 64-bit integers to strings for JavaScript compatibility
-      enums: String,      // Convert enums to string values
-      defaults: true,     // Include default values for optional fields
-      oneofs: true,       // Support oneof field declarations
-    });
-
-    // Extract the Arrow Flight service definition
-    const flightProto = grpc.loadPackageDefinition(packageDefinition).arrow.flight.protocol;
-
-    // Create the gRPC server instance with large message support
-    this.server = new grpc.Server({
-      'grpc.max_receive_message_length': this.options.maxReceiveMessageLength,
-      'grpc.max_send_message_length': this.options.maxSendMessageLength,
-    });
-
-    // Store the flight proto for service registration
-    this.flightProto = flightProto;
+    // Create the gRPC server instance with shared options
+    this.server = new grpc.Server(createServerOptions(this.options));
   }
 
   /**
@@ -128,7 +106,7 @@ export class FlightServer {
       // Bind server to host and port
       const serverAddress = `${this.options.host}:${this.options.port}`;
 
-      this.server.bindAsync(serverAddress, grpc.ServerCredentials.createInsecure(), (error, port) => {
+      this.server.bindAsync(serverAddress, createServerCredentials(), (error, port) => {
         if (error) {
           this.logger.error({
             error: {

@@ -1,7 +1,7 @@
 {
-  "name": "@flightstream/core-server",
-  "version": "1.0.0-alpha.5",
-  "description": "Core Apache Arrow Flight server framework with plugin architecture for Node.js",
+  "name": "@flightstream/core-shared",
+  "version": "1.0.0-alpha.1",
+  "description": "Shared utilities for FlightStream core packages",
   "main": "src/index.js",
   "type": "module",
   "publishConfig": {
@@ -9,9 +9,8 @@
   },
   "exports": {
     ".": "./src/index.js",
-    "./flight-server": "./src/flight-server.js",
-    "./flight-service-base": "./src/flight-service-base.js",
-    "./flight-protocol-handler": "./src/flight-protocol-handler.js"
+    "./protocol": "./src/protocol-utils.js",
+    "./constants": "./src/constants.js"
   },
   "scripts": {
     "test": "NODE_OPTIONS=\"--experimental-vm-modules\" jest",
@@ -23,8 +22,8 @@
     "arrow-flight",
     "grpc",
     "flight-protocol",
-    "server",
-    "framework",
+    "shared",
+    "utilities",
     "flightstream"
   ],
   "author": "gggauravr@gmail.com",
@@ -32,7 +31,7 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ggauravr/flightstream.git",
-    "directory": "packages/core/server"
+    "directory": "packages/core/shared"
   },
   "bugs": {
     "url": "https://github.com/ggauravr/flightstream/issues"
@@ -40,20 +39,15 @@
   "homepage": "https://github.com/ggauravr/flightstream#readme",
   "dependencies": {
     "@grpc/grpc-js": "^1.9.14",
-    "@grpc/proto-loader": "^0.7.10",
-    "@flightstream/core-shared": "file:../shared"
-  },
-  "peerDependencies": {
-    "apache-arrow": "^14.0.0"
+    "@grpc/proto-loader": "^0.7.10"
   },
   "engines": {
     "node": ">=18.0.0"
   },
   "files": [
     "src/",
-    "proto/",
     "README.md",
     "LICENSE"
   ],
   "gitHead": "efd042fd47735902cc69903708f87cedcbe13907"
-}
+} 
