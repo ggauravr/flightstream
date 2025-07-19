@@ -43,7 +43,7 @@
   },
   "peerDependencies": {
     "@flightstream/core-server": "^1.0.0-alpha.1",
-    "@flightstream/utils-arrow": "^1.0.0-alpha.1",
+    "@flightstream/core-shared": "^1.0.0-alpha.1",
     "apache-arrow": "^14.0.0"
   },
   "engines": {

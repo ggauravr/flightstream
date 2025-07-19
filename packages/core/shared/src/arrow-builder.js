@@ -190,7 +190,7 @@ export class ArrowBuilder {
       return arrow.tableToIPC(table);
     } catch (error) {
       console.warn('Error serializing record batch:', error);
-      return this._createSimpleRecordBatchBuffer(recordBatch);
+      return null;
     }
   }
 
@@ -212,20 +212,8 @@ export class ArrowBuilder {
   }
 
   /**
-   * Create simple buffer representation as fallback
-   * @private
-   */
-  _createSimpleRecordBatchBuffer(recordBatch) {
-    const simpleData = {
-      numRows: recordBatch.numRows,
-      schema: recordBatch.schema.fields.map(f => ({ name: f.name, type: f.type.toString() }))
-    };
-    return Buffer.from(JSON.stringify(simpleData));
-  }
-
-  /**
    * Get statistics for a record batch
-   * @param {arrow.RecordBatch} recordBatch - Record batch to analyze
+   * @param {arrow.RecordBatch} recordBatch - Record batch
    * @returns {Object} Statistics object
    */
   getStats(recordBatch) {
@@ -233,9 +221,9 @@ export class ArrowBuilder {
 
     return {
       numRows: recordBatch.numRows,
-      numColumns: recordBatch.numCols,
-      columns: recordBatch.schema.fields.map(field => field.name),
-      types: recordBatch.schema.fields.map(field => field.type.toString())
+      numCols: recordBatch.numCols,
+      schema: recordBatch.schema,
+      size: recordBatch.data.length
     };
   }
 
@@ -253,4 +241,4 @@ export class ArrowBuilder {
   }
 }
 
-export default ArrowBuilder;
+export default ArrowBuilder; 

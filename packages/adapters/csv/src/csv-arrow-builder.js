@@ -1,5 +1,5 @@
 import * as arrow from 'apache-arrow';
-import { ArrowBuilder } from '@flightstream/utils-arrow';
+import { ArrowBuilder } from '@flightstream/core-shared';
 
 /**
  * Optimized CSV-Specific Arrow Builder

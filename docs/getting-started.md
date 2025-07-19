@@ -167,7 +167,8 @@ node packages/examples/server/test-client/test-client.js
 ### Using Arrow Utilities
 
 ```javascript
-import { ArrowBuilder, inferSchema } from '@flightstream/utils-arrow';
+import { ArrowBuilder } from '@flightstream/core-shared';
+import { inferSchema } from '@flightstream/utils-arrow';
 
 // Infer schema from CSV data
 const schema = await inferSchema('./data/sample.csv');

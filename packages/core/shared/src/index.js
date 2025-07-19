@@ -13,5 +13,8 @@ export * from './constants.js';
 // Export all protocol utilities
 export * from './protocol-utils.js';
 
+// Export Arrow utilities
+export { ArrowBuilder } from './arrow-builder.js';
+
 // Default export for convenience
 export { DEFAULT_FLIGHT_CONFIG as default } from './constants.js'; 

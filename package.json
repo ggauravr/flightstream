@@ -16,7 +16,7 @@
   "scripts": {
     "start": "node examples/basic-server/index.js",
     "dev": "nodemon examples/basic-server/index.js",
-    "test": "node examples/test-client/test-client.js",
+    "test": "node examples/basic-client/index.js",
     "build": "lerna run build",
     "lint": "lerna run lint",
     "clean": "lerna clean",
