@@ -1,27 +1,18 @@
 import * as arrow from 'apache-arrow';
 import { vectorFromArray, makeData } from 'apache-arrow';
-import { getTypeTransformer } from './type-system/index.js';
 
 /**
- * Abstract Arrow Builder Base Class
+ * Optimized Arrow Builder Base Class
  *
- * This abstract class provides the generic infrastructure for building Apache Arrow
- * data structures from various data sources. It handles the common Arrow operations
- * while requiring subclasses to implement data source-specific logic.
+ * This class provides efficient Apache Arrow data structure creation
+ * with minimal data copying and maximum use of Arrow's native capabilities.
  *
- * Generic features provided:
- * 1. Arrow vector creation from column arrays
- * 2. Record batch construction with proper batching
- * 3. Type-safe data conversion utilities
- * 4. IPC serialization for Flight protocol
- * 5. Error handling for type conversion edge cases
- * 6. Table creation and schema management
- * 7. Dynamic type support with runtime extensibility
- *
- * Subclasses must implement:
- * - _buildArrowSchema(): Create Arrow schema from source schema
- * - _transformDataToColumns(): Convert source data format to column arrays
- * - _mapSourceTypeToArrow(): Map source types to Arrow types
+ * Key optimizations:
+ * 1. Direct Arrow vector creation without intermediate transformations
+ * 2. Batch processing for better memory efficiency
+ * 3. Native Arrow type inference and conversion
+ * 4. Streamlined IPC serialization
+ * 5. Zero-copy operations where possible
  */
 export class ArrowBuilder {
   constructor(sourceSchema, options = {}) {
@@ -52,18 +43,19 @@ export class ArrowBuilder {
   }
 
   /**
-   * Transform source-specific data structure to column arrays
-   * @param {*} sourceData - Data in source-specific format (CSV rows, SQL result, etc.)
-   * @returns {Object} Column data as { columnName: [values...] }
+   * Create Arrow vectors directly from source data
+   * This replaces the old _transformDataToColumns method for better efficiency
+   * @param {*} sourceData - Data in source-specific format
+   * @returns {Array<arrow.Vector>} Array of Arrow vectors
    * @abstract
    */
-  _transformDataToColumns(_sourceData) {
-    throw new Error('_transformDataToColumns() must be implemented by subclass');
+  _createVectorsFromSource(_sourceData) {
+    throw new Error('_createVectorsFromSource() must be implemented by subclass');
   }
 
   /**
    * Map source-specific type to Arrow type
-   * @param {string} sourceType - Type name in source format ('csv', 'postgresql', etc.)
+   * @param {string} sourceType - Type name in source format
    * @returns {arrow.DataType} Arrow data type
    * @abstract
    */
@@ -71,11 +63,11 @@ export class ArrowBuilder {
     throw new Error('_mapSourceTypeToArrow() must be implemented by subclass');
   }
 
-  // ===== GENERIC ARROW OPERATIONS - PROVIDED BY BASE CLASS =====
+  // ===== OPTIMIZED ARROW OPERATIONS =====
 
   /**
-   * Create record batch from source data
-   * Template method that uses abstract methods for source-specific transformations
+   * Create record batch directly from source data
+   * Optimized to minimize data copying and transformations
    * @param {*} sourceData - Data in source-specific format
    * @returns {arrow.RecordBatch|null} Arrow record batch
    */
@@ -84,82 +76,95 @@ export class ArrowBuilder {
       return null;
     }
 
-    // Use abstract method to transform source data to columns
-    const columnData = this._transformDataToColumns(sourceData);
+    try {
+      // Create vectors directly from source data (no intermediate transformations)
+      const vectors = this._createVectorsFromSource(sourceData);
+      
+      if (!vectors || vectors.length === 0) {
+        return null;
+      }
 
-    // Create Arrow vectors using generic logic
-    return this.createRecordBatchFromColumns(columnData);
-  }
+      // Create record batch using the correct API with makeData
+      const data = makeData({
+        type: new arrow.Struct(this.arrowSchema.fields),
+        children: vectors.map(vector => vector.data[0])
+      });
 
-  /**
-   * Create record batch from column data arrays
-   * Generic method that can be used by any data source
-   * @param {Object} columnData - Column data as { columnName: [values...] }
-   * @returns {arrow.RecordBatch|null} Arrow record batch
-   */
-  createRecordBatchFromColumns(columnData) {
-    if (!columnData || Object.keys(columnData).length === 0) {
+      return new arrow.RecordBatch(this.arrowSchema, data);
+    } catch (error) {
+      console.warn('Error creating record batch:', error);
       return null;
     }
-
-    // Create Arrow vectors for each column
-    const vectors = [];
-
-    for (const field of this.arrowSchema.fields) {
-      const columnName = field.name;
-      const data = columnData[columnName] || [];
-      const vector = this._createVector(field, data);
-      vectors.push(vector);
-    }
-
-    // Create record batch using the correct API
-    const data = makeData({
-      type: new arrow.Struct(this.arrowSchema.fields),
-      children: vectors.map(vector => vector.data[0])
-    });
-
-    return new arrow.RecordBatch(this.arrowSchema, data);
   }
 
   /**
-   * Create Arrow vector from field definition and data array
-   * Generic method that handles all Arrow types dynamically
-   * @param {arrow.Field} field - Arrow field definition
-   * @param {Array} data - Array of values for this column
+   * Create Arrow vector with optimized type handling
+   * @param {arrow.DataType} arrowType - Arrow data type
+   * @param {Array} data - Array of values
    * @returns {arrow.Vector} Arrow vector
    */
-  _createVector(field, data) {
-    const arrowType = field.type;
-
+  _createOptimizedVector(arrowType, data) {
     try {
-      // Use the centralized type system for dynamic type handling
-      const transformer = getTypeTransformer(arrowType);
-      const transformedData = data.map(v => transformer(v));
+      // Handle type-specific conversions before creating vector
+      const convertedData = this._convertDataForArrowType(arrowType, data);
       
-      // Create vector using Arrow's vectorFromArray
-      return vectorFromArray(transformedData, arrowType);
+      // Use Arrow's native vector creation with converted data
+      return vectorFromArray(convertedData, arrowType);
     } catch (error) {
-      console.warn(`Error creating vector for field ${field.name}:`, error);
-      // Fallback to string vector
-      return vectorFromArray(
-        data.map(v => v === null ? null : String(v)),
-        new arrow.Utf8()
-      );
+      console.warn(`Error creating vector with type ${arrowType}:`, error);
+      
+      // Fallback: convert to strings and create Utf8 vector
+      const stringData = data.map(v => v === null ? null : String(v));
+      return vectorFromArray(stringData, new arrow.Utf8());
     }
   }
 
   /**
-   * Create Arrow table from record batches
-   * @param {Array<arrow.RecordBatch>} recordBatches - Array of record batches
-   * @returns {arrow.Table|null} Arrow table
+   * Convert data for specific Arrow types
+   * @param {arrow.DataType} arrowType - Arrow data type
+   * @param {Array} data - Array of values
+   * @returns {Array} Converted data array
+   * @private
    */
-  createTable(recordBatches) {
-    if (!Array.isArray(recordBatches) || recordBatches.length === 0) {
-      return null;
+  _convertDataForArrowType(arrowType, data) {
+    // Handle specific type conversions
+    if (arrowType instanceof arrow.Int64) {
+      return data.map(v => {
+        if (v === null || v === undefined) return null;
+        return BigInt(v);
+      });
     }
-
-    // Correct usage: pass only the recordBatches array
-    return new arrow.Table(recordBatches);
+    
+    if (arrowType instanceof arrow.Int32) {
+      return data.map(v => {
+        if (v === null || v === undefined) return null;
+        return parseInt(v, 10);
+      });
+    }
+    
+    if (arrowType instanceof arrow.Float64) {
+      return data.map(v => {
+        if (v === null || v === undefined) return null;
+        return parseFloat(v);
+      });
+    }
+    
+    if (arrowType instanceof arrow.Bool) {
+      return data.map(v => {
+        if (v === null || v === undefined) return null;
+        return Boolean(v);
+      });
+    }
+    
+    if (arrowType instanceof arrow.DateMillisecond) {
+      return data.map(v => {
+        if (v === null || v === undefined) return null;
+        return new Date(v);
+      });
+    }
+    
+    // Default: return as-is for strings and other types
+    return data;
   }
 
   /**
@@ -171,7 +176,8 @@ export class ArrowBuilder {
   }
 
   /**
-   * Serialize record batch to IPC format
+   * Serialize record batch directly to IPC format
+   * Optimized to avoid unnecessary table creation
    * @param {arrow.RecordBatch} recordBatch - Record batch to serialize
    * @returns {Buffer|null} Serialized record batch
    */
@@ -179,12 +185,11 @@ export class ArrowBuilder {
     if (!recordBatch) return null;
 
     try {
-      // Create a table from the record batch and serialize to IPC format
+      // Create table directly from record batch and serialize
       const table = new arrow.Table([recordBatch]);
       return arrow.tableToIPC(table);
     } catch (error) {
       console.warn('Error serializing record batch:', error);
-      // Fallback: create a simple buffer representation
       return this._createSimpleRecordBatchBuffer(recordBatch);
     }
   }
@@ -197,11 +202,8 @@ export class ArrowBuilder {
     if (!this.arrowSchema) return null;
 
     try {
-      // Create an empty table with just the schema and serialize
-      const emptyVectors = this.arrowSchema.fields.map(field => {
-        return this._createVector(field, []);
-      });
-      const emptyTable = new arrow.Table(this.arrowSchema, emptyVectors);
+      // Create empty table with schema and serialize
+      const emptyTable = new arrow.Table(this.arrowSchema, []);
       return arrow.tableToIPC(emptyTable);
     } catch (error) {
       console.warn('Error serializing schema:', error);
@@ -235,6 +237,19 @@ export class ArrowBuilder {
       columns: recordBatch.schema.fields.map(field => field.name),
       types: recordBatch.schema.fields.map(field => field.type.toString())
     };
+  }
+
+  /**
+   * Create table from record batches (for compatibility)
+   * @param {Array<arrow.RecordBatch>} recordBatches - Array of record batches
+   * @returns {arrow.Table|null} Arrow table
+   */
+  createTable(recordBatches) {
+    if (!Array.isArray(recordBatches) || recordBatches.length === 0) {
+      return null;
+    }
+
+    return new arrow.Table(recordBatches);
   }
 }
 

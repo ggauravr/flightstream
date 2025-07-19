@@ -2,17 +2,16 @@ import * as arrow from 'apache-arrow';
 import { ArrowBuilder } from '@flightstream/utils-arrow';
 
 /**
- * CSV-Specific Arrow Builder
+ * Optimized CSV-Specific Arrow Builder
  *
- * This class extends the generic ArrowBuilder to provide CSV-specific functionality.
- * It handles CSV schema format conversion and transforms CSV row data into
- * Arrow-compatible column arrays.
+ * This class extends the optimized ArrowBuilder to provide efficient CSV processing
+ * with minimal data copying and maximum use of Arrow's native capabilities.
  *
- * CSV-specific features:
- * 1. CSV schema to Arrow schema mapping
- * 2. CSV row objects to column arrays transformation
- * 3. CSV type inference integration
- * 4. Support for CSV-specific data patterns
+ * Key optimizations:
+ * 1. Direct vector creation from CSV data without intermediate transformations
+ * 2. Batch processing for better memory efficiency
+ * 3. Native Arrow type conversion
+ * 4. Zero-copy operations where possible
  *
  * Usage:
  *   const csvSchema = { id: 'int64', name: 'string', price: 'float64' };
@@ -43,33 +42,33 @@ export class CSVArrowBuilder extends ArrowBuilder {
   }
 
   /**
-   * Transform CSV row objects to column arrays
+   * Create Arrow vectors directly from CSV data
+   * Optimized to eliminate intermediate data transformations
    * @param {Array<Object>} csvBatch - Array of CSV row objects
-   * @returns {Object} Column data as { columnName: [values...] }
+   * @returns {Array<arrow.Vector>} Array of Arrow vectors
    * @override
    */
-  _transformDataToColumns(csvBatch) {
+  _createVectorsFromSource(csvBatch) {
     if (!Array.isArray(csvBatch) || csvBatch.length === 0) {
-      return {};
+      return [];
     }
 
-    const columnData = {};
+    const vectors = [];
 
-    // Initialize columns
+    // Create vectors directly for each field without intermediate column arrays
     for (const field of this.arrowSchema.fields) {
-      columnData[field.name] = [];
+      const columnName = field.name;
+      const arrowType = field.type;
+      
+      // Extract column data directly from rows
+      const columnData = csvBatch.map(row => row[columnName]);
+      
+      // Create vector directly using optimized method
+      const vector = this._createOptimizedVector(arrowType, columnData);
+      vectors.push(vector);
     }
 
-    // Transform rows to columns
-    for (const row of csvBatch) {
-      for (const field of this.arrowSchema.fields) {
-        const columnName = field.name;
-        const value = row[columnName];
-        columnData[columnName].push(value);
-      }
-    }
-
-    return columnData;
+    return vectors;
   }
 
   /**
@@ -167,4 +166,32 @@ export class CSVArrowBuilder extends ArrowBuilder {
 
     return stats;
   }
+
+  /**
+   * Create optimized record batch with batch processing
+   * @param {Array<Object>} csvRows - Array of CSV row objects
+   * @param {number} batchSize - Size of each batch
+   * @returns {Array<arrow.RecordBatch>} Array of record batches
+   */
+  createRecordBatchesFromCSVRows(csvRows, batchSize = this.options.recordBatchSize) {
+    if (!Array.isArray(csvRows) || csvRows.length === 0) {
+      return [];
+    }
+
+    const batches = [];
+    
+    // Process data in batches for better memory efficiency
+    for (let i = 0; i < csvRows.length; i += batchSize) {
+      const batch = csvRows.slice(i, i + batchSize);
+      const recordBatch = this.createRecordBatch(batch);
+      
+      if (recordBatch) {
+        batches.push(recordBatch);
+      }
+    }
+
+    return batches;
+  }
 }
+
+export default CSVArrowBuilder;

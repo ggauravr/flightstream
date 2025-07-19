@@ -264,7 +264,7 @@ export class CSVFlightService extends FlightServiceBase {
             return;
           }
 
-          // Serialize record batch for Flight protocol
+          // Serialize record batch for Flight protocol using the arrow builder
           const serializedBatch = arrowBuilder.serializeRecordBatch(recordBatch);
           if (!serializedBatch) {
             this.logger.warn({
@@ -279,8 +279,8 @@ export class CSVFlightService extends FlightServiceBase {
               type: 1, // PATH type
               path: [dataset.id]
             },
-            data_header: serializedBatch.slice(0, 4), // IPC header
-            data_body: serializedBatch.slice(4) // IPC body
+            data_header: recordBatch.schema, // IPC header
+            data_body: recordBatch.data // IPC body
           });
 
           totalBatches++;
