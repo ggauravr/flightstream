@@ -255,9 +255,13 @@ export class CSVFlightService extends FlightServiceBase {
             return;
           }
 
+          const typedArrays = arrowBuilder._createArrowTypedArrayFromCSVBatch(csvBatch);
+          // console.log('vectors', vectors);
+
           // Convert CSV batch to Arrow record batch
-          const recordBatch = arrowBuilder.createRecordBatch(csvBatch);
-          if (!recordBatch) {
+          // const recordBatch = arrowBuilder.createRecordBatch(csvBatch);
+
+          if (!typedArrays) {
             this.logger.warn({
               dataset_id: dataset.id
             }, 'Failed to create record batch');
@@ -265,7 +269,7 @@ export class CSVFlightService extends FlightServiceBase {
           }
 
           // Serialize record batch for Flight protocol using the arrow builder
-          const serializedBatch = arrowBuilder.serializeRecordBatch(recordBatch);
+          const serializedBatch = arrowBuilder.serializeVectors(typedArrays);
           if (!serializedBatch) {
             this.logger.warn({
               dataset_id: dataset.id
@@ -279,8 +283,8 @@ export class CSVFlightService extends FlightServiceBase {
               type: 1, // PATH type
               path: [dataset.id]
             },
-            data_header: recordBatch.schema, // IPC header
-            data_body: recordBatch.data // IPC body
+            // data_header: recordBatch.schema, // IPC header
+            data_body: serializedBatch // IPC body
           });
 
           totalBatches++;

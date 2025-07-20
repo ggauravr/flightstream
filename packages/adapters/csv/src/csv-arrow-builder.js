@@ -41,6 +41,21 @@ export class CSVArrowBuilder extends ArrowBuilder {
     this.arrowSchema = new arrow.Schema(fields);
   }
 
+  // Write a method to create arrow typed array from csv batch
+  _createArrowTypedArrayFromCSVBatch(csvBatch) {
+    const typedArrays = [];
+    for (const field of this.arrowSchema.fields) {
+      const columnName = field.name;
+      const arrowType = field.type;
+
+      const columnData = csvBatch.map(row => row[columnName]);
+      const typedArray = this._convertDataForArrowType(arrowType, columnData);
+      typedArrays.push(typedArray);
+    }
+
+    return typedArrays;
+  }
+
   /**
    * Create Arrow vectors directly from CSV data
    * Optimized to eliminate intermediate data transformations
@@ -68,6 +83,7 @@ export class CSVArrowBuilder extends ArrowBuilder {
       vectors.push(vector);
     }
 
+    // console.log('vectors', vectors);
     return vectors;
   }
 

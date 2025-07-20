@@ -175,6 +175,10 @@ export class ArrowBuilder {
     return this.arrowSchema;
   }
 
+  serializeVectors(typedArrays) {
+    return arrow.tableToIPC(arrow.tableFromArrays(typedArrays));
+  }
+
   /**
    * Serialize record batch directly to IPC format
    * Optimized to avoid unnecessary table creation
