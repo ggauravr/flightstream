@@ -79,7 +79,7 @@ Help improve our docs:
    npm test
    
    # To run the actual test suite
-   npm run test:ci
+   npm run test:all
    ```
 
 ## 🏗️ Project Structure
@@ -89,39 +89,69 @@ Understanding the codebase organization:
 ```
 flightstream/
 ├── packages/
-│   ├── core/              # Core Flight server framework
-│   │   ├── src/
-│   │   │   ├── flight-server.js
-│   │   │   ├── flight-service-base.js
-│   │   │   ├── flight-protocol-handler.js
-│   │   │   └── index.js
-│   │   ├── proto/
-│   │   │   └── flight.proto
-│   │   └── package.json
-│   ├── csv-service/       # CSV file adapter
-│   │   ├── src/
-│   │   │   ├── csv-service.js
-│   │   │   ├── csv-streamer.js
-│   │   │   ├── csv-arrow-builder.js
-│   │   │   └── index.js
-│   │   └── package.json
-│   ├── utils/            # Shared utilities
-│   │   ├── src/
-│   │   │   ├── arrow-builder.js
-│   │   │   ├── schema-inference.js
-│   │   │   ├── streaming-utils.js
-│   │   │   └── index.js
-│   │   └── package.json
-│   └── examples/         # Reference implementations
+│   ├── core/              # Core Flight packages
+│   │   ├── server/        # Core server framework
+│   │   │   ├── src/
+│   │   │   │   ├── flight-server.js
+│   │   │   │   ├── flight-service-base.js
+│   │   │   │   ├── protocol/
+│   │   │   │   │   ├── handlers.js
+│   │   │   │   │   └── actions.js
+│   │   │   │   └── index.js
+│   │   │   ├── proto/
+│   │   │   │   └── flight.proto
+│   │   │   └── package.json
+│   │   ├── client/        # Core client framework
+│   │   │   ├── src/
+│   │   │   │   ├── flight-client.js
+│   │   │   │   ├── flight-client-base.js
+│   │   │   │   ├── flight-protocol-client.js
+│   │   │   │   ├── utils/
+│   │   │   │   │   ├── connection-manager.js
+│   │   │   │   │   ├── retry-handler.js
+│   │   │   │   │   └── streaming-utils.js
+│   │   │   │   └── index.js
+│   │   │   └── package.json
+│   │   └── shared/        # Shared utilities
+│   │       ├── src/
+│   │       │   ├── arrow-builder.js
+│   │       │   ├── constants.js
+│   │       │   ├── protocol-utils.js
+│   │       │   └── index.js
+│   │       └── package.json
+│   ├── adapters/          # Data source adapters
+│   │   └── csv/           # CSV file adapter
+│   │       ├── src/
+│   │       │   ├── csv-service.js
+│   │       │   ├── csv-streamer.js
+│   │       │   ├── csv-arrow-builder.js
+│   │       │   └── index.js
+│   │       └── package.json
+│   ├── utils/             # Utility packages
+│   │   └── arrow/         # Arrow utilities
+│   │       ├── src/
+│   │       │   ├── arrow-builder.js
+│   │       │   ├── schema-inference.js
+│   │       │   ├── streaming-utils.js
+│   │       │   ├── type-system/
+│   │       │   │   ├── index.js
+│   │       │   │   ├── type-detector.js
+│   │       │   │   ├── type-registry.js
+│   │       │   │   └── type-transformer.js
+│   │       │   └── index.js
+│   │       └── package.json
+│   ├── frameworks/        # Framework integrations (future)
+│   ├── tools/             # Development tools (future)
+│   └── examples/          # Reference implementations
 │       ├── basic-server/
-│       └── test-client/
-├── docs/                 # Documentation website
-├── data/                 # Sample data files
-├── coverage/            # Test coverage reports
-├── .github/             # GitHub workflows and templates
-├── jest.config.js       # Jest configuration
-├── .eslintrc.cjs        # ESLint configuration
-└── .nvmrc              # Node.js version specification
+│       └── basic-client/
+├── docs/                  # Documentation website
+├── data/                  # Sample data files
+├── coverage/              # Test coverage reports
+├── .github/               # GitHub workflows and templates
+├── jest.config.js         # Jest configuration
+├── lerna.json            # Lerna monorepo configuration
+└── package.json          # Root package configuration
 ```
 
 ## 📋 Development Guidelines
@@ -159,10 +189,10 @@ type(scope): description
 
 **Examples:**
 ```bash
-feat(csv): add support for custom delimiters
-fix(core): handle connection errors gracefully
+feat(adapters-csv): add support for custom delimiters
+fix(core-server): handle connection errors gracefully
 docs(api): update FlightServer constructor examples
-test(utils): add tests for schema inference
+test(utils-arrow): add tests for schema inference
 ```
 
 **Types:**
@@ -179,314 +209,254 @@ test(utils): add tests for schema inference
 #### Running Tests
 ```bash
 # Run all tests
-npm run test:ci
+npm run test:all
 
-# Test specific package
-npm run test:core
-npm run test:csv-service
+# Test specific packages
+npm run test:server
+npm run test:client
 npm run test:utils
 
 # Test with coverage
 npm run test:coverage
+
+# Test in watch mode
+npm run test:watch
 ```
 
 #### Writing Tests
 ```javascript
 // Example test structure
-import { FlightServer } from '@flightstream/core';
+import { FlightServer } from '@flightstream/core-server/flight-server';
 
 describe('FlightServer', () => {
   let server;
   
   beforeEach(() => {
-    server = new FlightServer({ port: 8081 });
+    server = new FlightServer({ port: 0 });
   });
   
   afterEach(async () => {
-    if (server) {
+    if (server.isRunning()) {
       await server.stop();
     }
   });
   
-  test('should start and stop server', async () => {
+  it('should start successfully', async () => {
     const port = await server.start();
-    expect(port).toBe(8081);
-    
-    await server.stop();
-    // Server should be stopped
+    expect(port).toBeGreaterThan(0);
+    expect(server.isRunning()).toBe(true);
   });
 });
 ```
 
-**Note**: Tests require Node.js experimental VM modules. Jest is configured to run with the `--experimental-vm-modules` flag automatically.
+### Package Development
 
-## 🔌 Contributing New Adapters
+#### Adding a New Package
 
-### Adapter Structure
-
-Create a new adapter by extending `FlightServiceBase`:
-
-```javascript
-// packages/my-adapter/src/my-adapter.js
-import { FlightServiceBase } from '@flightstream/core';
-import { ArrowBuilder } from '@flightstream/utils';
-
-export class MyFlightService extends FlightServiceBase {
-  constructor(options = {}) {
-    super(options);
-    this.connectionString = options.connectionString;
-  }
-
-  async _initialize() {
-    // Connect to your data source
-    // Discover available datasets
-    // Register datasets in this.datasets Map
-  }
-
-  async _inferSchemaForDataset(datasetId) {
-    // Examine dataset structure
-    // Return Arrow schema object
-  }
-
-  async _streamDataset(call, dataset) {
-    // Stream data as Arrow record batches
-    // Handle batching and pagination
-  }
-}
-```
-
-### Adapter Package Structure
-
-```
-packages/my-adapter/
-├── src/
-│   ├── index.js          # Main exports
-│   ├── my-adapter.js     # Main adapter class
-│   └── helper.js         # Helper utilities
-├── tests/
-│   └── my-adapter.test.js
-├── package.json
-└── README.md
-```
-
-### Adapter Checklist
-
-- [ ] Extends `FlightServiceBase`
-- [ ] Implements all required methods
-- [ ] Handles errors gracefully
-- [ ] Includes comprehensive tests
-- [ ] Has clear documentation
-- [ ] Follows project conventions
-- [ ] Includes example usage
-
-## 📝 Documentation Guidelines
-
-### README Files
-Each package should have a README with:
-- Purpose and features
-- Installation instructions
-- Basic usage examples
-- API reference
-- Configuration options
-
-### Code Documentation
-Use JSDoc for public APIs:
-
-```javascript
-/**
- * Create a new Flight server instance
- * @param {Object} options - Server configuration
- * @param {string} [options.host='localhost'] - Server host
- * @param {number} [options.port=8080] - Server port
- * @example
- * const server = new FlightServer({ port: 9090 });
- */
-constructor(options = {}) {
-  // Implementation
-}
-```
-
-### Examples
-Include working examples that:
-- Demonstrate real-world usage
-- Include sample data
-- Work out of the box
-- Cover edge cases
-
-## 🧪 Testing Guidelines
-
-### Test Coverage
-Aim for high test coverage:
-- Unit tests for individual functions
-- Integration tests for components
-- End-to-end tests for complete workflows
-
-### Test Categories
-
-#### Unit Tests
-```javascript
-// Test individual functions/methods
-test('ArrowBuilder creates valid schema', () => {
-  const builder = new ArrowBuilder({ id: 'int64' });
-  const schema = builder.getSchema();
-  expect(schema).toBeDefined();
-});
-```
-
-#### Integration Tests
-```javascript
-// Test component interactions
-test('CSV service discovers files', async () => {
-  const adapter = new CSVFlightService({ dataDirectory: './test-data' });
-  await adapter.initialize();
-  expect(adapter.getDatasets()).toContain('sample');
-});
-```
-
-#### End-to-End Tests
-```javascript
-// Test complete workflows
-test('server serves CSV data to client', async () => {
-  const server = new FlightServer({ port: 8082 });
-  const service = new CSVFlightService({ dataDirectory: './test-data' });
-  
-  server.setFlightService(service);
-  await server.start();
-  
-  // Note: FlightClient is available in packages/examples/test-client/
-  const { FlightClient } = await import('../../examples/test-client/test-client.js');
-  const client = new FlightClient();
-  await client.connect('localhost', 8082);
-  const flights = await client.listFlights();
-  
-  expect(flights.length).toBeGreaterThan(0);
-  
-  await client.close();
-  await server.stop();
-});
-```
-
-## 🚀 Submitting Changes
-
-### Before Submitting
-1. **Run tests**: `npm run test:ci`
-2. **Check linting**: `npm run lint`
-3. **Test examples**: `npm start` (then `npm test` in another terminal)
-4. **Update documentation** if needed
-5. **Add tests** for new features
-
-### Pull Request Process
-
-1. **Push to your fork**
+1. **Create package directory**
    ```bash
-   git add .
-   git commit -m "feat(adapter): add PostgreSQL adapter"
-   git push origin feature/postgresql-adapter
+   mkdir -p packages/adapters/my-adapter
+   cd packages/adapters/my-adapter
    ```
 
-2. **Create Pull Request**
-   - Go to GitHub repository
-   - Click "New Pull Request"
-   - Choose your branch
-   - Fill out PR template
+2. **Initialize package**
+   ```bash
+   npm init -y
+   ```
 
-3. **PR Description Should Include:**
-   - What changes were made
-   - Why they were needed
-   - How to test the changes
-   - Screenshots (if UI changes)
-   - Breaking changes (if any)
+3. **Update package.json**
+   ```json
+   {
+     "name": "@flightstream/adapters-my-adapter",
+     "version": "1.0.0-alpha.1",
+     "description": "My custom adapter for FlightStream",
+     "main": "src/index.js",
+     "type": "module",
+     "scripts": {
+       "test": "NODE_OPTIONS=\"--experimental-vm-modules\" jest",
+       "lint": "eslint src/**/*.js"
+     },
+     "dependencies": {
+       "@flightstream/core-server": "file:../../core/server"
+     },
+     "peerDependencies": {
+       "apache-arrow": "^14.0.0"
+     }
+   }
+   ```
 
-### PR Template
-```markdown
-## Description
-Brief description of changes
+4. **Add to workspace**
+   ```json
+   // In root package.json
+   {
+     "workspaces": [
+       "packages/core/*",
+       "packages/adapters/*",
+       "packages/utils/*",
+       "packages/frameworks/*",
+       "packages/tools/*"
+     ]
+   }
+   ```
 
-## Type of Change
-- [ ] Bug fix
-- [ ] New feature
-- [ ] Breaking change
-- [ ] Documentation update
+#### Building Packages
+```bash
+# Build all packages
+npm run build
 
-## Testing
-- [ ] Tests pass locally
-- [ ] Added tests for new functionality
-- [ ] Manual testing completed
-
-## Checklist
-- [ ] Code follows project style
-- [ ] Self-review completed
-- [ ] Documentation updated
-- [ ] No breaking changes (or clearly documented)
+# Build specific packages
+npm run build:server
+npm run build:client
+npm run build:utils
 ```
 
-## 🔍 Review Process
+## 🔧 Development Workflow
 
-### What We Look For
-- **Functionality**: Does it work as intended?
-- **Code Quality**: Is it clean, readable, maintainable?
-- **Testing**: Are there adequate tests?
-- **Documentation**: Is it well documented?
-- **Performance**: Does it perform well?
-- **Compatibility**: Does it break existing functionality?
+### 1. Making Changes
 
-### Review Timeline
-- Initial review: Within 3-5 days
-- Follow-up reviews: Within 1-2 days
-- Merge: After approval and all checks pass
+1. **Create a feature branch**
+   ```bash
+   git checkout -b feature/your-feature
+   ```
 
-## 🎉 Recognition
+2. **Make your changes**
+   - Follow the code style guidelines
+   - Add tests for new functionality
+   - Update documentation if needed
 
-Contributors are recognized in:
-- Project README
-- Release notes
-- Contributors page
-- Annual contributor highlights
+3. **Test your changes**
+   ```bash
+   npm run test:all
+   npm run lint
+   ```
 
-## ❓ Getting Help
+4. **Commit your changes**
+   ```bash
+   git add .
+   git commit -m "feat(scope): your feature description"
+   ```
 
-### Community Support
-- **GitHub Discussions**: [Community discussions](https://github.com/ggauravr/flightstream/discussions)
-- **Issues**: [Bug reports and questions](https://github.com/ggauravr/flightstream/issues)
+### 2. Submitting a Pull Request
 
-### Development Help
-- **Discord**: Join our development chat
-- **Office Hours**: Weekly contributor meetings
-- **Mentorship**: Pair programming sessions for new contributors
+1. **Push your branch**
+   ```bash
+   git push origin feature/your-feature
+   ```
 
-## 📜 Code of Conduct
+2. **Create a Pull Request**
+   - Go to your fork on GitHub
+   - Click "New Pull Request"
+   - Select your feature branch
+   - Fill out the PR template
 
-This project follows the [Contributor Covenant Code of Conduct](https://www.contributor-covenant.org/). Please see our [CONTRIBUTING.md](../CONTRIBUTING.md) file for the full details. By participating, you agree to:
+3. **PR Checklist**
+   - [ ] Tests pass
+   - [ ] Code follows style guidelines
+   - [ ] Documentation updated
+   - [ ] No breaking changes (or documented)
+   - [ ] Commit messages follow convention
 
-- Use welcoming and inclusive language
-- Respect differing viewpoints and experiences
-- Accept constructive criticism gracefully
-- Focus on what's best for the community
-- Show empathy toward other community members
+### 3. Review Process
 
-## 🏆 Contributor Levels
+1. **Automated Checks**
+   - CI/CD pipeline runs tests
+   - Code coverage is checked
+   - Linting is enforced
 
-### 🌱 First-time Contributors
-- Start with "good first issue" labels
-- Get help from maintainers
-- Learn the codebase gradually
+2. **Code Review**
+   - Maintainers review your code
+   - Address any feedback
+   - Make requested changes
 
-### 🌿 Regular Contributors
-- Take on larger features
-- Help review other PRs
-- Improve documentation and examples
+3. **Merge**
+   - Once approved, PR is merged
+   - Changes are included in next release
 
-### 🌳 Core Contributors
-- Help with project direction
-- Mentor new contributors
-- Release management
+## 📦 Package Release Process
 
-## 📊 Development Metrics
+### Version Management
 
-We track these metrics to understand project health:
-- Response time to issues/PRs
-- Test coverage percentage
-- Code quality scores
-- Community engagement
+This project uses Lerna for version management:
 
-Thank you for contributing to FlightStream! 🚀 Your contributions help make high-performance data streaming accessible to everyone. 
+```bash
+# Patch release (bug fixes)
+npm run version:patch
+
+# Minor release (new features)
+npm run version:minor
+
+# Major release (breaking changes)
+npm run version:major
+
+# Pre-release versions
+npm run version:alpha
+npm run version:beta
+npm run version:rc
+```
+
+### Publishing
+
+```bash
+# Publish all packages
+npm run publish:latest
+
+# Publish pre-release versions
+npm run publish:alpha
+npm run publish:beta
+npm run publish:rc
+```
+
+## 🐛 Debugging
+
+### Common Issues
+
+1. **Module not found errors**
+   ```bash
+   # Clean and reinstall
+   npm run clean
+   npm install
+   ```
+
+2. **Test failures**
+   ```bash
+   # Run tests with verbose output
+   npm run test:all -- --verbose
+   ```
+
+3. **Linting errors**
+   ```bash
+   # Fix auto-fixable issues
+   npm run lint:fix
+   ```
+
+### Development Tools
+
+```bash
+# Start server in development mode
+npm run dev
+
+# Run tests in watch mode
+npm run test:watch
+
+# Check for outdated dependencies
+npm outdated
+
+# Audit dependencies
+npm run audit:check
+```
+
+## 📚 Additional Resources
+
+- [API Reference]({{ '/api-reference/' | relative_url }}) - Complete API documentation
+- [Core Architecture]({{ '/core-architecture/' | relative_url }}) - Design patterns and diagrams
+- [GitHub Issues](https://github.com/ggauravr/flightstream/issues) - Report bugs and request features
+- [GitHub Discussions](https://github.com/ggauravr/flightstream/discussions) - Community discussions
+
+## 🤝 Community Guidelines
+
+- Be respectful and inclusive
+- Help others learn and grow
+- Provide constructive feedback
+- Follow the project's code of conduct
+
+Thank you for contributing to FlightStream! 🚀 
