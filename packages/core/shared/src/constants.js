@@ -5,28 +5,7 @@
  * core server and client packages to ensure consistency.
  */
 
-/**
- * Default configuration values for FlightStream components
- */
-export const DEFAULT_FLIGHT_CONFIG = {
-  // Connection settings
-  host: 'localhost',
-  port: 8080,
 
-  // Message size limits (100MB default)
-  maxReceiveMessageLength: 100 * 1024 * 1024,
-  maxSendMessageLength: 100 * 1024 * 1024,
-
-  // Reliability settings
-  retryAttempts: 3,
-  retryDelay: 1000,
-  connectionTimeout: 5000,
-
-  // Advanced settings
-  keepAlive: true,
-  keepAliveTimeout: 20000,
-  keepAliveInterval: 10000,
-};
 
 /**
  * Arrow Flight protocol constants
@@ -72,16 +51,16 @@ export const GRPC_CONFIG = {
 
   // Server options
   SERVER_OPTIONS: {
-    'grpc.max_receive_message_length': DEFAULT_FLIGHT_CONFIG.maxReceiveMessageLength,
-    'grpc.max_send_message_length': DEFAULT_FLIGHT_CONFIG.maxSendMessageLength,
+    'grpc.max_receive_message_length': 100 * 1024 * 1024,
+    'grpc.max_send_message_length': 100 * 1024 * 1024,
   },
 
   // Client options
   CLIENT_OPTIONS: {
-    'grpc.max_receive_message_length': DEFAULT_FLIGHT_CONFIG.maxReceiveMessageLength,
-    'grpc.max_send_message_length': DEFAULT_FLIGHT_CONFIG.maxSendMessageLength,
-    'grpc.keepalive_time_ms': DEFAULT_FLIGHT_CONFIG.keepAliveInterval,
-    'grpc.keepalive_timeout_ms': DEFAULT_FLIGHT_CONFIG.keepAliveTimeout,
+    'grpc.max_receive_message_length': 100 * 1024 * 1024,
+    'grpc.max_send_message_length': 100 * 1024 * 1024,
+    'grpc.keepalive_time_ms': 10000,
+    'grpc.keepalive_timeout_ms': 20000,
     'grpc.keepalive_permit_without_calls': true,
     'grpc.http2.max_pings_without_data': 0,
     'grpc.http2.min_time_between_pings_ms': 10000,

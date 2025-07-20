@@ -5,9 +5,11 @@ import {
   loadFlightProto, 
   createClientOptions, 
   createClientCredentials,
-  DEFAULT_FLIGHT_CONFIG,
   getDefaultProtoPath 
 } from '@flightstream/core-shared';
+
+// Client configuration
+import { createClientConfig } from './config/client-config.js';
 
 /**
  * Low-level Arrow Flight Protocol Client
@@ -18,12 +20,11 @@ import {
  */
 export class FlightProtocolClient {
   constructor(options = {}) {
-    this.options = {
-      ...DEFAULT_FLIGHT_CONFIG,
+    this.options = createClientConfig({
       protoPath: options.protoPath || getDefaultProtoPath(),
       logger: options.logger || console,
       ...options
-    };
+    });
 
     this.client = null;
     this.flightProto = null;

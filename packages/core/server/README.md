@@ -30,6 +30,16 @@ server.setFlightService(new MyFlightService());
 await server.start();
 ```
 
+## Installation
+
+```bash
+npm install @flightstream/core-server
+```
+
+**Requirements:**
+- Node.js >= 18.0.0
+- Apache Arrow >= 14.0.0 (peer dependency)
+
 ## Logging Configuration
 
 The Flight Server package supports configurable logging. You can set a custom logger once and it will be used throughout the entire package.
@@ -82,6 +92,58 @@ Your custom logger should implement these methods:
 - `warn(message, meta?)`
 - `error(message, meta?)`
 
+## Configuration Options
+
+**Note:** Data source specific configurations (like CSV settings) should be configured in the respective adapter packages, not in the core server configuration.
+
+### Server Configuration
+
+```javascript
+const server = new FlightServer({
+  // Connection settings
+  host: 'localhost',                    // Server host
+  port: 8080,                          // Server port
+  
+  // Message size limits (100MB default)
+  maxReceiveMessageLength: 100 * 1024 * 1024,
+  maxSendMessageLength: 100 * 1024 * 1024,
+  
+
+  
+  // Advanced settings
+  keepAlive: true,
+  keepAliveTimeout: 20000,
+  keepAliveInterval: 10000,
+  
+
+  
+  // Performance settings
+  maxConcurrentRequests: 100,
+  requestTimeout: 30000,
+  
+  // Logging
+  logLevel: 'info',
+  enableDebugLogging: false,
+  
+  // Protocol
+  protoPath: '/path/to/flight.proto'  // Custom proto file path
+});
+```
+
+### Environment Variables
+
+The server supports configuration via environment variables:
+
+```bash
+# Performance settings
+MAX_CONCURRENT_REQUESTS=100
+REQUEST_TIMEOUT=30000
+
+# Logging
+LOG_LEVEL=info
+DEBUG=false
+```
+
 ## API Reference
 
 ### FlightServer
@@ -103,16 +165,41 @@ new FlightServer(options)
 - `port` (number) - Server port (default: 8080)
 - `logger` (Object) - Custom logger instance
 - `protoPath` (string) - Path to Flight protocol definition
-- `maxReceiveMessageLength` (number) - Max message size for receiving
-- `maxSendMessageLength` (number) - Max message size for sending
+- `maxReceiveMessageLength` (number) - Max message size for receiving (default: 100MB)
+- `maxSendMessageLength` (number) - Max message size for sending (default: 100MB)
+
+- `keepAlive` (boolean) - Enable keep-alive (default: true)
+- `keepAliveTimeout` (number) - Keep-alive timeout in ms (default: 20000)
+- `keepAliveInterval` (number) - Keep-alive interval in ms (default: 10000)
+
+- `maxConcurrentRequests` (number) - Max concurrent requests (default: 100)
+- `requestTimeout` (number) - Request timeout in ms (default: 30000)
+- `logLevel` (string) - Log level (default: 'info')
+- `enableDebugLogging` (boolean) - Enable debug logging (default: false)
 
 #### Instance Methods
 
 - `setFlightService(flightService)` - Set the Flight service adapter
-- `start()` - Start the server
-- `stop()` - Stop the server gracefully
+- `start()` - Start the server (returns Promise<number> with port)
+- `stop()` - Stop the server gracefully (returns Promise<void>)
 - `getServerInfo()` - Get server information
 - `isRunning()` - Check if server is running
+
+#### Server Information
+
+The `getServerInfo()` method returns an object with:
+
+```javascript
+{
+  host: string,                    // Server host
+  port: number,                    // Server port
+  maxReceiveMessageLength: number, // Max receive message size
+  maxSendMessageLength: number,    // Max send message size
+  running: boolean,                // Whether server is running
+  flightService: string,           // Flight service class name
+  datasets: Array<string>          // Available dataset IDs
+}
+```
 
 ### FlightServiceBase
 
@@ -132,13 +219,37 @@ class MyFlightService extends FlightServiceBase {
   
   async _inferSchemaForDataset(datasetId) {
     // Infer Arrow schema for dataset
+    // Must return an Arrow Schema object
   }
   
   async _streamDataset(call, dataset) {
-    // Stream dataset data
+    // Stream dataset data as Arrow record batches
+    // Use call.write() to send data
   }
 }
 ```
+
+#### Abstract Methods
+
+- `_initialize()` - Initialize the service (called automatically)
+- `_initializeDatasets()` - Discover and register datasets
+- `_inferSchemaForDataset(datasetId)` - Infer Arrow schema for a dataset
+- `_streamDataset(call, dataset)` - Stream dataset data
+
+#### Utility Methods
+
+- `getDatasets()` - Get list of available dataset IDs
+- `hasDataset(datasetId)` - Check if dataset exists
+- `refreshDatasets()` - Refresh dataset discovery
+
+## Error Handling
+
+The server uses standard gRPC error codes:
+
+- `5` (NOT_FOUND) - Dataset not found
+- `3` (INVALID_ARGUMENT) - Invalid request
+- `14` (UNAVAILABLE) - Service unavailable
+- `4` (DEADLINE_EXCEEDED) - Request timeout
 
 ## Examples
 

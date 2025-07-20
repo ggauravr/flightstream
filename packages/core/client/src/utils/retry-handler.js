@@ -1,4 +1,4 @@
-import { DEFAULT_FLIGHT_CONFIG } from '@flightstream/core-shared';
+import { DEFAULT_CLIENT_CONFIG } from '../config/client-config.js';
 
 /**
  * Retry Handler for Flight Client Operations
@@ -9,8 +9,8 @@ import { DEFAULT_FLIGHT_CONFIG } from '@flightstream/core-shared';
 export class RetryHandler {
   constructor(options = {}) {
     this.options = {
-      maxAttempts: options.maxAttempts || DEFAULT_FLIGHT_CONFIG.retryAttempts,
-      baseDelay: options.baseDelay || DEFAULT_FLIGHT_CONFIG.retryDelay,
+          maxAttempts: options.maxAttempts || DEFAULT_CLIENT_CONFIG.retryAttempts,
+    baseDelay: options.baseDelay || DEFAULT_CLIENT_CONFIG.retryDelay,
       maxDelay: options.maxDelay || 30000,
       backoffMultiplier: options.backoffMultiplier || 2,
       jitter: options.jitter !== false,

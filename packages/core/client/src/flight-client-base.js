@@ -1,5 +1,5 @@
 import { EventEmitter } from 'events';
-import { DEFAULT_FLIGHT_CONFIG } from '@flightstream/core-shared';
+import { createClientConfig } from './config/client-config.js';
 
 /**
  * Base Flight Client Interface
@@ -12,11 +12,7 @@ export class FlightClientBase extends EventEmitter {
   constructor(options = {}) {
     super();
 
-    this.options = {
-      ...DEFAULT_FLIGHT_CONFIG,
-      logger: options.logger || console,
-      ...options
-    };
+    this.options = createClientConfig(options);
 
     // Connection state
     this.isConnected = false;

@@ -1,16 +1,14 @@
 /**
- * Server Configuration Management
+ * Client Configuration Management
  *
- * This module provides centralized configuration management for the Flight server,
+ * This module provides centralized configuration management for the Flight client,
  * including default values, validation, and environment variable handling.
  */
 
-import { getLogger } from '../utils/logger.js';
-
 /**
- * Default server configuration
+ * Default client configuration
  */
-export const DEFAULT_SERVER_CONFIG = {
+export const DEFAULT_CLIENT_CONFIG = {
   // Connection settings
   host: 'localhost',
   port: 8080,
@@ -19,26 +17,26 @@ export const DEFAULT_SERVER_CONFIG = {
   maxReceiveMessageLength: 100 * 1024 * 1024,
   maxSendMessageLength: 100 * 1024 * 1024,
 
+  // Reliability settings
+  retryAttempts: 3,
+  retryDelay: 1000,
+  connectionTimeout: 5000,
+
   // Advanced settings
   keepAlive: true,
   keepAliveTimeout: 20000,
   keepAliveInterval: 10000,
 
-  // Logging configuration
-  logLevel: process.env.LOG_LEVEL || 'info',
-  enableDebugLogging: process.env.DEBUG === 'true',
-
-  // Performance settings
-  maxConcurrentRequests: parseInt(process.env.MAX_CONCURRENT_REQUESTS) || 100,
-  requestTimeout: parseInt(process.env.REQUEST_TIMEOUT) || 30000,
+  // Logging
+  logger: console,
 };
 
 /**
- * Validate server configuration
+ * Validate client configuration
  * @param {Object} config - Configuration to validate
  * @returns {Object} Validation result
  */
-export function validateServerConfig(config) {
+export function validateClientConfig(config) {
   const errors = [];
   const warnings = [];
 
@@ -67,6 +65,10 @@ export function validateServerConfig(config) {
     errors.push('retryDelay must be non-negative');
   }
 
+  if (config.connectionTimeout < 0) {
+    errors.push('connectionTimeout must be non-negative');
+  }
+
   return {
     isValid: errors.length === 0,
     errors,
@@ -79,21 +81,21 @@ export function validateServerConfig(config) {
  * @param {Object} userConfig - User-provided configuration
  * @returns {Object} Merged configuration
  */
-export function createServerConfig(userConfig = {}) {
+export function createClientConfig(userConfig = {}) {
   const config = {
-    ...DEFAULT_SERVER_CONFIG,
+    ...DEFAULT_CLIENT_CONFIG,
     ...userConfig
   };
 
   // Validate configuration
-  const validation = validateServerConfig(config);
+  const validation = validateClientConfig(config);
 
   if (!validation.isValid) {
-    throw new Error(`Invalid server configuration: ${validation.errors.join(', ')}`);
+    throw new Error(`Invalid client configuration: ${validation.errors.join(', ')}`);
   }
 
   if (validation.warnings.length > 0) {
-    getLogger().warn('Server configuration warnings:', validation.warnings);
+    config.logger.warn('Client configuration warnings:', validation.warnings);
   }
 
   return config;
@@ -105,50 +107,32 @@ export function createServerConfig(userConfig = {}) {
  * @returns {Object} Environment-specific configuration
  */
 export function getEnvironmentConfig(environment = 'development') {
-  const baseConfig = { ...DEFAULT_SERVER_CONFIG };
+  const baseConfig = { ...DEFAULT_CLIENT_CONFIG };
 
   switch (environment) {
   case 'production':
     return {
       ...baseConfig,
-      logLevel: 'warn',
-      enableDebugLogging: false,
-      maxConcurrentRequests: 200,
-      requestTimeout: 60000,
+      retryAttempts: 5,
+      retryDelay: 2000,
+      connectionTimeout: 10000,
     };
 
   case 'test':
     return {
       ...baseConfig,
-      logLevel: 'error',
-      enableDebugLogging: false,
-      maxConcurrentRequests: 10,
-      requestTimeout: 5000,
+      retryAttempts: 1,
+      retryDelay: 100,
+      connectionTimeout: 1000,
     };
 
   case 'development':
   default:
     return {
       ...baseConfig,
-      logLevel: 'debug',
-      enableDebugLogging: true,
-      maxConcurrentRequests: 50,
-      requestTimeout: 30000,
+      retryAttempts: 3,
+      retryDelay: 1000,
+      connectionTimeout: 5000,
     };
   }
-}
-
-/**
- * Load configuration from file
- * @param {string} configPath - Path to configuration file
- * @returns {Object} Configuration object
- */
-export async function loadConfigFromFile(configPath) {
-  try {
-    const fs = await import('fs/promises');
-    const configData = await fs.readFile(configPath, 'utf8');
-    return JSON.parse(configData);
-  } catch (error) {
-    throw new Error(`Failed to load configuration from ${configPath}: ${error.message}`);
-  }
-}
+} 
