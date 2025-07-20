@@ -23,7 +23,6 @@
     "install:all": "npm install",
     "test:all": "lerna run test",
     "test:watch": "lerna run test --parallel --stream",
-    "test:coverage": "lerna run test:coverage",
     "test:ci": "lerna run test:ci",
     "test:server": "lerna run test --scope=@flightstream/core-server --scope=@flightstream/adapters-*",
     "test:client": "lerna run test --scope=@flightstream/core-client-engine --scope=@flightstream/frameworks-*",

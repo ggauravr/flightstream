@@ -216,9 +216,6 @@ npm run test:server
 npm run test:client
 npm run test:utils
 
-# Test with coverage
-npm run test:coverage
-
 # Test in watch mode
 npm run test:watch
 ```
