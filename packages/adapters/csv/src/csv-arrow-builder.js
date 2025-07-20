@@ -43,14 +43,53 @@ export class CSVArrowBuilder extends ArrowBuilder {
 
   // Write a method to create arrow typed array from csv batch
   _createArrowTypedArrayFromCSVBatch(csvBatch) {
-    const typedArrays = [];
-    for (const field of this.arrowSchema.fields) {
-      const columnName = field.name;
+    const batchSize = csvBatch.length;
+    const fields = this.arrowSchema.fields;
+    const typedArrays = new Array(fields.length);
+    
+    // Pre-allocate column data arrays for single-pass extraction
+    const columnData = {};
+    for (const field of fields) {
+      columnData[field.name] = new Array(batchSize);
+    }
+    
+    // Single-pass extraction: extract all columns at once
+    for (let i = 0; i < batchSize; i++) {
+      const row = csvBatch[i];
+      for (const field of fields) {
+        columnData[field.name][i] = row[field.name];
+      }
+    }
+    
+    // Schema-aware optimization: process by type for better performance
+    for (let i = 0; i < fields.length; i++) {
+      const field = fields[i];
       const arrowType = field.type;
-
-      const columnData = csvBatch.map(row => row[columnName]);
-      const typedArray = this._convertDataForArrowType(arrowType, columnData);
-      typedArrays.push(typedArray);
+      const data = columnData[field.name];
+      
+      // Type-specific optimizations
+      if (arrowType instanceof arrow.Int32) {
+        const typedArray = new Int32Array(batchSize);
+        for (let j = 0; j < batchSize; j++) {
+          typedArray[j] = data[j] === null || data[j] === undefined ? 0 : parseInt(data[j], 10);
+        }
+        typedArrays[i] = typedArray;
+      } else if (arrowType instanceof arrow.Float64) {
+        const typedArray = new Float64Array(batchSize);
+        for (let j = 0; j < batchSize; j++) {
+          typedArray[j] = data[j] === null || data[j] === undefined ? 0 : parseFloat(data[j]);
+        }
+        typedArrays[i] = typedArray;
+      } else if (arrowType instanceof arrow.Bool) {
+        const typedArray = new Uint8Array(batchSize);
+        for (let j = 0; j < batchSize; j++) {
+          typedArray[j] = data[j] === null || data[j] === undefined ? 0 : Boolean(data[j]) ? 1 : 0;
+        }
+        typedArrays[i] = typedArray;
+      } else {
+        // Fallback to original method for other types
+        typedArrays[i] = this._convertDataForArrowType(arrowType, data);
+      }
     }
 
     return typedArrays;
@@ -68,22 +107,55 @@ export class CSVArrowBuilder extends ArrowBuilder {
       return [];
     }
 
-    const vectors = [];
-
-    // Create vectors directly for each field without intermediate column arrays
-    for (const field of this.arrowSchema.fields) {
-      const columnName = field.name;
+    const batchSize = csvBatch.length;
+    const fields = this.arrowSchema.fields;
+    const vectors = new Array(fields.length);
+    
+    // Pre-allocate column data arrays for single-pass extraction
+    const columnData = {};
+    for (const field of fields) {
+      columnData[field.name] = new Array(batchSize);
+    }
+    
+    // Single-pass extraction: extract all columns at once
+    for (let i = 0; i < batchSize; i++) {
+      const row = csvBatch[i];
+      for (const field of fields) {
+        columnData[field.name][i] = row[field.name];
+      }
+    }
+    
+    // Schema-aware optimization: process by type for better performance
+    for (let i = 0; i < fields.length; i++) {
+      const field = fields[i];
       const arrowType = field.type;
-
-      // Extract column data directly from rows
-      const columnData = csvBatch.map(row => row[columnName]);
-
-      // Create vector directly using optimized method
-      const vector = this._createOptimizedVector(arrowType, columnData);
-      vectors.push(vector);
+      const data = columnData[field.name];
+      
+      // Type-specific optimizations for vector creation
+      if (arrowType instanceof arrow.Int32) {
+        const typedArray = new Int32Array(batchSize);
+        for (let j = 0; j < batchSize; j++) {
+          typedArray[j] = data[j] === null || data[j] === undefined ? 0 : parseInt(data[j], 10);
+        }
+        vectors[i] = arrow.vectorFromArray(typedArray, arrowType);
+      } else if (arrowType instanceof arrow.Float64) {
+        const typedArray = new Float64Array(batchSize);
+        for (let j = 0; j < batchSize; j++) {
+          typedArray[j] = data[j] === null || data[j] === undefined ? 0 : parseFloat(data[j]);
+        }
+        vectors[i] = arrow.vectorFromArray(typedArray, arrowType);
+      } else if (arrowType instanceof arrow.Bool) {
+        const typedArray = new Uint8Array(batchSize);
+        for (let j = 0; j < batchSize; j++) {
+          typedArray[j] = data[j] === null || data[j] === undefined ? 0 : Boolean(data[j]) ? 1 : 0;
+        }
+        vectors[i] = arrow.vectorFromArray(typedArray, arrowType);
+      } else {
+        // Fallback to original method for other types
+        vectors[i] = this._createOptimizedVector(arrowType, data);
+      }
     }
 
-    // console.log('vectors', vectors);
     return vectors;
   }
 
