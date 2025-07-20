@@ -269,7 +269,7 @@ export class CSVFlightService extends FlightServiceBase {
           }
 
           // Serialize record batch for Flight protocol using the arrow builder
-          const serializedBatch = arrowBuilder.serializeVectors(typedArrays);
+          const serializedBatch = arrowBuilder.serializeFromArrays(typedArrays);
           if (!serializedBatch) {
             this.logger.warn({
               dataset_id: dataset.id
