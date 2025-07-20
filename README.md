@@ -4,7 +4,25 @@
 [![Node.js Version](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg)](https://nodejs.org/)
 [![Alpha Release](https://img.shields.io/badge/version-alpha-yellow.svg)](https://www.npmjs.com/package/@flightstream/core-server)
 
-High-performance Apache Arrow Flight streaming framework with a plugin architecture for Node.js. This monorepo provides server-side streaming capabilities with plans for future client-side and framework integrations.
+A comprehensive, high-performance Apache Arrow Flight streaming framework for Node.js that enables efficient, real-time data streaming across distributed systems. Built with a modular plugin architecture, FlightStream provides both server-side streaming capabilities and client-side data access patterns, making it ideal for modern data pipelines, analytics applications, and microservices architectures.
+
+## Key Capabilities
+
+- **🚀 High-Performance Streaming**: Leverage Apache Arrow's columnar format for efficient data transfer
+- **🔌 Plugin Architecture**: Extensible adapter system supporting CSV, with plans for databases, APIs, and more
+- **🌐 Cross-Platform**: Works with any Arrow Flight client (Python, Java, C++, JavaScript, R, Go)
+- **⚡ Memory Efficient**: Basic streaming with batch processing for large datasets
+- **🛡️ Alpha Release**: Good error handling and retry logic foundations, but not production-ready
+- **📊 Schema Intelligence**: Automatic schema inference and validation
+- **💻 Developer Friendly**: Rich examples, comprehensive documentation, and easy setup
+
+## Use Cases
+
+- **Data Engineering**: Stream CSV files to analytics engines (Apache Spark, DuckDB, Pandas)
+- **API Modernization**: Replace REST APIs with efficient columnar data transfer
+- **Real-time Analytics**: Power dashboards and BI tools with live data streams
+- **Microservices**: Enable high-performance data sharing between services
+- **Multi-language Integration**: Connect applications written in different programming languages
 
 > **⚠️ Alpha Release**: This is currently in alpha. APIs may change between releases. This is not production-ready software. For production use, consider waiting for the stable release or pinning to a specific alpha version.
 
@@ -24,8 +42,11 @@ npm run dev
 
 In a new terminal:
 ```bash
-# Run the test client to stream data
+# Run the test client to stream data. Streams the first dataset found
 npm test
+
+# Run the test client with a specific dataset
+npm test <datasetid>
 ```
 
 ### Expected Output
@@ -36,7 +57,12 @@ npm test
 #### Client Terminal (`npm test`):
 ![FlightStream Client Streaming Data](docs/images/client-streaming.png)
 
-That's it! The server will automatically discover CSV files in the `data/` directory and stream them via Arrow Flight protocol. The test client will connect and display the streamed data in real-time. As you can see a CSV with ~41k rows is streamed to the client in .025s!
+That's it! The server will automatically discover CSV files in the `data/` directory and stream them via Arrow Flight protocol. The test client will connect and display the streamed data in real-time. As you can see a CSV with ~41k rows is streamed to the client in .25s!
+
+#### Client Terminal With a Specific Dataset(`npm test MARC2020-County-01`):
+![FlightStream Client Streaming Data](docs/images/client-streaming-specific.png)
+
+The test client will connect and display the streamed data specificed by the dataset id in real-time. In the example above, CSV with ~800k rows is streamed to the client in <4s!
 
 ### What just happened?
 - 🚀 **Flight Server**: Started on `localhost:8080` with CSV adapter
@@ -52,37 +78,21 @@ This monorepo is organized by domain for maximum scalability and extensibility:
 
 | Package | Description | Version |
 |---------|-------------|---------|
-| [`@flightstream/core-server`](packages/core/server/) | Core Arrow Flight NodeJS server | ![npm](https://img.shields.io/npm/v/@flightstream/core-server) |
+| [`@flightstream/core-server`](packages/core/server/) | Core Arrow Flight NodeJS server with plugin architecture | ![npm](https://img.shields.io/npm/v/@flightstream/core-server) |
+| [`@flightstream/core-client`](packages/core/client/) | Core Arrow Flight NodeJS client with connection management | ![npm](https://img.shields.io/npm/v/@flightstream/core-client) |
+| [`@flightstream/core-shared`](packages/core/shared/) | Shared utilities, constants, and protocol handling | ![npm](https://img.shields.io/npm/v/@flightstream/core-shared) |
 
 ### Adapters ✅
 
 | Package | Description | Version |
 |---------|-------------|---------|
-| [`@flightstream/adapters-csv`](packages/adapters/csv/) | CSV file adapter with streaming support | ![npm](https://img.shields.io/npm/v/@flightstream/adapters-csv) |
+| [`@flightstream/adapters-csv`](packages/adapters/csv/) | CSV file adapter with streaming support and schema inference | ![npm](https://img.shields.io/npm/v/@flightstream/adapters-csv) |
 
 ### Utilities ✅
 
 | Package | Description | Version |
 |---------|-------------|---------|
-| [`@flightstream/utils-arrow`](packages/utils/arrow/) | Arrow utilities and schema inference | ![npm](https://img.shields.io/npm/v/@flightstream/utils-arrow) |
-
-
-### Planned Packages 🚧
-
-| Package | Description | Status |
-|---------|-------------|--------|
-| `@flightstream/core-client-engine` | Core framework-agnostic client engine with DuckDB WASM | Planned |
-| `@flightstream/adapters-parquet` | Parquet file adapter | Planned |
-| `@flightstream/frameworks-react` | React hooks and components | Planned |
-| `@flightstream/frameworks-svelte` | Svelte stores and components | Planned |
-| `@flightstream/frameworks-vue` | Vue composables | Planned |
-| `@flightstream/frameworks-vanilla` | Vanilla JS utilities | Planned |
-| `@flightstream/frameworks-fastify` | Fastify server plugin for Flight/gRPC-based data streaming | Planned |
-| `@flightstream/frameworks-express` | Express server plugin for Flight/gRPC-based data streaming | Planned |
-| `@flightstream/utils-streaming` | Streaming utilities | Planned |
-| `@flightstream/utils-storage` | Storage utilities | Planned |
-| `@flightstream/tools-cli` | Command-line tools | Planned |
-| `@flightstream/tools-dev` | Development utilities | Planned |
+| [`@flightstream/utils-arrow`](packages/utils/arrow/) | Advanced Arrow utilities, schema inference, and type system | ![npm](https://img.shields.io/npm/v/@flightstream/utils-arrow) |
 
 ## 🏗️ Architecture
 
@@ -100,12 +110,10 @@ This monorepo is organized by domain for maximum scalability and extensibility:
 ```
 
 The framework uses a domain-driven architecture where:
-- **Core packages** provide fundamental server functionality
-- **Adapters** connect to different data sources (CSV, databases, cloud storage)
+- **Core packages** provide fundamental server and client functionality
+- **Adapters** connect to different data sources (CSV)
 - **Utilities** provide shared functionality across packages
 - **Examples** demonstrate usage patterns and best practices
-- **Framework integrations** (planned) will provide framework-specific APIs
-- **Client engines** (planned) will provide client functionality
 
 ## 🎯 Use Cases
 
@@ -115,12 +123,11 @@ The framework uses a domain-driven architecture where:
 - **API Modernization**: Replace REST APIs with efficient columnar data transfer
 - **Multi-language Integration**: Connect Python, Java, C++, and JavaScript applications
 
-### Client-Side 🚧 (Planned)
-- **Real-time Dashboards**: Live data visualization with React, Svelte, or Vue
-- **Offline Analytics**: Local data analysis with DuckDB WASM
-- **Progressive Web Apps**: Efficient data streaming for PWA applications
-- **Data Science Tools**: Interactive data exploration in the browser
-- **Collaborative Applications**: Shared data streaming across multiple clients
+### Client-Side ✅ (Currently Implemented)
+- **Data Access**: Connect to Arrow Flight servers and retrieve datasets
+- **Streaming Data**: Memory-efficient streaming of large datasets
+- **Connection Management**: Automatic connection handling with retry logic
+- **Cross-language Clients**: Use with any Arrow Flight client library
 
 ## 📊 Features
 
@@ -128,26 +135,20 @@ The framework uses a domain-driven architecture where:
 - ✅ High-performance gRPC streaming
 - ✅ Memory-efficient batch processing  
 - ✅ Automatic schema inference
-- ✅ Error handling
+- ✅ Error handling and retry logic
 - ✅ Domain-driven package architecture
 - ✅ Comprehensive documentation
-- ✅ Example implementations
+- ✅ Example implementations (server and client)
 - ✅ All major Flight operations (ListFlights, GetFlightInfo, DoGet, etc.)
 - ✅ Efficient binary data transfer
 - ✅ Schema discovery and validation
 - ✅ Streaming with backpressure handling
-
-### Planned Features 🚧
-- 🚧 Framework-agnostic client engine
-- 🚧 TypeScript definitions
-- 🚧 Test clients in multiple languages
-- 🚧 DuckDB WASM integration
-- 🚧 OPFS storage support
-- 🚧 Framework adapters (React, Svelte, Vue)
-- 🚧 Offline data persistence
-- 🚧 Real-time streaming updates
-- 🚧 Fastify/Express plugins
-- 🚧 Browser environment support
+- ✅ Connection management and lifecycle
+- ✅ Configurable logging system
+- ✅ Client connection management with automatic retries
+- ✅ Event-driven client architecture
+- ✅ Shared protocol utilities and constants
+- ✅ Advanced Arrow utilities and type system
 
 ## 🛠️ Installation & Usage
 
@@ -156,15 +157,16 @@ The framework uses a domain-driven architecture where:
 FlightStream is currently in **alpha**. This means:
 
 - ✅ Core server functionality is implemented and working
+- ✅ Core client functionality is implemented and working
+- ✅ Shared utilities and protocol handling is implemented
 - ✅ CSV adapter with streaming support is available
 - ✅ Plugin architecture supports extensible data source adapters
-- ✅ Comprehensive server examples and test client included
+- ✅ Comprehensive server and client examples included
+- ✅ Advanced Arrow utilities and type system implemented
 - ⚠️ APIs may change between releases
 - ⚠️ Not recommended for production use
-- ⚠️ Client-side and framework integrations are planned but not implemented
 - ⚠️ Limited error handling and edge cases
 - ⚠️ Performance optimizations pending
-
 
 ## 🔧 Configuration
 
@@ -235,35 +237,16 @@ npm run build:server
 npm run lint:server
 ```
 
-## 📈 Roadmap
+## 📈 Current Status
 
-### Phase 1: Server Ecosystem ✅ (Complete)
-- [x] Core server framework
-- [x] CSV adapter with streaming support
-- [x] Arrow utilities and schema inference
-- [x] Server examples and test client
+### Phase 1: Core Ecosystem ✅ (Complete)
+- [x] Core server framework with plugin architecture
+- [x] Core client framework with connection management
+- [x] Shared utilities and protocol handling
+- [x] CSV adapter with streaming support and schema inference
+- [x] Advanced Arrow utilities and type system
+- [x] Server and client examples
 - [x] Plugin architecture for extensible data sources
-
-### Phase 2: Client Ecosystem 🚧 (Planned)
-- [ ] Core client engine with DuckDB WASM
-- [ ] OPFS storage integration
-- [ ] WebSocket transport layer
-- [ ] Browser-compatible client libraries
-- [ ] Client examples and demos
-
-### Phase 3: Framework Integrations 🚧 (Planned)
-- [ ] React hooks and components
-- [ ] Svelte stores and components
-- [ ] Vue composables
-- [ ] Vanilla JS utilities
-- [ ] Express/Fastify server plugins
-
-### Phase 4: Advanced Features 🚧 (Planned)
-- [ ] Additional data source adapters (Parquet, PostgreSQL, etc.)
-- [ ] TypeScript definitions
-- [ ] Authentication and security
-- [ ] Performance monitoring
-- [ ] CLI development tools
 
 ## 🤝 Contributing
 
