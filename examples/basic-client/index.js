@@ -198,7 +198,7 @@ class BasicFlightClient {
         
         // Show sample data from first batch
         if (batchCount === 1 && batch.numRows > 0) {
-          console.log('📄 Sample data from first batch:');
+          // console.log('📄 Sample data from first batch:');
           const sampleRows = Math.min(3, batch.numRows);
           for (let i = 0; i < sampleRows; i++) {
             const row = {};
