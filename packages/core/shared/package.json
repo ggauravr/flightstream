@@ -1,6 +1,6 @@
 {
   "name": "@flightstream/core-shared",
-  "version": "1.0.0-alpha.2",
+  "version": "1.0.0-alpha.3",
   "description": "Shared utilities for FlightStream core packages",
   "main": "src/index.js",
   "type": "module",

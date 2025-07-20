@@ -1,6 +1,6 @@
 {
   "name": "@flightstream/core-client",
-  "version": "1.0.0-alpha.2",
+  "version": "1.0.0-alpha.3",
   "description": "Core Apache Arrow Flight client framework for Node.js",
   "main": "src/index.js",
   "type": "module",
