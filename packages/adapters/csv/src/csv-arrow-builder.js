@@ -85,13 +85,13 @@ export class CSVArrowBuilder extends ArrowBuilder {
     const batchSize = csvBatch.length;
     const fields = this.arrowSchema.fields;
     const typedArrays = new Array(fields.length);
-    
+
     // Pre-allocate column data arrays for single-pass extraction
     const columnData = {};
     for (const field of fields) {
       columnData[field.name] = new Array(batchSize);
     }
-    
+
     // Single-pass extraction: extract all columns at once
     for (let i = 0; i < batchSize; i++) {
       const row = csvBatch[i];
@@ -99,13 +99,13 @@ export class CSVArrowBuilder extends ArrowBuilder {
         columnData[field.name][i] = row[field.name];
       }
     }
-    
+
     // Schema-aware optimization: process by type for better performance
     for (let i = 0; i < fields.length; i++) {
       const field = fields[i];
       const arrowType = field.type;
       const data = columnData[field.name];
-      
+
       // Type-specific optimizations
       if (arrowType instanceof arrow.Int32) {
         const typedArray = new Int32Array(batchSize);
@@ -122,7 +122,7 @@ export class CSVArrowBuilder extends ArrowBuilder {
       } else if (arrowType instanceof arrow.Bool) {
         const typedArray = new Uint8Array(batchSize);
         for (let j = 0; j < batchSize; j++) {
-          typedArray[j] = data[j] === null || data[j] === undefined ? 0 : Boolean(data[j]) ? 1 : 0;
+          typedArray[j] = data[j] === null || data[j] === undefined ? 0 : data[j] ? 1 : 0;
         }
         typedArrays[i] = typedArray;
       } else {

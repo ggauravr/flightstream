@@ -135,4 +135,4 @@ export function getEnvironmentConfig(environment = 'development') {
       connectionTimeout: 5000,
     };
   }
-} 
+}
