@@ -41,45 +41,41 @@ export class RetryHandler {
     const config = { ...this.options, ...options };
     let lastError;
 
-    // Ensure maxAttempts is valid
-    const maxAttempts = Math.max(1, config.maxAttempts || 1);
-
-    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    for (let attempt = 1; attempt <= config.maxAttempts; attempt++) {
       try {
         // Check circuit breaker
         if (this.circuitBreakerState === 'OPEN') {
-          const circuitBreakerTimeout = config.circuitBreakerTimeout || 60000;
-          if (Date.now() - this.lastFailureTime < circuitBreakerTimeout) {
+          if (Date.now() - this.lastFailureTime < config.circuitBreakerTimeout || 60000) {
             throw new Error('Circuit breaker is open');
           }
           this.circuitBreakerState = 'HALF_OPEN';
         }
 
         const result = await operation();
-
+        
         // Success - reset circuit breaker
         this._onSuccess();
         return result;
 
       } catch (error) {
         lastError = error;
-
+        
         // Check if error is retryable
         if (!this._isRetryableError(error)) {
           throw error;
         }
 
         // Check if we should stop retrying
-        if (attempt === maxAttempts) {
+        if (attempt === config.maxAttempts) {
           this._onFailure();
           throw error;
         }
 
         // Calculate delay with exponential backoff
         const delay = this._calculateDelay(attempt, config);
-
-        config.logger.warn(`Operation failed (attempt ${attempt}/${maxAttempts}), retrying in ${delay}ms:`, error.message);
-
+        
+        config.logger.warn(`Operation failed (attempt ${attempt}/${config.maxAttempts}), retrying in ${delay}ms:`, error.message);
+        
         // Wait before retrying
         await this._wait(delay);
       }
@@ -96,9 +92,9 @@ export class RetryHandler {
    */
   _isRetryableError(error) {
     const errorCode = error.code || error.message;
-
-    return this.options.retryableErrors.some(retryableError =>
-      errorCode.includes(retryableError) ||
+    
+    return this.options.retryableErrors.some(retryableError => 
+      errorCode.includes(retryableError) || 
       error.message.includes(retryableError)
     );
   }
@@ -112,16 +108,16 @@ export class RetryHandler {
    */
   _calculateDelay(attempt, config) {
     let delay = config.baseDelay * Math.pow(config.backoffMultiplier, attempt - 1);
-
+    
     // Cap at max delay
     delay = Math.min(delay, config.maxDelay);
-
+    
     // Add jitter to prevent thundering herd
     if (config.jitter) {
       const jitter = delay * 0.1; // 10% jitter
       delay += Math.random() * jitter - jitter / 2;
     }
-
+    
     return Math.floor(delay);
   }
 
@@ -151,7 +147,7 @@ export class RetryHandler {
   _onFailure() {
     this.failureCount++;
     this.lastFailureTime = Date.now();
-
+    
     // Open circuit breaker if too many failures
     if (this.failureCount >= (this.options.circuitBreakerThreshold || 5)) {
       this.circuitBreakerState = 'OPEN';
@@ -179,4 +175,4 @@ export class RetryHandler {
     this.lastFailureTime = 0;
     this.circuitBreakerState = 'CLOSED';
   }
-}
+} 

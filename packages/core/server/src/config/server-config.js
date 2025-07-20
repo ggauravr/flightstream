@@ -13,18 +13,18 @@ import { getLogger } from '../utils/logger.js';
  */
 export const DEFAULT_SERVER_CONFIG = {
   ...DEFAULT_FLIGHT_CONFIG,
-
+  
   // Server-specific settings
   dataDirectory: process.env[ENV_VARS.DATA_DIRECTORY] || './data',
   csvBatchSize: parseInt(process.env[ENV_VARS.CSV_BATCH_SIZE]) || 10000,
   csvDelimiter: process.env[ENV_VARS.CSV_DELIMITER] || ',',
-  csvHeaders: process.env[ENV_VARS.CSV_HEADERS] ?
+  csvHeaders: process.env[ENV_VARS.CSV_HEADERS] ? 
     process.env[ENV_VARS.CSV_HEADERS].split(',') : null,
-
+  
   // Logging configuration
   logLevel: process.env.LOG_LEVEL || 'info',
   enableDebugLogging: process.env.DEBUG === 'true',
-
+  
   // Performance settings
   maxConcurrentRequests: parseInt(process.env.MAX_CONCURRENT_REQUESTS) || 100,
   requestTimeout: parseInt(process.env.REQUEST_TIMEOUT) || 30000,
@@ -84,7 +84,7 @@ export function createServerConfig(userConfig = {}) {
 
   // Validate configuration
   const validation = validateServerConfig(config);
-
+  
   if (!validation.isValid) {
     throw new Error(`Invalid server configuration: ${validation.errors.join(', ')}`);
   }
@@ -105,33 +105,33 @@ export function getEnvironmentConfig(environment = 'development') {
   const baseConfig = { ...DEFAULT_SERVER_CONFIG };
 
   switch (environment) {
-  case 'production':
-    return {
-      ...baseConfig,
-      logLevel: 'warn',
-      enableDebugLogging: false,
-      maxConcurrentRequests: 200,
-      requestTimeout: 60000,
-    };
+    case 'production':
+      return {
+        ...baseConfig,
+        logLevel: 'warn',
+        enableDebugLogging: false,
+        maxConcurrentRequests: 200,
+        requestTimeout: 60000,
+      };
 
-  case 'test':
-    return {
-      ...baseConfig,
-      logLevel: 'error',
-      enableDebugLogging: false,
-      maxConcurrentRequests: 10,
-      requestTimeout: 5000,
-    };
+    case 'test':
+      return {
+        ...baseConfig,
+        logLevel: 'error',
+        enableDebugLogging: false,
+        maxConcurrentRequests: 10,
+        requestTimeout: 5000,
+      };
 
-  case 'development':
-  default:
-    return {
-      ...baseConfig,
-      logLevel: 'debug',
-      enableDebugLogging: true,
-      maxConcurrentRequests: 50,
-      requestTimeout: 30000,
-    };
+    case 'development':
+    default:
+      return {
+        ...baseConfig,
+        logLevel: 'debug',
+        enableDebugLogging: true,
+        maxConcurrentRequests: 50,
+        requestTimeout: 30000,
+      };
   }
 }
 
@@ -148,4 +148,4 @@ export async function loadConfigFromFile(configPath) {
   } catch (error) {
     throw new Error(`Failed to load configuration from ${configPath}: ${error.message}`);
   }
-}
+} 

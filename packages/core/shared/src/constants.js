@@ -12,16 +12,16 @@ export const DEFAULT_FLIGHT_CONFIG = {
   // Connection settings
   host: 'localhost',
   port: 8080,
-
+  
   // Message size limits (100MB default)
   maxReceiveMessageLength: 100 * 1024 * 1024,
   maxSendMessageLength: 100 * 1024 * 1024,
-
+  
   // Reliability settings
   retryAttempts: 3,
   retryDelay: 1000,
   connectionTimeout: 5000,
-
+  
   // Advanced settings
   keepAlive: true,
   keepAliveTimeout: 20000,
@@ -34,20 +34,20 @@ export const DEFAULT_FLIGHT_CONFIG = {
 export const FLIGHT_PROTOCOL = {
   // Protocol version
   VERSION: 1,
-
+  
   // Descriptor types
   DESCRIPTOR_TYPES: {
     PATH: 1,
     CMD: 2,
     UNKNOWN: 0,
   },
-
+  
   // Action types
   ACTION_TYPES: {
     REFRESH_DATASETS: 'refresh-datasets',
     GET_SERVER_INFO: 'get-server-info',
   },
-
+  
   // Error codes
   ERROR_CODES: {
     UNAVAILABLE: 'UNAVAILABLE',
@@ -69,13 +69,13 @@ export const GRPC_CONFIG = {
     defaults: true,     // Include default values for optional fields
     oneofs: true,       // Support oneof field declarations
   },
-
+  
   // Server options
   SERVER_OPTIONS: {
     'grpc.max_receive_message_length': DEFAULT_FLIGHT_CONFIG.maxReceiveMessageLength,
     'grpc.max_send_message_length': DEFAULT_FLIGHT_CONFIG.maxSendMessageLength,
   },
-
+  
   // Client options
   CLIENT_OPTIONS: {
     'grpc.max_receive_message_length': DEFAULT_FLIGHT_CONFIG.maxReceiveMessageLength,
@@ -134,4 +134,4 @@ export const CONNECTION_EVENTS = {
   DISCONNECTED: 'disconnected',
   CONNECTION_ERROR: 'connectionError',
   DISCONNECT_ERROR: 'disconnectError',
-};
+}; 

@@ -1,6 +1,6 @@
 /**
  * Logger Context for Flight Server Package
- *
+ * 
  * Provides a centralized logger that can be set once and used throughout
  * the entire package. Defaults to console if no logger is provided.
  */
@@ -21,4 +21,4 @@ export function setLogger(logger) {
  */
 export function getLogger() {
   return packageLogger;
-}
+} 

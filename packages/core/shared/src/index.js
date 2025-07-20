@@ -1,8 +1,8 @@
 /**
  * @flightstream/core-shared
- *
+ * 
  * Shared utilities for FlightStream core packages
- *
+ * 
  * This package provides common utilities, constants, and protocol handling
  * for the FlightStream core server and client packages.
  */
@@ -17,4 +17,4 @@ export * from './protocol-utils.js';
 export { ArrowBuilder } from './arrow-builder.js';
 
 // Default export for convenience
-export { DEFAULT_FLIGHT_CONFIG as default } from './constants.js';
+export { DEFAULT_FLIGHT_CONFIG as default } from './constants.js'; 
