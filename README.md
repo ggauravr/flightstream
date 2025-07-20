@@ -1,8 +1,3 @@
----
-layout: home
-title: Home
----
-
 # 🚀 FlightStream - A Node.js-based Flight Server and Client Framework
 
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
