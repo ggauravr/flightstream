@@ -5,7 +5,6 @@ import fs from 'fs';
 import { FlightServiceBase } from '@flightstream/core-server';
 import { CSVStreamer } from './csv-streamer.js';
 import { CSVArrowBuilder } from './csv-arrow-builder.js';
-import { DEFAULT_CSV_CONFIG, CSV_ENV_VARS } from './constants.js';
 
 /**
  * CSV Service for Arrow Flight Server
@@ -26,10 +25,10 @@ export class CSVFlightService extends FlightServiceBase {
     super(options);
 
     this.csvOptions = {
-      dataDirectory: options.dataDirectory || process.env[CSV_ENV_VARS.DATA_DIRECTORY] || DEFAULT_CSV_CONFIG.dataDirectory,
-      batchSize: options.batchSize || parseInt(process.env[CSV_ENV_VARS.CSV_BATCH_SIZE]) || DEFAULT_CSV_CONFIG.batchSize,
-      delimiter: options.delimiter || process.env[CSV_ENV_VARS.CSV_DELIMITER] || DEFAULT_CSV_CONFIG.delimiter,
-      headers: options.headers !== undefined ? options.headers : (process.env[CSV_ENV_VARS.CSV_HEADERS] !== 'false' && DEFAULT_CSV_CONFIG.headers),
+      dataDirectory: options.dataDirectory || './data',
+      batchSize: options.batchSize || 10000,
+      delimiter: options.delimiter || ',',
+      headers: options.headers !== false, // default true
       skipEmptyLines: options.skipEmptyLines !== false, // default true
       ...(options.csv || {})
     };
