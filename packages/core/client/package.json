@@ -1,6 +1,6 @@
 {
   "name": "@flightstream/core-client",
-  "version": "1.0.0-alpha.1",
+  "version": "1.0.0-alpha.2",
   "description": "Core Apache Arrow Flight client framework for Node.js",
   "main": "src/index.js",
   "type": "module",
@@ -39,9 +39,9 @@
   },
   "homepage": "https://github.com/ggauravr/flightstream#readme",
   "dependencies": {
+    "@flightstream/core-shared": "file:../shared",
     "@grpc/grpc-js": "^1.9.14",
-    "@grpc/proto-loader": "^0.7.10",
-    "@flightstream/core-shared": "file:../shared"
+    "@grpc/proto-loader": "^0.7.10"
   },
   "peerDependencies": {
     "apache-arrow": "^14.0.0"
@@ -55,4 +55,4 @@
     "LICENSE"
   ],
   "gitHead": "efd042fd47735902cc69903708f87cedcbe13907"
-} 
+}

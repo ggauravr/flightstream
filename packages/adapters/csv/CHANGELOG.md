@@ -3,6 +3,33 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.5](https://github.com/ggauravr/flightstream/compare/@flightstream/adapters-csv@1.0.0-alpha.4...@flightstream/adapters-csv@1.0.0-alpha.5) (2025-07-20)
+
+
+### Bug Fixes
+
+* Correct retry handler logic and remove unused code ([a58b32f](https://github.com/ggauravr/flightstream/commit/a58b32fdb7b8b70680edb2919a8bdca3f71015e1))
+
+
+### Features
+
+* **client:** add cli argument for dataset selection ([c057628](https://github.com/ggauravr/flightstream/commit/c0576286a80da846b4880db324a59d7f39690cc0))
+* **csv:** optimize CSV to Arrow serialization path ([50c15f4](https://github.com/ggauravr/flightstream/commit/50c15f41f25603ca47d769a7f26bcb36c9a6547a))
+
+
+### Performance Improvements
+
+* **csv:** optimize arrow builder with schema-aware batch processing ([fd927b2](https://github.com/ggauravr/flightstream/commit/fd927b217b2b3d409b0a079ca9c5c577bbc6bb98))
+
+
+### Reverts
+
+* Revert "fix: Correct retry handler logic and remove unused code" ([e184802](https://github.com/ggauravr/flightstream/commit/e1848020cdd074d8dd9d66e12139ce1f4c01d68a))
+
+
+
+
+
 # [1.0.0-alpha.4](https://github.com/ggauravr/flightstream/compare/@flightstream/adapters-csv@1.0.0-alpha.3...@flightstream/adapters-csv@1.0.0-alpha.4) (2025-07-09)
 
 **Note:** Version bump only for package @flightstream/adapters-csv
