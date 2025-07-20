@@ -21,37 +21,37 @@ A comprehensive, high-performance Apache Arrow Flight streaming framework for No
 
 <div class="feature-grid">
   <div class="feature">
-    <h3>🏗️ Plugin Architecture</h3>
+    <h4>🏗️ Plugin Architecture</h4>
     <p>Extensible adapter system for any data source - CSV, databases, cloud storage</p>
   </div>
   
   <div class="feature">
-    <h3>⚡ High Performance</h3>
+    <h4>⚡ High Performance</h4>
     <p>Efficient gRPC streaming with Apache Arrow's columnar data format</p>
   </div>
   
   <div class="feature">
-    <h3>🔧 Production Ready</h3>
+    <h4>🔧 Production Ready</h4>
     <p>Comprehensive error handling, monitoring hooks, and Docker support</p>
   </div>
   
   <div class="feature">
-    <h3>👥 Multi-Language</h3>
+    <h4>👥 Multi-Language</h4>
     <p>Connect from Python, Java, C++, JavaScript using standard Arrow Flight clients</p>
   </div>
   
   <div class="feature">
-    <h3>📊 Auto Schema Inference</h3>
+    <h4>📊 Auto Schema Inference</h4>
     <p>Automatic Arrow schema detection from CSV files with type optimization</p>
   </div>
   
   <div class="feature">
-    <h3>🌊 Streaming Support</h3>
+    <h4>🌊 Streaming Support</h4>
     <p>Efficient streaming of large datasets with configurable batch sizes</p>
   </div>
 
   <div class="feature">
-    <h3>💻 Developer Friendly</h3>
+    <h4>💻 Developer Friendly</h4>
     <p>Rich examples, comprehensive documentation, and easy setup</p>
   </div>
 </div>
@@ -122,21 +122,21 @@ The monorepo contains focused, reusable packages:
 <div class="feature-grid">
   <div class="feature">
     <a href="{{ '/getting-started/' | relative_url }}" class="doc-card">
-      <h3>🚀 Getting Started</h3>
+      <h4>🚀 Getting Started</h4>
       <p>Installation, basic concepts, and your first server</p>
     </a>
   </div>
   
   <div class="feature">
     <a href="{{ '/api-reference/' | relative_url }}" class="doc-card">
-      <h3>📋 API Reference</h3>
+      <h4>📋 API Reference</h4>
       <p>Complete API documentation and examples</p>
     </a>
   </div>
   
   <div class="feature">
     <a href="{{ '/core-architecture/' | relative_url }}" class="doc-card">
-      <h3>🏗️ Architecture</h3>
+      <h4>🏗️ Architecture</h4>
       <p>Core architecture diagrams and design patterns</p>
     </a>
   </div>
