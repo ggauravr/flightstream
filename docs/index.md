@@ -126,22 +126,22 @@ The monorepo contains focused, reusable packages:
 
 <div class="feature-grid">
   <div class="feature">
-    <a href="{{ '/getting-started/' | relative_url }}" class="doc-card">
-      <h3>🚀 Getting Started</h3>
-      <p>Installation, basic concepts, and your first server</p>
+    <a href="{{ '/contributing/' | relative_url }}" class="doc-card">
+      <h4>🤝 Contributing</h4>
+      <p>Bug fixes, enhancements, optimizations, docs, anything!</p>
     </a>
   </div>
   
   <div class="feature">
     <a href="{{ '/api-reference/' | relative_url }}" class="doc-card">
-      <h3>📋 API Reference</h3>
+      <h4>📋 API Reference</h4>
       <p>Complete API documentation and examples</p>
     </a>
   </div>
   
   <div class="feature">
     <a href="{{ '/core-architecture/' | relative_url }}" class="doc-card">
-      <h3>🏗️ Architecture</h3>
+      <h4>🏗️ Architecture</h4>
       <p>Core architecture diagrams and design patterns</p>
     </a>
   </div>

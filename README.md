@@ -121,9 +121,9 @@ The monorepo contains focused, reusable packages:
 
 <div class="feature-grid">
   <div class="feature">
-    <a href="{{ '/getting-started/' | relative_url }}" class="doc-card">
-      <h4>🚀 Getting Started</h4>
-      <p>Installation, basic concepts, and your first server</p>
+    <a href="{{ '/contributing/' | relative_url }}" class="doc-card">
+      <h4>🤝 Contributing</h4>
+      <p>Bug fixes, enhancements, optimizations, docs, anything!</p>
     </a>
   </div>
   
