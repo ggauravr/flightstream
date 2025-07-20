@@ -37,8 +37,6 @@ export function createProtocolHandlers(flightService) {
      * - Session establishment
      */
     handshake: (call) => {
-      logger.debug('Handshake called');
-
       // Handle incoming handshake requests from client
       call.on('data', (request) => {
         logger.debug('Handshake request received:', request);
@@ -69,7 +67,6 @@ export function createProtocolHandlers(flightService) {
      * This is a server streaming RPC that returns a stream of FlightInfo objects.
      */
     listFlights: (call) => {
-      logger.debug('ListFlights called');
       try {
         flightService.listFlights(call);
       } catch (error) {
@@ -85,7 +82,6 @@ export function createProtocolHandlers(flightService) {
      * This is a unary RPC (single request, single response).
      */
     getFlightInfo: (call, callback) => {
-      logger.debug('GetFlightInfo called');
       try {
         // gRPC unary calls use callbacks, so we pass the callback to FlightService
         const callWithCallback = { ...call, callback };
@@ -104,7 +100,6 @@ export function createProtocolHandlers(flightService) {
      * without actually retrieving the full dataset.
      */
     getSchema: (call, callback) => {
-      logger.debug('GetSchema called');
       try {
         // gRPC unary calls use callbacks, so we pass the callback to FlightService
         const callWithCallback = { ...call, callback };
@@ -123,7 +118,6 @@ export function createProtocolHandlers(flightService) {
      * Arrow record batches in IPC format.
      */
     doGet: (call) => {
-      logger.debug('DoGet called');
       try {
         flightService.doGet(call);
       } catch (error) {
@@ -175,8 +169,6 @@ export function createProtocolHandlers(flightService) {
      * beyond the standard Flight protocol.
      */
     doAction: (call) => {
-      logger.debug('DoAction called');
-
       try {
         const action = call.request;
         const actionType = action.type;
@@ -216,7 +208,6 @@ export function createProtocolHandlers(flightService) {
      * List available custom actions that can be executed via DoAction.
      */
     listActions: (call) => {
-      logger.debug('ListActions called');
       try {
         flightService.listActions(call);
       } catch (error) {

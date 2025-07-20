@@ -96,8 +96,6 @@ export class FlightServiceBase extends EventEmitter {
    * This is a server streaming RPC that sends FlightInfo objects for each dataset.
    */
   async listFlights(call) {
-    this.logger.debug('ListFlights called');
-
     try {
       // Stream FlightInfo for each registered dataset
       for (const [datasetId, dataset] of this.datasets) {
@@ -165,8 +163,6 @@ export class FlightServiceBase extends EventEmitter {
    */
   async getSchema(call) {
     try {
-      this.logger.debug('GetSchema called');
-
       const descriptor = call.request;
       const datasetId = this._extractDatasetId(descriptor);
 
@@ -229,8 +225,6 @@ export class FlightServiceBase extends EventEmitter {
    */
   async doGet(call) {
     try {
-      this.logger.debug('DoGet called');
-
       const ticket = call.request;
       const datasetId = ticket.ticket ? ticket.ticket.toString() : '';
 
@@ -262,7 +256,6 @@ export class FlightServiceBase extends EventEmitter {
    * This is a server streaming RPC that sends ActionType objects for each available action.
    */
   async listActions(call) {
-    this.logger.debug('ListActions called');
 
     try {
       const actions = [

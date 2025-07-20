@@ -290,12 +290,12 @@ export class CSVFlightService extends FlightServiceBase {
           totalBatches++;
           totalRows += csvBatch.length;
 
-          this.logger.debug({
-            dataset_id: dataset.id,
-            batch_number: totalBatches,
-            batch_rows: csvBatch.length,
-            total_rows: totalRows
-          }, 'Sent batch');
+          // this.logger.debug({
+          //   dataset_id: dataset.id,
+          //   batch_number: totalBatches,
+          //   batch_rows: csvBatch.length,
+          //   total_rows: totalRows
+          // }, 'Sent batch');
 
         } catch (error) {
           this.logger.error({

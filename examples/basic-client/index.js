@@ -4,6 +4,10 @@
  * This example demonstrates how to create a complete Arrow Flight client
  * that connects to a Flight server using the @flightstream/core-client package.
  * This is a reference implementation showing all the key concepts and patterns.
+ * 
+ * Usage:
+ *   node index.js                    # Uses first available dataset
+ *   node index.js "dataset-id"      # Uses specified dataset ID
  */
 
 // Import the Arrow Flight client framework
@@ -24,6 +28,7 @@ class BasicFlightClient {
       retryAttempts: options.retryAttempts || 3,
       retryDelay: options.retryDelay || 1000,
       connectionTimeout: options.connectionTimeout || 5000,
+      datasetId: options.datasetId || null, // Optional dataset ID parameter
       ...options
     };
 
@@ -332,7 +337,24 @@ class BasicFlightClient {
       console.log('');
       
       if (datasets.length > 0) {
-        const datasetId = datasets[0].id;
+        let datasetId = this.options.datasetId || datasets[0].id;
+        
+        // If a specific dataset ID was provided, verify it exists
+        if (this.options.datasetId) {
+          const datasetExists = datasets.some(dataset => dataset.id === this.options.datasetId);
+          if (!datasetExists) {
+            console.log(`⚠️  Specified dataset ID '${this.options.datasetId}' not found. Available datasets:`);
+            datasets.forEach(dataset => {
+              console.log(`   • ${dataset.id}`);
+            });
+            console.log(`📋 Using first available dataset: ${datasets[0].id}`);
+            datasetId = datasets[0].id;
+          } else {
+            console.log(`✅ Using specified dataset: ${datasetId}`);
+          }
+        } else {
+          console.log(`📋 Using first available dataset: ${datasetId}`);
+        }
         
         // Get dataset info
         await this.getDatasetInfo(datasetId);
@@ -364,7 +386,12 @@ class BasicFlightClient {
 
 // Main execution
 async function main() {
-  const client = new BasicFlightClient();
+  // Example: You can specify a dataset ID as a command line argument
+  const datasetId = process.argv[2]; // e.g., node index.js "my-dataset-id"
+  
+  const client = new BasicFlightClient({
+    datasetId: datasetId
+  });
 
   // Graceful shutdown handling
   const gracefulShutdown = async (signal) => {
