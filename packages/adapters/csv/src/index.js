@@ -9,5 +9,11 @@
 // Main adapter
 export { CSVFlightService } from './csv-service.js';
 
-// CSV streaming utilities
+// Streaming utilities
 export { CSVStreamer } from './csv-streamer.js';
+
+// Arrow conversion utilities
+export { CSVArrowBuilder } from './csv-arrow-builder.js';
+
+// Constants
+export { DEFAULT_CSV_CONFIG, CSV_ENV_VARS } from './constants.js';

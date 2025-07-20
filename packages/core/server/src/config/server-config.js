@@ -14,13 +14,6 @@ import { getLogger } from '../utils/logger.js';
 export const DEFAULT_SERVER_CONFIG = {
   ...DEFAULT_FLIGHT_CONFIG,
 
-  // Server-specific settings
-  dataDirectory: process.env[ENV_VARS.DATA_DIRECTORY] || './data',
-  csvBatchSize: parseInt(process.env[ENV_VARS.CSV_BATCH_SIZE]) || 10000,
-  csvDelimiter: process.env[ENV_VARS.CSV_DELIMITER] || ',',
-  csvHeaders: process.env[ENV_VARS.CSV_HEADERS] ?
-    process.env[ENV_VARS.CSV_HEADERS].split(',') : null,
-
   // Logging configuration
   logLevel: process.env.LOG_LEVEL || 'info',
   enableDebugLogging: process.env.DEBUG === 'true',

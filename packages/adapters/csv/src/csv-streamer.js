@@ -1,6 +1,7 @@
 import fs from 'fs';
 import { parse } from 'fast-csv';
 import { EventEmitter } from 'events';
+import { DEFAULT_CSV_CONFIG } from './constants.js';
 
 /**
  * CSV Streamer
@@ -21,8 +22,8 @@ export class CSVStreamer extends EventEmitter {
     super();
     this.filePath = filePath;
     this.options = {
-      batchSize: options.batchSize || 10000,
-      delimiter: options.delimiter || ',',
+      batchSize: options.batchSize || DEFAULT_CSV_CONFIG.batchSize,
+      delimiter: options.delimiter || DEFAULT_CSV_CONFIG.delimiter,
       headers: options.headers !== false, // default true
       skipEmptyLines: options.skipEmptyLines !== false, // default true
       ...options
