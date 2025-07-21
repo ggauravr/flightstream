@@ -10,7 +10,7 @@
 A comprehensive, high-performance Apache Arrow Flight streaming framework for Node.js that enables efficient, real-time data streaming across distributed systems. Built with a modular plugin architecture, FlightStream provides both server-side streaming capabilities and client-side data access patterns, making it ideal for modern data pipelines, analytics applications, and microservices architectures.
 
 ## See It in Action: Streaming a 45MB CSV file with ~850K rows in < 4s
-![FlightStream Demo](docs/images/FlightStream-Demo.gif)
+![FlightStream Demo](docs/images/Flight-Demo.gif)
 
 ## Use Cases
 
