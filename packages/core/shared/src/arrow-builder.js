@@ -125,6 +125,26 @@ export class ArrowBuilder {
   serializeFromArrays(typedArrays) {
     return arrow.tableToIPC(arrow.tableFromArrays(typedArrays));
   }
+
+  /**
+   * Serialize vectors directly to IPC format
+   * Optimized for direct serialization without intermediate record batch creation
+   * @param {Object} vectors - Object with column names as keys and Arrow vectors as values
+   * @returns {Buffer} Serialized IPC data
+   */
+  serializeFromVectors(vectors) {
+    return arrow.tableToIPC(arrow.tableFromArrays(vectors));
+  }
+
+  /**
+   * Create Arrow table from vectors
+   * Most efficient method for column-oriented data
+   * @param {Object} vectors - Object with column names as keys and Arrow vectors as values
+   * @returns {arrow.Table} Arrow table
+   */
+  createTableFromVectors(vectors) {
+    return arrow.tableFromArrays(vectors);
+  }
 }
 
 export default ArrowBuilder;

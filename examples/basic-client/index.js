@@ -14,6 +14,155 @@
 import { FlightClient } from '@flightstream/core-client';
 
 /**
+ * Memory profiling utility
+ */
+class MemoryProfiler {
+  constructor() {
+    this.startMemory = null;
+    this.peakMemory = 0;
+    this.checkpoints = [];
+  }
+
+  /**
+   * Get current memory usage
+   */
+  getMemoryUsage() {
+    const usage = process.memoryUsage();
+    return {
+      rss: usage.rss, // Resident Set Size
+      heapTotal: usage.heapTotal, // Total heap size
+      heapUsed: usage.heapUsed, // Used heap size
+      external: usage.external, // External memory
+      arrayBuffers: usage.arrayBuffers || 0 // Array buffers
+    };
+  }
+
+  /**
+   * Format memory usage for display
+   */
+  formatMemory(bytes) {
+    const mb = bytes / 1024 / 1024;
+    return `${mb.toFixed(2)} MB`;
+  }
+
+  /**
+   * Start memory profiling
+   */
+  start() {
+    this.startMemory = this.getMemoryUsage();
+    this.peakMemory = 0;
+    this.checkpoints = [];
+    console.log('\n🧠 MEMORY PROFILING STARTED');
+    console.log('─'.repeat(40));
+    this.logMemoryUsage('Initial', this.startMemory);
+  }
+
+  /**
+   * Add a memory checkpoint
+   */
+  checkpoint(name) {
+    const current = this.getMemoryUsage();
+    this.checkpoints.push({ name, memory: current, timestamp: Date.now() });
+    
+    // Track peak memory
+    if (current.heapUsed > this.peakMemory) {
+      this.peakMemory = current.heapUsed;
+    }
+    
+    this.logMemoryUsage(name, current);
+  }
+
+  /**
+   * Log memory usage
+   */
+  logMemoryUsage(label, memory) {
+    // const emoji = label ? '📊' : '🧠';
+    // const title = label ? `${label} Memory Usage` : 'Memory Usage';
+    // console.log(`\n${emoji} ${title}:`);
+    // console.log(`   📈 RSS: ${this.formatMemory(memory.rss)}`);
+    // console.log(`   🗂️  Heap Total: ${this.formatMemory(memory.heapTotal)}`);
+    // console.log(`   💾 Heap Used: ${this.formatMemory(memory.heapUsed)}`);
+    // console.log(`   🔗 External: ${this.formatMemory(memory.external)}`);
+    // console.log(`   📦 Array Buffers: ${this.formatMemory(memory.arrayBuffers)}`);
+  }
+
+  /**
+   * End memory profiling and show summary
+   */
+  end() {
+    // const endMemory = this.getMemoryUsage();
+    
+    // console.log('\n' + '🔄'.repeat(20));
+    // console.log('🧠 MEMORY PROFILING SUMMARY');
+    // console.log('🔄'.repeat(20));
+    
+    // Show initial memory
+    console.log('\n🎯 INITIAL MEMORY STATE:');
+    // this.logMemoryUsage('', this.startMemory);
+    
+    // Show checkpoints with better formatting
+    // if (this.checkpoints.length > 0) {
+    //   console.log('\n📋 MEMORY CHECKPOINTS:');
+    //   console.log('─'.repeat(60));
+    //   this.checkpoints.forEach((checkpoint, index) => {
+    //     console.log(`\n${index + 1}. 🔍 ${checkpoint.name}:`);
+    //     this.logMemoryUsage('', checkpoint.memory);
+        
+    //     // Show change from previous checkpoint
+    //     if (index > 0) {
+    //       const prevMemory = this.checkpoints[index - 1].memory;
+    //       const rssChange = checkpoint.memory.rss - prevMemory.rss;
+    //       const heapChange = checkpoint.memory.heapUsed - prevMemory.heapUsed;
+    //       const externalChange = checkpoint.memory.external - prevMemory.external;
+          
+    //       console.log(`   📈 Changes from previous checkpoint:`);
+    //       console.log(`      RSS: ${rssChange >= 0 ? '📈' : '📉'} ${rssChange >= 0 ? '+' : ''}${this.formatMemory(rssChange)}`);
+    //       console.log(`      Heap: ${heapChange >= 0 ? '📈' : '📉'} ${heapChange >= 0 ? '+' : ''}${this.formatMemory(heapChange)}`);
+    //       console.log(`      External: ${externalChange >= 0 ? '📈' : '📉'} ${externalChange >= 0 ? '+' : ''}${this.formatMemory(externalChange)}`);
+    //     }
+    //   });
+    // }
+    
+    // Show final memory
+    // console.log('\n🏁 FINAL MEMORY STATE:');
+    // this.logMemoryUsage('', endMemory);
+    
+    // Show peak memory
+    // console.log('\n📊 PEAK MEMORY USAGE:');
+    // console.log(`   🏆 Peak Heap Used: ${this.formatMemory(this.peakMemory)}`);
+    
+    // Show overall memory changes
+    // const rssChange = endMemory.rss - this.startMemory.rss;
+    // const heapUsedChange = endMemory.heapUsed - this.startMemory.heapUsed;
+    // const externalChange = endMemory.external - this.startMemory.external;
+    // const totalChange = rssChange + heapUsedChange + externalChange;
+    
+    // console.log('\n📈 OVERALL MEMORY CHANGES:');
+    // console.log('─'.repeat(60));
+    // console.log(`   📈 RSS: ${rssChange >= 0 ? '📈' : '📉'} ${rssChange >= 0 ? '+' : ''}${this.formatMemory(rssChange)}`);
+    // console.log(`   💾 Heap Used: ${heapUsedChange >= 0 ? '📈' : '📉'} ${heapUsedChange >= 0 ? '+' : ''}${this.formatMemory(heapUsedChange)}`);
+    // console.log(`   🔗 External: ${externalChange >= 0 ? '📈' : '📉'} ${externalChange >= 0 ? '+' : ''}${this.formatMemory(externalChange)}`);
+    // console.log('─'.repeat(60));
+    // console.log(`   🎯 Total Change: ${totalChange >= 0 ? '📈' : '📉'} ${totalChange >= 0 ? '+' : ''}${this.formatMemory(totalChange)}`);
+    
+    // Memory efficiency analysis
+    // console.log('\n💡 MEMORY EFFICIENCY ANALYSIS:');
+    // console.log('─'.repeat(60));
+    // const heapEfficiency = ((endMemory.heapUsed / endMemory.heapTotal) * 100).toFixed(1);
+    // console.log(`   🎯 Heap Efficiency: ${heapEfficiency}% (${this.formatMemory(endMemory.heapUsed)} / ${this.formatMemory(endMemory.heapTotal)})`);
+    
+    // if (this.peakMemory > endMemory.heapUsed) {
+    //   const peakDiff = this.peakMemory - endMemory.heapUsed;
+    //   console.log(`   📊 Peak vs Final: ${this.formatMemory(peakDiff)} difference (memory was freed)`);
+    // }
+    
+    // console.log('\n' + '🔄'.repeat(20));
+    // console.log('✅ MEMORY PROFILING COMPLETE');
+    // console.log('🔄'.repeat(20));
+  }
+}
+
+/**
  * Basic Arrow Flight Client
  *
  * This client demonstrates how easy it is to connect to an Arrow Flight server
@@ -164,11 +313,19 @@ class BasicFlightClient {
    * @param {string} datasetId - The dataset identifier
    */
   async getDataset(datasetId) {
+    // Initialize memory profiler
+    const memoryProfiler = new MemoryProfiler();
+    memoryProfiler.start();
+    
     try {
       console.log(`⬇️  Getting dataset: ${datasetId}`);
       const startTime = Date.now();
       
+      memoryProfiler.checkpoint('Before Flight request');
+      
       const table = await this.client.getDataset(datasetId);
+      
+      memoryProfiler.checkpoint('After receiving Arrow table');
       
       const duration = (Date.now() - startTime) / 1000;
       console.log(`✅ Retrieved dataset ${datasetId}:`);
@@ -176,9 +333,13 @@ class BasicFlightClient {
       console.log(`   Columns: ${table.numCols}`);
       console.log(`   Duration: ${duration.toFixed(2)} seconds`);
       
+      // End memory profiling
+      memoryProfiler.end();
+      
       return table;
     } catch (error) {
       console.error(`❌ Error getting dataset ${datasetId}:`, error.message);
+      memoryProfiler.end();
       throw error;
     }
   }
@@ -188,18 +349,34 @@ class BasicFlightClient {
    * @param {string} datasetId - The dataset identifier
    */
   async streamDataset(datasetId) {
+    // Initialize memory profiler
+    const memoryProfiler = new MemoryProfiler();
+    memoryProfiler.start();
+    
     try {
       console.log(`🌊 Streaming dataset: ${datasetId}`);
       const startTime = Date.now();
       
       let totalRows = 0;
       let batchCount = 0;
+      let totalBytes = 0;
+      
+      memoryProfiler.checkpoint('Before starting stream');
       
       for await (const batch of this.client.streamDataset(datasetId)) {
         batchCount++;
         totalRows += batch.numRows;
         
+        // Estimate bytes for this batch (rough calculation)
+        const batchBytes = batch.numRows * batch.numCols * 8; // Rough estimate
+        totalBytes += batchBytes;
+        
         console.log(`📦 Batch ${batchCount}: ${batch.numRows} rows`);
+        
+        // Add memory checkpoint every 10 batches
+        // if (batchCount % 10 === 0) {
+        //   memoryProfiler.checkpoint(`After batch ${batchCount}`);
+        // }
         
         // Show sample data from first batch
         if (batchCount === 1 && batch.numRows > 0) {
@@ -219,14 +396,26 @@ class BasicFlightClient {
         }
       }
       
+      memoryProfiler.checkpoint('After completing stream');
+      
       const duration = (Date.now() - startTime) / 1000;
       console.log(`✅ Streamed dataset ${datasetId}:`);
       console.log(`   Total batches: ${batchCount}`);
       console.log(`   Total rows: ${totalRows}`);
+      console.log(`   Total bytes: ${totalBytes}`);
       console.log(`   Duration: ${duration.toFixed(2)} seconds`);
+      
+      // Output metrics for performance comparison script
+      console.log(`METRICS: Total Rows: ${totalRows}`);
+      console.log(`METRICS: Total Bytes: ${totalBytes}`);
+      console.log(`METRICS: Batch Count: ${batchCount}`);
+      
+      // End memory profiling
+      memoryProfiler.end();
       
     } catch (error) {
       console.error(`❌ Error streaming dataset ${datasetId}:`, error.message);
+      memoryProfiler.end();
       throw error;
     }
   }
@@ -318,11 +507,16 @@ class BasicFlightClient {
    * Run a complete demo
    */
   async runDemo() {
+    // Initialize memory profiler for the entire demo
+    const memoryProfiler = new MemoryProfiler();
+    memoryProfiler.start();
+    
     try {
       console.log('🎬 Starting Arrow Flight Client Demo\n');
       
       // Connect to server
       await this.connect();
+      memoryProfiler.checkpoint('After connecting to server');
       
       // Test connection
       await this.testConnection();
@@ -335,6 +529,7 @@ class BasicFlightClient {
       // List datasets
       const datasets = await this.listDatasets();
       console.log('');
+      memoryProfiler.checkpoint('After listing datasets');
       
       if (datasets.length > 0) {
         let datasetId = this.options.datasetId || datasets[0].id;
@@ -363,10 +558,12 @@ class BasicFlightClient {
         // Get schema
         await this.getSchema(datasetId);
         console.log('');
+        memoryProfiler.checkpoint('After getting schema');
         
         // Stream dataset (for large datasets)
         await this.streamDataset(datasetId);
         console.log('');
+        memoryProfiler.checkpoint('After streaming dataset');
       }
       
       // List actions
@@ -380,6 +577,8 @@ class BasicFlightClient {
       throw error;
     } finally {
       await this.disconnect();
+      memoryProfiler.checkpoint('After disconnecting');
+      memoryProfiler.end();
     }
   }
 }
@@ -389,6 +588,7 @@ async function main() {
   // Example: You can specify a dataset ID as a command line argument
   const datasetId = process.argv[2]; // e.g., node index.js "my-dataset-id"
   
+  console.log('Running basic flight client for dataset:', datasetId);
   const client = new BasicFlightClient({
     datasetId: datasetId
   });

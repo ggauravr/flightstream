@@ -1,5 +1,6 @@
 import path from 'path';
 import fs from 'fs';
+import * as arrow from 'apache-arrow';
 
 // Import base service and utilities
 import { FlightServiceBase } from '@flightstream/core-server';
@@ -255,25 +256,24 @@ export class CSVFlightService extends FlightServiceBase {
             return;
           }
 
-          const typedArrays = arrowBuilder._createArrowTypedArrayFromCSVBatch(csvBatch);
-          // console.log('vectors', vectors);
-
-          // Convert CSV batch to Arrow record batch
-          // const recordBatch = arrowBuilder.createRecordBatch(csvBatch);
+          const typedArrays = arrowBuilder.createTypedArraysFromStringBatch(csvBatch);
 
           if (!typedArrays) {
             this.logger.warn({
               dataset_id: dataset.id
-            }, 'Failed to create record batch');
+            }, 'Failed to create typed arrays');
             return;
           }
 
-          // Serialize record batch for Flight protocol using the arrow builder
-          const serializedBatch = arrowBuilder.serializeFromArrays(typedArrays);
+          // Create table from typed arrays (most efficient for streaming)
+          const table = arrow.tableFromArrays(typedArrays);
+          
+          // Serialize table to IPC format
+          const serializedBatch = arrow.tableToIPC(table);
           if (!serializedBatch) {
             this.logger.warn({
               dataset_id: dataset.id
-            }, 'Failed to serialize record batch');
+            }, 'Failed to serialize table');
             return;
           }
 
