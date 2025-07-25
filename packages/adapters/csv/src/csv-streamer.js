@@ -20,18 +20,21 @@ export class CSVStreamer extends EventEmitter {
   constructor(filePath, options = {}) {
     super();
     this.filePath = filePath;
+    console.log('options -->', options);
     this.options = {
-      batchSize: options.batchSize || 10000,
       delimiter: options.delimiter || ',',
       headers: options.headers !== false, // default true
       skipEmptyLines: options.skipEmptyLines !== false, // default true,
-      chunkSize: options.chunkSize || 1024 * 1024, // 1MB chunks
+      batchSize: options.batchSize || 10000, // 10,000 lines per batch
       ...options
     };
 
     this.totalRows = 0;
     this.schema = null;
     this.isReading = false;
+    this.currentChunk = [];
+    this.headers = null;
+    this.lineBuffer = '';
   }
 
   async start() {
@@ -42,50 +45,36 @@ export class CSVStreamer extends EventEmitter {
     this.isReading = true;
     this.emit('start');
 
-    try {
-      // Read entire file into memory for faster processing
-      const fileContent = fs.readFileSync(this.filePath, 'utf8');
-      const lines = fileContent.split('\n');
-      
-      // Handle headers
-      let startIndex = 0;
-      let headers = null;
-      
-      if (this.options.headers && lines.length > 0) {
-        headers = this._parseCSVLine(lines[0], this.options.delimiter);
-        startIndex = 1;
-        this.schema = this._inferSchemaFromHeaders(headers);
-        this.emit('schema', this.schema);
-      }
+    return new Promise((resolve, reject) => {
+      // Create stream with large buffer for I/O efficiency
+      const stream = fs.createReadStream(this.filePath, {
+        highWaterMark: 64 * 1024, // 64KB for optimal I/O efficiency
+        encoding: 'utf8'
+      });
 
-      // Process data in chunks
-      const dataLines = lines.slice(startIndex);
-      const numChunks = Math.ceil(dataLines.length / this.options.batchSize);
-      
-      for (let i = 0; i < numChunks; i++) {
-        const startLine = i * this.options.batchSize;
-        const endLine = Math.min(startLine + this.options.batchSize, dataLines.length);
-        const chunkLines = dataLines.slice(startLine, endLine);
-        
-        // Parse chunk of lines into rows
-        const batch = this._parseChunk(chunkLines, headers);
-        
-        if (batch.length > 0) {
-          this.emit('batch', batch);
-          this.totalRows += batch.length;
+      stream.on('error', (error) => {
+        this.isReading = false;
+        this.emit('error', error);
+        reject(error);
+      });
+
+      stream.on('data', (chunk) => {
+        try {
+          this._processChunk(chunk);
+        } catch (error) {
+          this.emit('error', error);
         }
-      }
+      });
 
-      this.isReading = false;
-      this.emit('end', { totalRows: this.totalRows });
-      
-      return { totalRows: this.totalRows, schema: this.schema };
-
-    } catch (error) {
-      this.isReading = false;
-      this.emit('error', error);
-      throw error;
-    }
+      stream.on('end', () => {
+        // Process any remaining data
+        this._processRemainingData();
+        
+        this.isReading = false;
+        this.emit('end', { totalRows: this.totalRows });
+        resolve({ totalRows: this.totalRows, schema: this.schema });
+      });
+    });
   }
 
   stop() {
@@ -93,6 +82,72 @@ export class CSVStreamer extends EventEmitter {
       this.isReading = false;
       this.emit('stop');
     }
+  }
+
+  /**
+   * Process a chunk of data from the stream
+   * @param {string} chunk - Data chunk from stream
+   */
+  _processChunk(chunk) {
+    // Combine with any leftover data from previous chunk
+    const data = this.lineBuffer + chunk;
+    const lines = data.split('\n');
+    
+    // Keep the last line in buffer (might be incomplete)
+    this.lineBuffer = lines.pop() || '';
+    
+    // Process complete lines
+    for (const line of lines) {
+      if (!line.trim() && this.options.skipEmptyLines) {
+        continue;
+      }
+      
+      // Handle headers
+      if (this.headers === null && this.options.headers) {
+        this.headers = this._parseCSVLine(line, this.options.delimiter);
+        this.schema = this._inferSchemaFromHeaders(this.headers);
+        this.emit('schema', this.schema);
+        continue;
+      }
+      
+      // Add line to current chunk
+      this.currentChunk.push(line);
+      
+      // Process chunk when it reaches the target size
+      if (this.currentChunk.length >= this.options.batchSize) {
+        this._processChunkBatch();
+      }
+    }
+  }
+
+  /**
+   * Process the current chunk of lines into a batch
+   */
+  _processChunkBatch() {
+    if (this.currentChunk.length === 0) return;
+    
+    const batch = this._parseChunk(this.currentChunk, this.headers);
+    
+    if (batch.length > 0) {
+      this.emit('batch', batch);
+      this.totalRows += batch.length;
+    }
+    
+    // Clear the chunk for reuse (object pooling)
+    this.currentChunk.length = 0;
+  }
+
+  /**
+   * Process any remaining data after stream ends
+   */
+  _processRemainingData() {
+    // Process any remaining complete lines
+    if (this.lineBuffer.trim()) {
+      this.currentChunk.push(this.lineBuffer);
+    }
+    
+    // Process final chunk
+    this._processChunkBatch();
   }
 
   /**
@@ -247,8 +302,7 @@ export class CSVStreamer extends EventEmitter {
     return {
       totalRows: this.totalRows,
       isReading: this.isReading,
-      schema: this.schema,
-      batchSize: this.options.batchSize
+      schema: this.schema
     };
   }
 }

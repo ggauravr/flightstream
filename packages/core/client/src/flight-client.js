@@ -131,33 +131,42 @@ export class FlightClient extends FlightClientBase {
     await this.connect();
 
     return this._executeWithRetry(async () => {
-      const recordBatches = [];
+      const tables = [];
       
-      for await (const dataBody of this.protocolClient.streamData(datasetId)) {
-        try {
-          // Deserialize Arrow record batch from IPC format
-          const reader = arrow.RecordBatchReader.from(dataBody);
-          
-          for (const recordBatch of reader) {
-            recordBatches.push(recordBatch);
-          }
-        } catch (error) {
-          this.options.logger.error('Error processing record batch:', error);
-          throw error;
-        }
-      }
+      // Use immediate processing approach
+      await this.processDataset(datasetId, async (table) => {
+        // Collect tables directly
+        tables.push(table);
+      });
 
-      if (recordBatches.length === 0) {
+      if (tables.length === 0) {
         throw new Error(`No data available for dataset: ${datasetId}`);
       }
 
-      // Create table from record batches
-      return new arrow.Table(recordBatches);
+      // Concatenate tables directly (much more efficient)
+      if (tables.length === 1) {
+        return tables[0];
+      } else {
+        return tables.reduce((acc, table) => acc.concat(table));
+      }
     });
   }
 
   /**
-   * Stream a dataset as record batches
+   * Stream a dataset as raw IPC buffers (fastest)
+   * @param {string} datasetId - The dataset identifier
+   * @returns {AsyncGenerator} Async generator yielding raw IPC buffers
+   */
+  async *streamRawData(datasetId) {
+    await this.connect();
+
+    for await (const dataBody of this.protocolClient.streamData(datasetId)) {
+      yield dataBody; // Yield raw buffer without any processing
+    }
+  }
+
+  /**
+   * Stream a dataset as record batches with backpressure control
    * @param {string} datasetId - The dataset identifier
    * @returns {AsyncGenerator} Async generator yielding Arrow record batches
    */
@@ -166,14 +175,171 @@ export class FlightClient extends FlightClientBase {
 
     for await (const dataBody of this.protocolClient.streamData(datasetId)) {
       try {
-        // Deserialize Arrow record batch from IPC format
-        const reader = arrow.RecordBatchReader.from(dataBody);
+        // Track IPC processing time
+        const ipcStartTime = performance.now();
         
-        for (const recordBatch of reader) {
+        // Process IPC data immediately without buffering
+        const table = arrow.tableFromIPC(dataBody);
+        
+        const ipcTime = performance.now() - ipcStartTime;
+        
+        // Log timing if it's significant
+        if (ipcTime > 50) { // Log if IPC processing takes more than 50ms
+          this.options.logger.debug(`IPC processing took ${ipcTime.toFixed(2)}ms for ${dataBody.length} bytes`);
+        }
+        
+        // Yield all record batches from this table
+        for (const recordBatch of table.batches) {
           yield recordBatch;
         }
       } catch (error) {
         this.options.logger.error('Error processing record batch:', error);
+        throw error;
+      }
+    }
+  }
+
+  /**
+   * Stream a dataset as tables with backpressure control (most efficient)
+   * @param {string} datasetId - The dataset identifier
+   * @returns {AsyncGenerator} Async generator yielding Arrow tables
+   */
+  async *streamDatasetAsTables(datasetId) {
+    await this.connect();
+
+    for await (const dataBody of this.protocolClient.streamData(datasetId)) {
+      try {
+        // Track IPC processing time
+        const ipcStartTime = performance.now();
+        
+        // Process IPC data immediately without buffering
+        const table = arrow.tableFromIPC(dataBody);
+        
+        const ipcTime = performance.now() - ipcStartTime;
+        
+        // Log timing if it's significant
+        if (ipcTime > 50) { // Log if IPC processing takes more than 50ms
+          this.options.logger.debug(`IPC processing took ${ipcTime.toFixed(2)}ms for ${dataBody.length} bytes`);
+        }
+        
+        yield table;
+      } catch (error) {
+        this.options.logger.error('Error processing table:', error);
+        throw error;
+      }
+    }
+  }
+
+  /**
+   * Stream a dataset as record batches (less efficient - use streamDatasetAsTables instead)
+   * @param {string} datasetId - The dataset identifier
+   * @returns {AsyncGenerator} Async generator yielding Arrow record batches
+   */
+  async *streamDataset(datasetId) {
+    await this.connect();
+
+    for await (const dataBody of this.protocolClient.streamData(datasetId)) {
+      try {
+        // Track IPC processing time
+        const ipcStartTime = performance.now();
+        
+        // Process IPC data immediately without buffering
+        const table = arrow.tableFromIPC(dataBody);
+        
+        const ipcTime = performance.now() - ipcStartTime;
+        
+        // Log timing if it's significant
+        if (ipcTime > 50) { // Log if IPC processing takes more than 50ms
+          this.options.logger.debug(`IPC processing took ${ipcTime.toFixed(2)}ms for ${dataBody.length} bytes`);
+        }
+        
+        // Yield all record batches from this table
+        for (const recordBatch of table.batches) {
+          yield recordBatch;
+        }
+      } catch (error) {
+        this.options.logger.error('Error processing record batch:', error);
+        throw error;
+      }
+    }
+  }
+
+  /**
+   * Process dataset with minimal overhead (fastest processing)
+   * @param {string} datasetId - The dataset identifier
+   * @param {Function} processor - Function to process each table
+   */
+  async processDataset(datasetId, processor) {
+    await this.connect();
+
+    for await (const dataBody of this.protocolClient.streamData(datasetId)) {
+      try {
+        // Track IPC processing time
+        const ipcStartTime = performance.now();
+        
+        // Process IPC data immediately
+        const table = arrow.tableFromIPC(dataBody);
+        
+        const ipcTime = performance.now() - ipcStartTime;
+        
+        // Log timing if it's significant
+        if (ipcTime > 50) { // Log if IPC processing takes more than 50ms
+          this.options.logger.debug(`IPC processing took ${ipcTime.toFixed(2)}ms for ${dataBody.length} bytes`);
+        }
+        
+        // Process the table immediately
+        await processor(table);
+      } catch (error) {
+        this.options.logger.error('Error processing table:', error);
+        throw error;
+      }
+    }
+  }
+
+  /**
+   * Get dataset as streaming tables (memory efficient)
+   * @param {string} datasetId - The dataset identifier
+   * @returns {Promise<AsyncGenerator>} Async generator yielding Arrow tables
+   */
+  async getDatasetAsStream(datasetId) {
+    await this.connect();
+    
+    return this.streamDatasetAsTables(datasetId);
+  }
+
+  /**
+   * Process dataset with progress tracking
+   * @param {string} datasetId - The dataset identifier
+   * @param {Function} processor - Function to process each table
+   * @param {Function} progressCallback - Optional progress callback
+   */
+  async processDatasetWithProgress(datasetId, processor, progressCallback = null) {
+    await this.connect();
+
+    let totalTables = 0;
+    let totalRows = 0;
+
+    for await (const dataBody of this.protocolClient.streamData(datasetId)) {
+      try {
+        // Process IPC data immediately
+        const table = arrow.tableFromIPC(dataBody);
+        
+        // Process the table immediately
+        await processor(table);
+        
+        totalTables++;
+        totalRows += table.numRows;
+        
+        // Report progress if callback provided
+        if (progressCallback) {
+          progressCallback({
+            tablesProcessed: totalTables,
+            totalRows: totalRows,
+            currentTableRows: table.numRows
+          });
+        }
+      } catch (error) {
+        this.options.logger.error('Error processing table:', error);
         throw error;
       }
     }

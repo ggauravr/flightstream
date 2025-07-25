@@ -136,7 +136,7 @@ export class FlightProtocolClient {
   /**
    * Stream data from a dataset
    * @param {string} datasetId - The dataset identifier
-   * @returns {AsyncGenerator} Async generator yielding Arrow record batches
+   * @returns {AsyncGenerator} Async generator yielding data buffers
    */
   async *streamData(datasetId) {
     this._initializeClient();
@@ -158,11 +158,30 @@ export class FlightProtocolClient {
     let resolveNext = null;
     let rejectNext = null;
     let isStreamEnded = false;
+    let chunkCount = 0;
+    let totalBytes = 0;
+    let firstChunkTime = null;
 
     // Set up data handler
     call.on('data', (flightData) => {
       if (flightData.data_body && flightData.data_body.length > 0) {
+        const chunkStartTime = performance.now();
+        
+        if (!firstChunkTime) {
+          firstChunkTime = chunkStartTime;
+        }
+        
+        chunkCount++;
+        totalBytes += flightData.data_body.length;
+        
         dataQueue.push(flightData.data_body);
+        
+        const chunkTime = performance.now() - chunkStartTime;
+        
+        // Log timing for significant chunks
+        if (flightData.data_body.length > 1024 * 1024) { // Log chunks larger than 1MB
+          this.options.logger.debug(`Received chunk ${chunkCount}: ${(flightData.data_body.length / 1024 / 1024).toFixed(2)}MB in ${chunkTime.toFixed(2)}ms`);
+        }
         
         // If there's a waiting promise, resolve it
         if (resolveNext) {
@@ -174,6 +193,10 @@ export class FlightProtocolClient {
     // Set up end handler
     call.on('end', () => {
       isStreamEnded = true;
+      const totalTime = performance.now() - firstChunkTime;
+      if (firstChunkTime) {
+        this.options.logger.debug(`Stream completed: ${chunkCount} chunks, ${(totalBytes / 1024 / 1024).toFixed(2)}MB in ${totalTime.toFixed(2)}ms (${(totalBytes / 1024 / 1024 / (totalTime / 1000)).toFixed(2)}MB/s)`);
+      }
       if (resolveNext) {
         resolveNext();
       }

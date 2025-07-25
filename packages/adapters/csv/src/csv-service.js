@@ -186,10 +186,10 @@ export class CSVFlightService extends FlightServiceBase {
     return new Promise((resolve, reject) => {
       // Create a streamer that reads just 1 batch for schema inference
       const streamer = new CSVStreamer(filePath, {
-        batchSize: 1,
         delimiter: this.csvOptions.delimiter,
         headers: this.csvOptions.headers,
-        skipEmptyLines: this.csvOptions.skipEmptyLines
+        skipEmptyLines: this.csvOptions.skipEmptyLines,
+        batchSize: this.csvOptions.batchSize
       });
 
       // When schema is inferred from CSV headers and first rows
@@ -340,15 +340,13 @@ export class CSVFlightService extends FlightServiceBase {
           dataset_id: dataset.id,
           streaming_stats: {
             total_batches: totalBatches,
-            total_rows: stats.totalRows,
-            processing_time: Date.now() - startTime
+            total_rows: stats.totalRows
           }
         }, 'CSV streaming completed');
         call.end();
       });
 
       // Start streaming
-      const startTime = Date.now();
       await streamer.start();
 
     } catch (error) {
