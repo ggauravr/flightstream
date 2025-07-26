@@ -218,21 +218,20 @@ export class CSVFlightService extends FlightServiceBase {
       streamer.on('end', () => {
         if (!schemaResolved) {
           schemaResolved = true;
-          // If no schema was emitted, create a default string schema
-          const defaultSchema = {};
+
           const streamer = new CSVStreamer(filePath, {
             delimiter: this.csvOptions.delimiter,
             headers: this.csvOptions.headers,
             skipEmptyLines: this.csvOptions.skipEmptyLines,
             batchSize: 1
           });
-          
+
           streamer.on('schema', (csvSchema) => {
             const arrowBuilder = new CSVArrowBuilder(csvSchema);
             const arrowSchema = arrowBuilder.getSchema();
             resolve(arrowSchema);
           });
-          
+
           streamer.start().catch(reject);
         }
       });
@@ -298,7 +297,7 @@ export class CSVFlightService extends FlightServiceBase {
 
           // Create table from typed arrays (most efficient for streaming)
           const table = arrow.tableFromArrays(typedArrays);
-          
+
           // Serialize table to IPC format
           const serializedBatch = arrow.tableToIPC(table);
           if (!serializedBatch) {

@@ -1,6 +1,4 @@
 import fs from 'fs';
-import { parse } from 'fast-csv';
-import * as arrow from 'apache-arrow';
 import { EventEmitter } from 'events';
 
 /**
@@ -39,7 +37,7 @@ export class CSVStreamer extends EventEmitter {
     super();
     this.filePath = filePath;
     console.log('options -->', options);
-    
+
     // CONFIGURATION OPTIONS EXPLANATION:
     // delimiter: Character used to separate CSV columns (default: comma)
     // headers: Whether first row contains column names (default: true)
@@ -67,13 +65,13 @@ export class CSVStreamer extends EventEmitter {
 
   /**
    * Starts the CSV streaming process
-   * 
+   *
    * STREAMING FLOW:
    * 1. Creates a readable stream from the file
    * 2. Sets up event handlers for data, error, and end events
    * 3. Processes data chunks as they arrive
    * 4. Emits events for schema, microbatches, and completion
-   * 
+   *
    * WHY PROMISE-BASED:
    * - Allows caller to wait for completion
    * - Provides clean error handling
@@ -124,7 +122,7 @@ export class CSVStreamer extends EventEmitter {
       stream.on('end', () => {
         // Process any remaining data in buffers
         this._processRemainingData();
-        
+
         this.isReading = false;
         this.emit('end', { totalRows: this.totalRows });
         resolve({ totalRows: this.totalRows, schema: this.schema });
@@ -134,7 +132,7 @@ export class CSVStreamer extends EventEmitter {
 
   /**
    * Stops the streaming process
-   * 
+   *
    * This allows for graceful termination of streaming
    * Useful for implementing pause/resume functionality
    */
@@ -147,18 +145,18 @@ export class CSVStreamer extends EventEmitter {
 
   /**
    * Process a chunk of data from the stream
-   * 
+   *
    * CHUNK PROCESSING MECHANICS:
    * 1. Combines new chunk with any leftover data from previous chunk
    * 2. Splits into lines (handles incomplete lines across chunk boundaries)
    * 3. Processes each complete line
    * 4. Buffers incomplete lines for next chunk
-   * 
+   *
    * WHY LINE BUFFERING IS NECESSARY:
    * - File chunks don't align with line boundaries
    * - A line might be split across multiple chunks
    * - Without buffering, we'd lose data or create malformed lines
-   * 
+   *
    * @param {string} chunk - Data chunk from stream (raw bytes converted to string)
    */
   _processChunk(chunk) {
@@ -166,29 +164,29 @@ export class CSVStreamer extends EventEmitter {
     // This handles cases where a line spans multiple chunks
     const data = this.lineBuffer + chunk;
     const lines = data.split('\n');
-    
+
     // BUFFER INCOMPLETE LINE:
     // The last line might be incomplete, so we save it for the next chunk
     this.lineBuffer = lines.pop() || '';
-    
+
     // PROCESS COMPLETE LINES:
     for (const line of lines) {
       // Skip empty lines if configured to do so
       if (!line.trim() && this.options.skipEmptyLines) {
         continue;
       }
-      
+
       // HEADER PROCESSING:
       // First non-empty line becomes headers (if headers option is enabled)
       if (this.headers === null && this.options.headers) {
         this.headers = this._parseCSVLine(line, this.options.delimiter);
         continue;
       }
-      
+
       // ACCUMULATE LINES FOR BATCHING:
       // Add line to current chunk instead of processing immediately
       this.currentChunk.push(line);
-      
+
       // BATCH PROCESSING TRIGGER:
       // When we reach the target batch size, process the entire batch
       // This reduces function call overhead and improves performance
@@ -198,7 +196,7 @@ export class CSVStreamer extends EventEmitter {
           this.schema = this._inferSchemaFromLines(this.currentChunk);
           this.emit('schema', this.schema);
         }
-        
+
         this._processChunkBatch();
       }
     }
@@ -206,7 +204,7 @@ export class CSVStreamer extends EventEmitter {
 
   /**
    * Process the current chunk of lines into a batch
-   * 
+   *
    * BATCH PROCESSING BENEFITS:
    * - Reduces event emission frequency (better performance)
    * - Allows downstream processors to work on larger datasets
@@ -215,11 +213,11 @@ export class CSVStreamer extends EventEmitter {
    */
   _processChunkBatch() {
     if (this.currentChunk.length === 0) return;
-    
+
     // Emit raw CSV lines for direct processing
     this.emit('batch', this.currentChunk);
     this.totalRows += this.currentChunk.length;
-    
+
     // OBJECT POOLING:
     // Clear the array instead of creating a new one
     // This reduces garbage collection pressure
@@ -228,7 +226,7 @@ export class CSVStreamer extends EventEmitter {
 
   /**
    * Process any remaining data after stream ends
-   * 
+   *
    * This handles the final incomplete line that might be in the buffer
    * when the stream completes
    */
@@ -237,17 +235,17 @@ export class CSVStreamer extends EventEmitter {
     if (this.lineBuffer.trim()) {
       this.currentChunk.push(this.lineBuffer);
     }
-    
+
     // Process final chunk
     this._processChunkBatch();
   }
 
   /**
    * Infer schema from a batch of CSV lines
-   * 
+   *
    * This method parses the first few lines to determine column types
    * and creates a schema for direct typed array conversion
-   * 
+   *
    * @param {Array<string>} lines - Array of CSV lines (excluding headers)
    * @returns {Object} Schema object with column names and types
    */
@@ -258,7 +256,7 @@ export class CSVStreamer extends EventEmitter {
 
     const schema = {};
     const sampleSize = Math.min(100, lines.length); // Use up to 100 lines for inference
-    
+
     // Initialize type counters for each column
     const typeCounters = {};
     for (const header of this.headers) {
@@ -280,7 +278,7 @@ export class CSVStreamer extends EventEmitter {
 
       try {
         const values = this._parseCSVLine(line, this.options.delimiter);
-        
+
         for (let j = 0; j < this.headers.length; j++) {
           const header = this.headers[j];
           const value = values[j] || '';
@@ -296,7 +294,7 @@ export class CSVStreamer extends EventEmitter {
     // Determine the most common type for each column
     for (const [header, counters] of Object.entries(typeCounters)) {
       const totalSamples = Object.values(counters).reduce((sum, count) => sum + count, 0);
-      
+
       if (totalSamples === 0) {
         schema[header] = 'string'; // Default if no valid samples
         continue;
@@ -305,7 +303,7 @@ export class CSVStreamer extends EventEmitter {
       // Find the most common type
       let maxCount = 0;
       let mostCommonType = 'string';
-      
+
       for (const [type, count] of Object.entries(counters)) {
         if (count > maxCount) {
           maxCount = count;
@@ -326,18 +324,18 @@ export class CSVStreamer extends EventEmitter {
 
   /**
    * Parse a single CSV line into values
-   * 
+   *
    * CSV PARSING ALGORITHM:
    * - Handles quoted fields (text within double quotes)
    * - Respects delimiter characters only outside quotes
    * - Trims whitespace from values
    * - Handles edge cases like empty fields
-   * 
+   *
    * WHY CUSTOM PARSER:
    * - More control over error handling
    * - Better performance than regex-based parsing
    * - Handles edge cases more reliably
-   * 
+   *
    * @param {string} line - CSV line
    * @param {string} delimiter - CSV delimiter
    * @returns {Array<string>} Array of values
@@ -347,12 +345,12 @@ export class CSVStreamer extends EventEmitter {
     let current = '';
     let inQuotes = false;
     let i = 0;
-    
+
     // CHARACTER-BY-CHARACTER PARSING:
     // This approach is more reliable than regex for complex CSV
     while (i < line.length) {
       const char = line[i];
-      
+
       if (char === '"') {
         // QUOTE HANDLING:
         // Toggle quote state - everything between quotes is literal
@@ -367,27 +365,27 @@ export class CSVStreamer extends EventEmitter {
         // Add to current field value
         current += char;
       }
-      
+
       i++;
     }
-    
+
     // ADD THE LAST VALUE:
     // Don't forget the final field in the line
     values.push(current.trim());
-    
+
     return values;
   }
 
   /**
    * Infer type from value
-   * 
+   *
    * TYPE DETECTION RULES:
    * - Empty/null values default to string (safest choice)
    * - Boolean detection is case-insensitive
    * - Integer detection excludes decimals
    * - Float detection requires decimal point
    * - Date detection supports multiple formats
-   * 
+   *
    * @param {any} value - Value to infer type from
    * @returns {string} Inferred type string
    */
@@ -440,9 +438,9 @@ export class CSVStreamer extends EventEmitter {
 
   /**
    * Get current streaming statistics
-   * 
+   *
    * Useful for monitoring progress and debugging
-   * 
+   *
    * @returns {Object} Statistics object
    */
   getStats() {

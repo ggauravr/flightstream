@@ -1,6 +1,5 @@
 import * as arrow from 'apache-arrow';
 import { ArrowBuilder } from '@flightstream/core-shared';
-import { vectorFromArray } from 'apache-arrow';
 
 /**
  * Optimized CSV-Specific Arrow Builder
@@ -77,10 +76,10 @@ export class CSVArrowBuilder extends ArrowBuilder {
 
   /**
    * Create typed arrays directly from CSV lines
-   * 
+   *
    * This method parses CSV lines directly into typed arrays without creating
    * intermediate JavaScript objects, providing significant performance improvements.
-   * 
+   *
    * @param {Array<string>} csvLines - Array of CSV lines (excluding headers)
    * @param {Array<string>} headers - Column headers
    * @param {string} delimiter - CSV delimiter character
@@ -89,7 +88,7 @@ export class CSVArrowBuilder extends ArrowBuilder {
   createTypedArraysFromLines(csvLines, headers, delimiter = ',') {
     const fields = this.arrowSchema.fields;
     const typedArrays = {};
-    
+
     // Initialize typed arrays for each column
     for (const field of fields) {
       const columnName = field.name;
@@ -99,7 +98,7 @@ export class CSVArrowBuilder extends ArrowBuilder {
 
     // Parse each line and populate typed arrays directly
     let validRowCount = 0;
-    
+
     for (const line of csvLines) {
       if (!line.trim()) {
         continue; // Skip empty lines
@@ -108,12 +107,12 @@ export class CSVArrowBuilder extends ArrowBuilder {
       try {
         // Parse CSV line into values
         const values = this._parseCSVLine(line, delimiter);
-        
+
         // Populate each column's typed array
         for (let i = 0; i < headers.length; i++) {
           const header = headers[i];
           const value = values[i] || '';
-          
+
           // Find the corresponding field
           const field = fields.find(f => f.name === header);
           if (field) {
@@ -122,7 +121,7 @@ export class CSVArrowBuilder extends ArrowBuilder {
             typedArray[validRowCount] = convertedValue;
           }
         }
-        
+
         validRowCount++;
       } catch (error) {
         // Skip problematic lines - error isolation
@@ -142,7 +141,7 @@ export class CSVArrowBuilder extends ArrowBuilder {
 
   /**
    * Parse a single CSV line into values
-   * 
+   *
    * @param {string} line - CSV line
    * @param {string} delimiter - CSV delimiter
    * @returns {Array<string>} Array of values
@@ -153,10 +152,10 @@ export class CSVArrowBuilder extends ArrowBuilder {
     let current = '';
     let inQuotes = false;
     let i = 0;
-    
+
     while (i < line.length) {
       const char = line[i];
-      
+
       if (char === '"') {
         inQuotes = !inQuotes;
       } else if (char === delimiter && !inQuotes) {
@@ -165,19 +164,19 @@ export class CSVArrowBuilder extends ArrowBuilder {
       } else {
         current += char;
       }
-      
+
       i++;
     }
-    
+
     // Add the last value
     values.push(current.trim());
-    
+
     return values;
   }
 
   /**
    * Create an empty typed array of the appropriate type and size
-   * 
+   *
    * @param {arrow.DataType} arrowType - Arrow data type
    * @param {number} size - Array size
    * @returns {TypedArray} Empty typed array
@@ -206,7 +205,7 @@ export class CSVArrowBuilder extends ArrowBuilder {
 
   /**
    * Convert a string value to the appropriate typed value
-   * 
+   *
    * @param {string} value - String value
    * @param {arrow.DataType} arrowType - Arrow data type
    * @returns {any} Converted value
@@ -345,7 +344,7 @@ export class CSVArrowBuilder extends ArrowBuilder {
     }
     const strValue = String(value).trim();
     if (strValue === '') return 0;
-    
+
     try {
       const date = new Date(strValue);
       return isNaN(date.getTime()) ? 0 : date.getTime();
@@ -366,7 +365,7 @@ export class CSVArrowBuilder extends ArrowBuilder {
     }
     const strValue = String(value).trim();
     if (strValue === '') return BigInt(0);
-    
+
     try {
       const date = new Date(strValue);
       const timestamp = isNaN(date.getTime()) ? 0 : date.getTime();
