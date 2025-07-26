@@ -76,31 +76,6 @@ export class CSVArrowBuilder extends ArrowBuilder {
   // ===== OPTIMIZED METHODS =====
 
   /**
-   * Create typed arrays directly from CSV string batch data
-   * Optimized for direct string-to-typed-array conversion
-   * @param {Array<Object>} csvBatch - Array of CSV row objects with string values
-   * @returns {Object} Object with column names as keys and typed arrays as values
-   */
-  createTypedArraysFromStringBatch(csvBatch) {
-    const fields = this.arrowSchema.fields;
-    const typedArrays = {};
-
-    // Extract column data efficiently
-    for (const field of fields) {
-      const columnName = field.name;
-      const arrowType = field.type;
-
-      // Extract column values
-      const columnValues = csvBatch.map(row => row[columnName]);
-      
-      // Convert to typed arrays directly (much faster than vectorFromArray)
-      typedArrays[columnName] = this._convertToTypedArray(columnValues, arrowType);
-    }
-
-    return typedArrays;
-  }
-
-  /**
    * Create typed arrays directly from CSV lines
    * 
    * This method parses CSV lines directly into typed arrays without creating

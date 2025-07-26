@@ -199,10 +199,7 @@ export class CSVStreamer extends EventEmitter {
           this.emit('schema', this.schema);
         }
         
-        // Emit raw CSV lines for direct processing
-        this.emit('batch', this.currentChunk);
-        this.totalRows += this.currentChunk.length;
-        this.currentChunk.length = 0;
+        this._processChunkBatch();
       }
     }
   }
@@ -243,57 +240,6 @@ export class CSVStreamer extends EventEmitter {
     
     // Process final chunk
     this._processChunkBatch();
-  }
-
-  /**
-   * Parse a chunk of CSV lines into row objects
-   * 
-   * CSV PARSING STRATEGY:
-   * - Handles quoted fields (text within double quotes)
-   * - Respects delimiter characters
-   * - Creates structured objects with proper column names
-   * - Provides error isolation (bad rows don't stop processing)
-   * 
-   * @param {Array<string>} lines - Array of CSV lines
-   * @param {Array<string>} headers - Column headers
-   * @returns {Array<Object>} Array of row objects
-   */
-  _parseChunk(lines, headers) {
-    const rows = [];
-    
-    for (const line of lines) {
-      if (!line.trim() && this.options.skipEmptyLines) {
-        continue;
-      }
-      
-      try {
-        // Parse the CSV line into individual values
-        const values = this._parseCSVLine(line, this.options.delimiter);
-        const row = {};
-        
-        if (headers) {
-          // USE HEADERS FOR COLUMN NAMES:
-          // Creates objects like { "name": "John", "age": "30" }
-          for (let i = 0; i < headers.length; i++) {
-            row[headers[i]] = values[i] || '';
-          }
-        } else {
-          // USE COLUMN INDICES:
-          // Creates objects like { "column1": "John", "column2": "30" }
-          for (let i = 0; i < values.length; i++) {
-            row[`column${i + 1}`] = values[i] || '';
-          }
-        }
-        
-        rows.push(row);
-      } catch (error) {
-        // ERROR ISOLATION:
-        // Bad rows don't stop the entire process
-        this.emit('row-error', { line, error: error.message });
-      }
-    }
-    
-    return rows;
   }
 
   /**
@@ -430,50 +376,6 @@ export class CSVStreamer extends EventEmitter {
     values.push(current.trim());
     
     return values;
-  }
-
-  /**
-   * Infer schema from headers
-   * 
-   * SCHEMA INFERENCE STRATEGY:
-   * - Starts with string type for all columns
-   * - Can be refined later with actual data samples
-   * - Provides initial structure for downstream processing
-   * 
-   * @param {Array<string>} headers - Column headers
-   * @returns {Object} Schema object
-   */
-  _inferSchemaFromHeaders(headers) {
-    const schema = {};
-    
-    for (const header of headers) {
-      schema[header] = 'string'; // Default to string, will be refined with data
-    }
-    
-    return schema;
-  }
-
-  /**
-   * Infer schema from sample row
-   * 
-   * TYPE INFERENCE LOGIC:
-   * - Boolean: "true"/"false" strings
-   * - Integer: Whole numbers (positive or negative)
-   * - Float: Decimal numbers
-   * - Date: Common date formats (YYYY-MM-DD, MM-DD-YYYY, DD-MM-YYYY)
-   * - String: Everything else
-   * 
-   * @param {Object} sampleRow - Sample row object
-   * @returns {Object} Inferred schema object
-   */
-  _inferSchema(sampleRow) {
-    const schema = {};
-
-    for (const [key, value] of Object.entries(sampleRow)) {
-      schema[key] = this._inferType(value);
-    }
-
-    return schema;
   }
 
   /**
