@@ -89,7 +89,7 @@ export class CSVArrowBuilder extends ArrowBuilder {
     for (const field of fields) {
       const columnName = field.name;
       const arrowType = field.type;
-      
+
       // Extract column values
       const columnValues = csvBatch.map(row => row[columnName]);
       
@@ -101,6 +101,164 @@ export class CSVArrowBuilder extends ArrowBuilder {
   }
 
   /**
+   * Create typed arrays directly from CSV lines
+   * 
+   * This method parses CSV lines directly into typed arrays without creating
+   * intermediate JavaScript objects, providing significant performance improvements.
+   * 
+   * @param {Array<string>} csvLines - Array of CSV lines (excluding headers)
+   * @param {Array<string>} headers - Column headers
+   * @param {string} delimiter - CSV delimiter character
+   * @returns {Object} Object with column names as keys and typed arrays as values
+   */
+  createTypedArraysFromLines(csvLines, headers, delimiter = ',') {
+    const fields = this.arrowSchema.fields;
+    const typedArrays = {};
+    
+    // Initialize typed arrays for each column
+    for (const field of fields) {
+      const columnName = field.name;
+      const arrowType = field.type;
+      typedArrays[columnName] = this._createEmptyTypedArray(arrowType, csvLines.length);
+    }
+
+    // Parse each line and populate typed arrays directly
+    let validRowCount = 0;
+    
+    for (const line of csvLines) {
+      if (!line.trim()) {
+        continue; // Skip empty lines
+      }
+
+      try {
+        // Parse CSV line into values
+        const values = this._parseCSVLine(line, delimiter);
+        
+        // Populate each column's typed array
+        for (let i = 0; i < headers.length; i++) {
+          const header = headers[i];
+          const value = values[i] || '';
+          
+          // Find the corresponding field
+          const field = fields.find(f => f.name === header);
+          if (field) {
+            const typedArray = typedArrays[header];
+            const convertedValue = this._convertStringToTypedValue(value, field.type);
+            typedArray[validRowCount] = convertedValue;
+          }
+        }
+        
+        validRowCount++;
+      } catch (error) {
+        // Skip problematic lines - error isolation
+        continue;
+      }
+    }
+
+    // Trim arrays to actual valid row count
+    for (const [columnName, typedArray] of Object.entries(typedArrays)) {
+      if (validRowCount < typedArray.length) {
+        typedArrays[columnName] = typedArray.slice(0, validRowCount);
+      }
+    }
+
+    return typedArrays;
+  }
+
+  /**
+   * Parse a single CSV line into values
+   * 
+   * @param {string} line - CSV line
+   * @param {string} delimiter - CSV delimiter
+   * @returns {Array<string>} Array of values
+   * @private
+   */
+  _parseCSVLine(line, delimiter) {
+    const values = [];
+    let current = '';
+    let inQuotes = false;
+    let i = 0;
+    
+    while (i < line.length) {
+      const char = line[i];
+      
+      if (char === '"') {
+        inQuotes = !inQuotes;
+      } else if (char === delimiter && !inQuotes) {
+        values.push(current.trim());
+        current = '';
+      } else {
+        current += char;
+      }
+      
+      i++;
+    }
+    
+    // Add the last value
+    values.push(current.trim());
+    
+    return values;
+  }
+
+  /**
+   * Create an empty typed array of the appropriate type and size
+   * 
+   * @param {arrow.DataType} arrowType - Arrow data type
+   * @param {number} size - Array size
+   * @returns {TypedArray} Empty typed array
+   * @private
+   */
+  _createEmptyTypedArray(arrowType, size) {
+    if (arrowType instanceof arrow.Int32) {
+      return new Int32Array(size);
+    } else if (arrowType instanceof arrow.Int64) {
+      return new BigInt64Array(size);
+    } else if (arrowType instanceof arrow.Float32) {
+      return new Float32Array(size);
+    } else if (arrowType instanceof arrow.Float64) {
+      return new Float64Array(size);
+    } else if (arrowType instanceof arrow.Bool) {
+      return new Uint8Array(size);
+    } else if (arrowType instanceof arrow.DateMillisecond) {
+      return new Int32Array(size);
+    } else if (arrowType instanceof arrow.TimestampMillisecond) {
+      return new BigInt64Array(size);
+    } else {
+      // For strings, return regular array
+      return new Array(size);
+    }
+  }
+
+  /**
+   * Convert a string value to the appropriate typed value
+   * 
+   * @param {string} value - String value
+   * @param {arrow.DataType} arrowType - Arrow data type
+   * @returns {any} Converted value
+   * @private
+   */
+  _convertStringToTypedValue(value, arrowType) {
+    if (arrowType instanceof arrow.Int32) {
+      return this._convertStringToInt32(value);
+    } else if (arrowType instanceof arrow.Int64) {
+      return this._convertStringToInt64(value);
+    } else if (arrowType instanceof arrow.Float32) {
+      return this._convertStringToFloat32(value);
+    } else if (arrowType instanceof arrow.Float64) {
+      return this._convertStringToFloat64(value);
+    } else if (arrowType instanceof arrow.Bool) {
+      return this._convertStringToBoolean(value);
+    } else if (arrowType instanceof arrow.DateMillisecond) {
+      return this._convertStringToDate(value);
+    } else if (arrowType instanceof arrow.TimestampMillisecond) {
+      return this._convertStringToTimestamp(value);
+    } else {
+      // For strings, return as-is
+      return value;
+    }
+  }
+
+  /**
    * Convert string values to typed arrays efficiently
    * @param {Array<string>} values - Array of string values
    * @param {arrow.DataType} arrowType - Arrow data type
@@ -109,26 +267,19 @@ export class CSVArrowBuilder extends ArrowBuilder {
    */
   _convertToTypedArray(values, arrowType) {
     if (arrowType instanceof arrow.Int32) {
-      return Int32Array.from(values, parseInt);
-      // return new Int32Array(values.map(v => this._convertStringToInt32(v)));
+      return new Int32Array(values.map(v => this._convertStringToInt32(v)));
     } else if (arrowType instanceof arrow.Int64) {
-      return BigInt64Array.from(values, BigInt);
-      // return new BigInt64Array(values.map(v => this._convertStringToInt64(v)));
+      return new BigInt64Array(values.map(v => this._convertStringToInt64(v)));
     } else if (arrowType instanceof arrow.Float32) {
-      return Float32Array.from(values, parseFloat);
-      // return new Float32Array(values.map(v => this._convertStringToFloat32(v)));
+      return new Float32Array(values.map(v => this._convertStringToFloat32(v)));
     } else if (arrowType instanceof arrow.Float64) {
-      return Float64Array.from(values, parseFloat);
-      // return new Float64Array(values.map(v => this._convertStringToFloat64(v)));
+      return new Float64Array(values.map(v => this._convertStringToFloat64(v)));
     } else if (arrowType instanceof arrow.Bool) {
-      return Uint8Array.from(values, v => v === 'true' ? 1 : 0);
-      // return new Uint8Array(values.map(v => this._convertStringToBoolean(v)));
+      return new Uint8Array(values.map(v => this._convertStringToBoolean(v)));
     } else if (arrowType instanceof arrow.DateMillisecond) {
-      return Int32Array.from(values, v => new Date(v));
-      // return new Int32Array(values.map(v => this._convertStringToDate(v)));
+      return new Int32Array(values.map(v => this._convertStringToDate(v)));
     } else if (arrowType instanceof arrow.TimestampMillisecond) {
-      return BigInt64Array.from(values, v => new Date(v));
-      // return new BigInt64Array(values.map(v => this._convertStringToTimestamp(v)));
+      return new BigInt64Array(values.map(v => this._convertStringToTimestamp(v)));
     } else {
       // For strings, return as array (Arrow will handle conversion)
       return values;

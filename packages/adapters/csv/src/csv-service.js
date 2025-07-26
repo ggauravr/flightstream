@@ -189,24 +189,55 @@ export class CSVFlightService extends FlightServiceBase {
         delimiter: this.csvOptions.delimiter,
         headers: this.csvOptions.headers,
         skipEmptyLines: this.csvOptions.skipEmptyLines,
-        batchSize: this.csvOptions.batchSize
+        batchSize: Math.min(100, this.csvOptions.batchSize) // Use smaller batch for schema inference
       });
+
+      let schemaResolved = false;
 
       // When schema is inferred from CSV headers and first rows
       streamer.on('schema', (csvSchema) => {
-        streamer.stop();
+        if (!schemaResolved) {
+          schemaResolved = true;
+          streamer.stop();
 
-        // Convert CSV schema to Arrow schema using CSVArrowBuilder
-        const arrowBuilder = new CSVArrowBuilder(csvSchema);
-        const arrowSchema = arrowBuilder.getSchema();
+          // Convert CSV schema to Arrow schema using CSVArrowBuilder
+          const arrowBuilder = new CSVArrowBuilder(csvSchema);
+          const arrowSchema = arrowBuilder.getSchema();
 
-        resolve(arrowSchema);
+          resolve(arrowSchema);
+        }
       });
 
       streamer.on('error', (error) => {
-        reject(error);
+        if (!schemaResolved) {
+          schemaResolved = true;
+          reject(error);
+        }
       });
 
+      streamer.on('end', () => {
+        if (!schemaResolved) {
+          schemaResolved = true;
+          // If no schema was emitted, create a default string schema
+          const defaultSchema = {};
+          const streamer = new CSVStreamer(filePath, {
+            delimiter: this.csvOptions.delimiter,
+            headers: this.csvOptions.headers,
+            skipEmptyLines: this.csvOptions.skipEmptyLines,
+            batchSize: 1
+          });
+          
+          streamer.on('schema', (csvSchema) => {
+            const arrowBuilder = new CSVArrowBuilder(csvSchema);
+            const arrowSchema = arrowBuilder.getSchema();
+            resolve(arrowSchema);
+          });
+          
+          streamer.start().catch(reject);
+        }
+      });
+
+      // Start the streamer to trigger schema inference
       streamer.start().catch(reject);
     });
   }
@@ -360,6 +391,80 @@ export class CSVFlightService extends FlightServiceBase {
       }, 'Error streaming CSV dataset');
       call.emit('error', error);
     }
+  }
+
+  /**
+   * Process CSV data with direct parsing to typed arrays
+   * 
+   * This method demonstrates the new direct parsing approach that skips
+   * intermediate JavaScript objects and goes straight from CSV lines to typed arrays.
+   * 
+   * @param {string} filePath - Path to CSV file
+   * @param {Object} options - Processing options
+   * @returns {Promise<Object>} Processing result with Arrow table
+   */
+  async processWithDirectParsing(filePath, options = {}) {
+    return new Promise((resolve, reject) => {
+      const streamer = new CSVStreamer(filePath, options);
+      let schema = null;
+      let arrowBuilder = null;
+      const batches = [];
+
+      streamer.on('schema', (inferredSchema) => {
+        schema = inferredSchema;
+        arrowBuilder = new CSVArrowBuilder(schema);
+      });
+
+      streamer.on('batch', (csvLines) => {
+        if (!arrowBuilder) {
+          reject(new Error('Schema not received before batch data'));
+          return;
+        }
+
+        // Direct parsing: CSV lines → typed arrays → Arrow vectors
+        const typedArrays = arrowBuilder.createTypedArraysFromLines(
+          csvLines, 
+          streamer.headers, 
+          options.delimiter || ','
+        );
+
+        // Convert typed arrays to Arrow vectors
+        const vectors = {};
+        for (const [columnName, typedArray] of Object.entries(typedArrays)) {
+          const field = arrowBuilder.arrowSchema.fields.find(f => f.name === columnName);
+          if (field) {
+            vectors[columnName] = arrow.vectorFromArray(typedArray, field.type);
+          }
+        }
+
+        batches.push(vectors);
+      });
+
+      streamer.on('error', reject);
+      streamer.on('end', () => {
+        if (batches.length === 0) {
+          resolve({ table: null, schema });
+          return;
+        }
+
+        // Combine all batches into a single Arrow table
+        const combinedVectors = {};
+        const fieldNames = Object.keys(batches[0]);
+
+        for (const fieldName of fieldNames) {
+          const fieldVectors = batches.map(batch => batch[fieldName]);
+          combinedVectors[fieldName] = arrow.vectorFromArray(
+            fieldVectors.flatMap(vector => vector.toArray()),
+            arrowBuilder.arrowSchema.fields.find(f => f.name === fieldName).type
+          );
+        }
+
+        const table = arrow.tableFromVectors(combinedVectors, arrowBuilder.arrowSchema);
+        resolve({ table, schema });
+      });
+
+      streamer.start().catch(reject);
+    });
   }
 
   /**
