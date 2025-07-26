@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.4](https://github.com/ggauravr/flightstream/compare/@flightstream/core-shared@1.0.0-alpha.3...@flightstream/core-shared@1.0.0-alpha.4) (2025-07-26)
+
+
+### Performance Improvements
+
+* **csv:** eliminate redundant data transformations in processing pipeline; load entire file into memory - achieves 1s for 850k rows ([1ef4066](https://github.com/ggauravr/flightstream/commit/1ef4066c6b35883263b5264e6269680bd989661f))
+
+
+
+
+
 # [1.0.0-alpha.3](https://github.com/ggauravr/flightstream/compare/@flightstream/core-shared@1.0.0-alpha.2...@flightstream/core-shared@1.0.0-alpha.3) (2025-07-20)
 
 **Note:** Version bump only for package @flightstream/core-shared

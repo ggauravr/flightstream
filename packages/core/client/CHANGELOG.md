@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.4](https://github.com/ggauravr/flightstream/compare/@flightstream/core-client@1.0.0-alpha.3...@flightstream/core-client@1.0.0-alpha.4) (2025-07-26)
+
+
+### Performance Improvements
+
+* **csv, client:** Enhance streaming performance and memory efficiency ([e3eb1ef](https://github.com/ggauravr/flightstream/commit/e3eb1ef5cc578822d53aaddf407ce1af21fd999a))
+
+
+
+
+
 # [1.0.0-alpha.3](https://github.com/ggauravr/flightstream/compare/@flightstream/core-client@1.0.0-alpha.2...@flightstream/core-client@1.0.0-alpha.3) (2025-07-20)
 
 **Note:** Version bump only for package @flightstream/core-client

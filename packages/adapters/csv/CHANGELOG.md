@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.6](https://github.com/ggauravr/flightstream/compare/@flightstream/adapters-csv@1.0.0-alpha.5...@flightstream/adapters-csv@1.0.0-alpha.6) (2025-07-26)
+
+
+### Performance Improvements
+
+* **csv, client:** Enhance streaming performance and memory efficiency ([e3eb1ef](https://github.com/ggauravr/flightstream/commit/e3eb1ef5cc578822d53aaddf407ce1af21fd999a))
+* **csv:** eliminate redundant data transformations in processing pipeline; load entire file into memory - achieves 1s for 850k rows ([1ef4066](https://github.com/ggauravr/flightstream/commit/1ef4066c6b35883263b5264e6269680bd989661f))
+
+
+
+
+
 # [1.0.0-alpha.5](https://github.com/ggauravr/flightstream/compare/@flightstream/adapters-csv@1.0.0-alpha.4...@flightstream/adapters-csv@1.0.0-alpha.5) (2025-07-20)
 
 
