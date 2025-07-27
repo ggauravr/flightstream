@@ -1,6 +1,6 @@
 {
   "name": "@flightstream/core-server",
-  "version": "1.0.0-alpha.8",
+  "version": "1.0.0-alpha.9",
   "description": "Core Apache Arrow Flight server framework with plugin architecture for Node.js",
   "main": "src/index.js",
   "type": "module",
