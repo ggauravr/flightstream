@@ -94,7 +94,7 @@ export class CSVStreamer extends EventEmitter {
       // - 1MB in this case produces a much worse performance than 64KB
       // - Potentially because of the CPU time spent processing the bigger chunks, and hence blocking the event loop
       const stream = fs.createReadStream(this.filePath, {
-        highWaterMark: 64 * 1024,
+        // highWaterMark: 64 * 1024,
         encoding: 'utf8'
       });
 
