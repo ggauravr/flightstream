@@ -6,13 +6,13 @@ import { EventEmitter } from 'events';
  * CSV Streamer
  *
  * This class handles streaming CSV files and converting them to structured data.
- * It provides batch processing, schema inference, and type conversion capabilities
- * specifically optimized for CSV data sources.
+ * It provides batch processing, schema inference, and optimized string batch emission
+ * specifically designed for CSV data sources.
  *
  * Features:
  * 1. Streaming CSV parsing for memory efficiency
  * 2. Automatic schema inference from headers and data
- * 3. Type detection and conversion
+ * 3. String batch emission (type conversion handled by Arrow Builder)
  * 4. Configurable batch processing
  * 5. Error handling for malformed rows
  */
@@ -64,9 +64,8 @@ export class CSVStreamer extends EventEmitter {
             this.emit('schema', this.schema);
           }
 
-          // Convert row data types based on schema
-          const typedRow = this._convertRowTypes(row);
-          this.currentBatch.push(typedRow);
+          // Store raw string row without type conversion
+          this.currentBatch.push(row);
           this.totalRows++;
 
           // Emit batch when batch size is reached
@@ -152,46 +151,7 @@ export class CSVStreamer extends EventEmitter {
     return 'string';
   }
 
-  _convertRowTypes(row) {
-    if (!this.schema) return row;
 
-    const convertedRow = {};
-
-    for (const [key, value] of Object.entries(row)) {
-      const expectedType = this.schema[key];
-      convertedRow[key] = this._convertValue(value, expectedType);
-    }
-
-    return convertedRow;
-  }
-
-  _convertValue(value, type) {
-    if (value === null || value === undefined || value === '') {
-      return null;
-    }
-
-    const strValue = String(value).trim();
-
-    try {
-      switch (type) {
-      case 'boolean':
-        return strValue.toLowerCase() === 'true';
-      case 'int64':
-        return BigInt(strValue);
-      case 'float32':
-        return parseFloat(strValue);
-      case 'float64':
-        return parseFloat(strValue);
-      case 'date':
-        return new Date(strValue);
-      default:
-        return strValue;
-      }
-    } catch (error) {
-      // Return original value if conversion fails
-      return strValue;
-    }
-  }
 
   getStats() {
     return {
