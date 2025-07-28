@@ -177,7 +177,9 @@ export class CSVStreamer extends EventEmitter {
       case 'boolean':
         return strValue.toLowerCase() === 'true';
       case 'int64':
-        return parseInt(strValue, 10);
+        return BigInt(strValue);
+      case 'float32':
+        return parseFloat(strValue);
       case 'float64':
         return parseFloat(strValue);
       case 'date':

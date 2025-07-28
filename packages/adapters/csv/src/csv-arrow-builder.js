@@ -106,24 +106,18 @@ export class CSVArrowBuilder extends ArrowBuilder {
       const arrowType = field.type;
       const data = columnData[field.name];
 
-      // Type-specific optimizations
+      // Type-specific optimizations - data is already properly typed from CSV streamer
       if (arrowType instanceof arrow.Int32) {
         const typedArray = new Int32Array(batchSize);
-        for (let j = 0; j < batchSize; j++) {
-          typedArray[j] = data[j] === null || data[j] === undefined ? 0 : parseInt(data[j], 10);
-        }
+        typedArray.set(data);
         typedArrays[i] = typedArray;
       } else if (arrowType instanceof arrow.Float64) {
         const typedArray = new Float64Array(batchSize);
-        for (let j = 0; j < batchSize; j++) {
-          typedArray[j] = data[j] === null || data[j] === undefined ? 0 : parseFloat(data[j]);
-        }
+        typedArray.set(data);
         typedArrays[i] = typedArray;
       } else if (arrowType instanceof arrow.Bool) {
         const typedArray = new Uint8Array(batchSize);
-        for (let j = 0; j < batchSize; j++) {
-          typedArray[j] = data[j] === null || data[j] === undefined ? 0 : data[j] ? 1 : 0;
-        }
+        typedArray.set(data);
         typedArrays[i] = typedArray;
       } else {
         // Fallback to utility method for other types

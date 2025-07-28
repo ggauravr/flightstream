@@ -68,43 +68,8 @@ export class ArrowBuilder {
    * @private
    */
   _convertDataForArrowType(arrowType, data) {
-    // Handle specific type conversions
-    if (arrowType instanceof arrow.Int64) {
-      return data.map(v => {
-        if (v === null || v === undefined) return null;
-        return BigInt(v);
-      });
-    }
-
-    if (arrowType instanceof arrow.Int32) {
-      return data.map(v => {
-        if (v === null || v === undefined) return null;
-        return parseInt(v, 10);
-      });
-    }
-
-    if (arrowType instanceof arrow.Float64) {
-      return data.map(v => {
-        if (v === null || v === undefined) return null;
-        return parseFloat(v);
-      });
-    }
-
-    if (arrowType instanceof arrow.Bool) {
-      return data.map(v => {
-        if (v === null || v === undefined) return null;
-        return Boolean(v);
-      });
-    }
-
-    if (arrowType instanceof arrow.DateMillisecond) {
-      return data.map(v => {
-        if (v === null || v === undefined) return null;
-        return new Date(v);
-      });
-    }
-
-    // Default: return as-is for strings and other types
+    // Data is already properly typed from CSV streamer, just return as-is
+    // This method is only used for types not handled by the optimized paths above
     return data;
   }
 
