@@ -89,11 +89,25 @@ export class CSVArrowBuilder extends ArrowBuilder {
     const fields = this.arrowSchema.fields;
     const typedArrays = {};
 
-    // Initialize typed arrays for each column
+    // Pre-build mappings to eliminate O(n²) field lookups
+    const headerToField = new Map();
+    const headerToArray = new Map();
+    const headerToIndex = new Map();
+
+    // Initialize typed arrays and build mappings in a single pass
     for (const field of fields) {
       const columnName = field.name;
       const arrowType = field.type;
-      typedArrays[columnName] = this._createEmptyTypedArray(arrowType, csvBatch.length);
+      const typedArray = this._createEmptyTypedArray(arrowType, csvBatch.length);
+      
+      typedArrays[columnName] = typedArray;
+      headerToArray.set(columnName, typedArray);
+      headerToField.set(columnName, field);
+    }
+
+    // Build header index mapping for direct array access
+    for (let i = 0; i < headers.length; i++) {
+      headerToIndex.set(headers[i], i);
     }
 
     // Parse each line and populate typed arrays directly
@@ -108,15 +122,16 @@ export class CSVArrowBuilder extends ArrowBuilder {
         // Parse CSV line into values
         const values = this._parseCSVLine(line, delimiter);
 
-        // Populate each column's typed array
+        // Populate each column's typed array using pre-built mappings
         for (let i = 0; i < headers.length; i++) {
           const header = headers[i];
           const value = values[i] || '';
 
-          // Find the corresponding field
-          const field = fields.find(f => f.name === header);
-          if (field) {
-            const typedArray = typedArrays[header];
+          // Use pre-built mappings for O(1) access
+          const field = headerToField.get(header);
+          const typedArray = headerToArray.get(header);
+          
+          if (field && typedArray) {
             const convertedValue = this._convertStringToTypedValue(value, field.type);
             typedArray[validRowCount] = convertedValue;
           }
