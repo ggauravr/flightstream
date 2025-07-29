@@ -16,7 +16,7 @@ import { ArrowBuilder } from '@flightstream/core-shared';
  * Usage:
  *   const csvSchema = { id: 'int64', name: 'string', price: 'float64' };
  *   const builder = new CSVArrowBuilder(csvSchema);
- *   const vectors = builder.createTypedArraysFromStringBatch(csvRows);
+ *   const vectors = builder.createTypedArraysFromCSVBatch(csvRows, headers, delimiter);
  *   const serialized = builder.serializeFromArrays(vectors);
  */
 export class CSVArrowBuilder extends ArrowBuilder {

@@ -47,7 +47,7 @@ typedArray[j] = data[j] === null || data[j] === undefined ? 0 : parseInt(data[j]
 
 **After:**
 ```javascript
-// CSVArrowBuilder.createTypedArraysFromStringBatch()
+// CSVArrowBuilder.createTypedArraysFromCSVBatch()
 // Direct string-to-typed-array conversion
 typedArray[j] = this._convertStringToInt32(value);
 ```
@@ -96,20 +96,27 @@ stream.on('data', (row) => {
 - Reduced CPU cycles per row
 - Simplified data flow
 
-### 5. Backward Compatibility
+### 5. Current Implementation State
 
-**Maintained Compatibility:**
+**Available Methods:**
 ```javascript
-// Legacy method for backward compatibility
-_createArrowTypedArrayFromCSVBatch(csvBatch) {
-  return this.createTypedArraysFromStringBatch(csvBatch);
-}
+// CSVArrowBuilder
+createTypedArraysFromCSVBatch(csvBatch, headers, delimiter)
+_convertStringToInt32(value)
+_convertStringToInt64(value)
+_convertStringToFloat32(value)
+_convertStringToFloat64(value)
+_convertStringToBoolean(value)
+_convertStringToDate(value)
+_convertStringToTimestamp(value)
 ```
 
-**Benefits:**
-- Existing code continues to work
-- Gradual migration path available
-- No breaking changes for consumers
+**Removed Methods:**
+```javascript
+// CSVStreamer
+_convertRowTypes(row)
+_convertValue(value, type)
+```
 
 ## Performance Improvements
 
@@ -139,25 +146,26 @@ _createArrowTypedArrayFromCSVBatch(csvBatch) {
    - Simplified data flow
 
 2. **`csv-arrow-builder.js`**
-   - Added `createTypedArraysFromStringBatch()` method
+   - Added `createTypedArraysFromCSVBatch()` method
    - Added direct conversion methods for each type
-   - Maintained backward compatibility
    - Optimized type-specific processing
 
 3. **`csv-service.js`**
    - Updated to use new optimized method
    - No functional changes to API
 
-### New Methods Added
+### Current Methods Available
 
 ```javascript
 // CSVArrowBuilder
-createTypedArraysFromStringBatch(csvBatch)
+createTypedArraysFromCSVBatch(csvBatch, headers, delimiter)
 _convertStringToInt32(value)
 _convertStringToInt64(value)
+_convertStringToFloat32(value)
 _convertStringToFloat64(value)
 _convertStringToBoolean(value)
 _convertStringToDate(value)
+_convertStringToTimestamp(value)
 ```
 
 ### Methods Removed
@@ -178,11 +186,8 @@ _convertValue(value, type)
 
 **Recommended approach:**
 ```javascript
-// Use the new optimized method
-const typedArrays = arrowBuilder.createTypedArraysFromStringBatch(csvBatch);
-
-// Instead of the legacy method
-const typedArrays = arrowBuilder._createArrowTypedArrayFromCSVBatch(csvBatch);
+// Use the optimized method
+const typedArrays = arrowBuilder.createTypedArraysFromCSVBatch(csvBatch, headers, delimiter);
 ```
 
 ### Testing

@@ -11,3 +11,6 @@ export { CSVFlightService } from './csv-service.js';
 
 // CSV streaming utilities
 export { CSVStreamer } from './csv-streamer.js';
+
+// CSV Arrow builder utilities
+export { CSVArrowBuilder } from './csv-arrow-builder.js';

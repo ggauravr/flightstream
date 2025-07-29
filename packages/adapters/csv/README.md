@@ -15,7 +15,7 @@ A powerful CSV file adapter for Arrow Flight servers that provides streaming CSV
 ## 📦 Installation
 
 ```bash
-npm install @flightstream/csv-service
+npm install @flightstream/adapters-csv
 ```
 
 ## 🚀 Quick Start
@@ -23,8 +23,8 @@ npm install @flightstream/csv-service
 ### Basic Usage
 
 ```javascript
-import { CSVFlightService } from '@flightstream/csv-service';
-import { FlightServer } from '@flightstream/core';
+import { CSVFlightService } from '@flightstream/adapters-csv';
+import { FlightServer } from '@flightstream/core-server';
 
 // Create CSV service
 const csvService = new CSVFlightService({
@@ -37,9 +37,11 @@ const csvService = new CSVFlightService({
 
 // Create and start Flight server
 const server = new FlightServer({
-  port: 8080,
-  services: [csvService]
+  port: 8080
 });
+
+// Register the CSV service
+server.setFlightService(csvService);
 
 await server.start();
 console.log('CSV Flight server running on port 8080');
@@ -82,13 +84,15 @@ The main service class that extends `FlightServiceBase` to provide CSV file supp
 
 - `initialize()`: Ensure service is fully initialized
 - `getCSVStats()`: Get statistics about registered CSV datasets
+- `getDatasets()`: Get list of available dataset IDs
+- `hasDataset(datasetId)`: Check if a dataset exists
 
 ### CSVStreamer
 
 A streaming CSV parser with schema inference capabilities.
 
 ```javascript
-import { CSVStreamer } from '@flightstream/csv-service';
+import { CSVStreamer } from '@flightstream/adapters-csv/csv-streamer';
 
 const streamer = new CSVStreamer('./data/sample.csv', {
   batchSize: 1000,
@@ -121,12 +125,18 @@ await streamer.start();
 - `end`: Emitted when streaming completes
 - `stop`: Emitted when streaming is stopped
 
+#### Methods
+
+- `start()`: Start the streaming process
+- `stop()`: Stop the streaming process
+- `getStats()`: Get streaming statistics
+
 ### CSVArrowBuilder
 
 Converts CSV data to Arrow format with type mapping.
 
 ```javascript
-import { CSVArrowBuilder } from '@flightstream/csv-service';
+import { CSVArrowBuilder } from '@flightstream/adapters-csv/csv-arrow-builder';
 
 const csvSchema = {
   id: 'int64',
@@ -136,8 +146,21 @@ const csvSchema = {
 };
 
 const builder = new CSVArrowBuilder(csvSchema);
-const recordBatch = builder.createRecordBatch(csvRows);
+
+// Convert CSV batch to typed arrays
+const typedArrays = builder.createTypedArraysFromCSVBatch(csvBatch, headers, delimiter);
 ```
+
+#### Methods
+
+- `createTypedArraysFromCSVBatch(csvBatch, headers, delimiter)`: Convert CSV batch to typed arrays
+- `_convertStringToInt32(value)`: Convert string to Int32
+- `_convertStringToInt64(value)`: Convert string to Int64
+- `_convertStringToFloat32(value)`: Convert string to Float32
+- `_convertStringToFloat64(value)`: Convert string to Float64
+- `_convertStringToBoolean(value)`: Convert string to Boolean
+- `_convertStringToDate(value)`: Convert string to Date
+- `_convertStringToTimestamp(value)`: Convert string to Timestamp
 
 ## 🔧 Data Type Mapping
 
@@ -167,6 +190,23 @@ csv-service/
 └── package.json
 ```
 
+## 📦 Exports
+
+The package exports the following modules:
+
+- `CSVFlightService`: Main CSV Flight service
+- `CSVStreamer`: Streaming CSV parser
+- `CSVArrowBuilder`: Arrow data conversion utilities
+
+```javascript
+// Main service
+import { CSVFlightService } from '@flightstream/adapters-csv';
+
+// Individual components
+import { CSVStreamer } from '@flightstream/adapters-csv/csv-streamer';
+import { CSVArrowBuilder } from '@flightstream/adapters-csv/csv-arrow-builder';
+```
+
 ## 🧪 Testing
 
 Run the test suite:
@@ -184,8 +224,8 @@ The package includes comprehensive tests for:
 
 ## 🔗 Dependencies
 
-- `@flightstream/core`: Core FlightStream functionality
-- `@flightstream/utils`: Utility functions for Arrow data handling
+- `@flightstream/core-server`: Core FlightStream server functionality
+- `@flightstream/core-shared`: Shared utilities and base classes
 - `fast-csv`: High-performance CSV parsing
 - `apache-arrow`: Arrow data format support (peer dependency)
 
@@ -205,7 +245,7 @@ The package includes comprehensive tests for:
 
 ## 📄 License
 
-Licensed under the Apache License, Version 2.0. See [LICENSE](../../LICENSE) for details.
+Licensed under the MIT License. See [LICENSE](../../LICENSE) for details.
 
 ## 🆘 Support
 
