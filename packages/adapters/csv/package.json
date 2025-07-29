@@ -1,6 +1,6 @@
 {
   "name": "@flightstream/adapters-csv",
-  "version": "1.0.0-alpha.7",
+  "version": "1.0.0-alpha.8",
   "description": "CSV file adapter for Arrow Flight streaming with automatic schema inference",
   "main": "src/index.js",
   "type": "module",

@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.5](https://github.com/ggauravr/flightstream/compare/@flightstream/core-shared@1.0.0-alpha.4...@flightstream/core-shared@1.0.0-alpha.5) (2025-07-29)
+
+
+### Features
+
+* **arrow:** Optimize Arrow IPC serialization ([2514ea0](https://github.com/ggauravr/flightstream/commit/2514ea0596f285989c7acdf2f74bb8352dc0eb35))
+
+
+
+
+
 # [1.0.0-alpha.4](https://github.com/ggauravr/flightstream/compare/@flightstream/core-shared@1.0.0-alpha.3...@flightstream/core-shared@1.0.0-alpha.4) (2025-07-26)
 
 
