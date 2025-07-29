@@ -286,7 +286,7 @@ export class CSVFlightService extends FlightServiceBase {
             return;
           }
 
-          const typedArrays = arrowBuilder.createTypedArraysFromLines(csvBatch, streamer.headers, this.csvOptions.delimiter || ',');
+          const typedArrays = arrowBuilder.createTypedArraysFromCSVBatch(csvBatch, streamer.headers, this.csvOptions.delimiter || ',');
 
           if (!typedArrays) {
             this.logger.warn({
@@ -296,10 +296,8 @@ export class CSVFlightService extends FlightServiceBase {
           }
 
           // Create table from typed arrays (most efficient for streaming)
-          const table = arrow.tableFromArrays(typedArrays);
+          const serializedBatch = arrowBuilder.serializeFromArrays(typedArrays);
 
-          // Serialize table to IPC format
-          const serializedBatch = arrow.tableToIPC(table);
           if (!serializedBatch) {
             this.logger.warn({
               dataset_id: dataset.id

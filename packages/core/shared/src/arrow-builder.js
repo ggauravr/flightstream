@@ -60,55 +60,6 @@ export class ArrowBuilder {
   // ===== UTILITY METHODS =====
 
   /**
-   * Convert data for specific Arrow types
-   * Handles type-specific conversions for common Arrow data types
-   * @param {arrow.DataType} arrowType - Arrow data type
-   * @param {Array} data - Array of values
-   * @returns {Array} Converted data array
-   * @private
-   */
-  _convertDataForArrowType(arrowType, data) {
-    // Handle specific type conversions
-    if (arrowType instanceof arrow.Int64) {
-      return data.map(v => {
-        if (v === null || v === undefined) return null;
-        return BigInt(v);
-      });
-    }
-
-    if (arrowType instanceof arrow.Int32) {
-      return data.map(v => {
-        if (v === null || v === undefined) return null;
-        return parseInt(v, 10);
-      });
-    }
-
-    if (arrowType instanceof arrow.Float64) {
-      return data.map(v => {
-        if (v === null || v === undefined) return null;
-        return parseFloat(v);
-      });
-    }
-
-    if (arrowType instanceof arrow.Bool) {
-      return data.map(v => {
-        if (v === null || v === undefined) return null;
-        return Boolean(v);
-      });
-    }
-
-    if (arrowType instanceof arrow.DateMillisecond) {
-      return data.map(v => {
-        if (v === null || v === undefined) return null;
-        return new Date(v);
-      });
-    }
-
-    // Default: return as-is for strings and other types
-    return data;
-  }
-
-  /**
    * Get the Arrow schema
    * @returns {arrow.Schema} Arrow schema
    */
@@ -123,27 +74,17 @@ export class ArrowBuilder {
    * @returns {Buffer} Serialized IPC data
    */
   serializeFromArrays(typedArrays) {
-    return arrow.tableToIPC(arrow.tableFromArrays(typedArrays));
-  }
-
-  /**
-   * Serialize vectors directly to IPC format
-   * Optimized for direct serialization without intermediate record batch creation
-   * @param {Object} vectors - Object with column names as keys and Arrow vectors as values
-   * @returns {Buffer} Serialized IPC data
-   */
-  serializeFromVectors(vectors) {
-    return arrow.tableToIPC(arrow.tableFromArrays(vectors));
-  }
-
-  /**
-   * Create Arrow table from vectors
-   * Most efficient method for column-oriented data
-   * @param {Object} vectors - Object with column names as keys and Arrow vectors as values
-   * @returns {arrow.Table} Arrow table
-   */
-  createTableFromVectors(vectors) {
-    return arrow.tableFromArrays(vectors);
+    try {
+      // Create record batch directly from typed arrays
+      const recordBatch = arrow.RecordBatch.new(typedArrays, this.arrowSchema);
+      
+      // Serialize record batch to IPC format
+      return arrow.RecordBatch.toIPC(recordBatch);
+    } catch (error) {
+      // Fallback to original method if direct serialization fails
+      console.warn('Direct IPC serialization failed, using fallback:', error.message);
+      return arrow.tableToIPC(arrow.tableFromArrays(typedArrays));
+    }
   }
 }
 

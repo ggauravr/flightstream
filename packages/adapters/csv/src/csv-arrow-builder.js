@@ -80,12 +80,12 @@ export class CSVArrowBuilder extends ArrowBuilder {
    * This method parses CSV lines directly into typed arrays without creating
    * intermediate JavaScript objects, providing significant performance improvements.
    *
-   * @param {Array<string>} csvLines - Array of CSV lines (excluding headers)
+   * @param {Array<string>} csvBatch - Array of CSV lines (excluding headers)
    * @param {Array<string>} headers - Column headers
    * @param {string} delimiter - CSV delimiter character
    * @returns {Object} Object with column names as keys and typed arrays as values
    */
-  createTypedArraysFromLines(csvLines, headers, delimiter = ',') {
+  createTypedArraysFromCSVBatch(csvBatch, headers, delimiter = ',') {
     const fields = this.arrowSchema.fields;
     const typedArrays = {};
 
@@ -93,13 +93,13 @@ export class CSVArrowBuilder extends ArrowBuilder {
     for (const field of fields) {
       const columnName = field.name;
       const arrowType = field.type;
-      typedArrays[columnName] = this._createEmptyTypedArray(arrowType, csvLines.length);
+      typedArrays[columnName] = this._createEmptyTypedArray(arrowType, csvBatch.length);
     }
 
     // Parse each line and populate typed arrays directly
     let validRowCount = 0;
 
-    for (const line of csvLines) {
+    for (const line of csvBatch) {
       if (!line.trim()) {
         continue; // Skip empty lines
       }
