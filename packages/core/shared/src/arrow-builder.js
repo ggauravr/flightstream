@@ -74,17 +74,7 @@ export class ArrowBuilder {
    * @returns {Buffer} Serialized IPC data
    */
   serializeFromArrays(typedArrays) {
-    try {
-      // Create record batch directly from typed arrays
-      const recordBatch = arrow.RecordBatch.new(typedArrays, this.arrowSchema);
-      
-      // Serialize record batch to IPC format
-      return arrow.RecordBatch.toIPC(recordBatch);
-    } catch (error) {
-      // Fallback to original method if direct serialization fails
-      console.warn('Direct IPC serialization failed, using fallback:', error.message);
-      return arrow.tableToIPC(arrow.tableFromArrays(typedArrays));
-    }
+    return arrow.tableToIPC(arrow.tableFromArrays(typedArrays));
   }
 }
 

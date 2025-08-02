@@ -92,22 +92,15 @@ export class CSVArrowBuilder extends ArrowBuilder {
     // Pre-build mappings to eliminate O(n²) field lookups
     const headerToField = new Map();
     const headerToArray = new Map();
-    const headerToIndex = new Map();
 
     // Initialize typed arrays and build mappings in a single pass
     for (const field of fields) {
       const columnName = field.name;
-      const arrowType = field.type;
-      const typedArray = this._createEmptyTypedArray(arrowType, csvBatch.length);
+      const typedArray = this._createEmptyTypedArray(field.type, csvBatch.length);
       
       typedArrays[columnName] = typedArray;
       headerToArray.set(columnName, typedArray);
       headerToField.set(columnName, field);
-    }
-
-    // Build header index mapping for direct array access
-    for (let i = 0; i < headers.length; i++) {
-      headerToIndex.set(headers[i], i);
     }
 
     // Parse each line and populate typed arrays directly
@@ -164,27 +157,31 @@ export class CSVArrowBuilder extends ArrowBuilder {
    */
   _parseCSVLine(line, delimiter) {
     const values = [];
-    let current = '';
+    const chars = []; // Use array instead of string concatenation
     let inQuotes = false;
     let i = 0;
+    const lineLength = line.length;
 
-    while (i < line.length) {
+    while (i < lineLength) {
       const char = line[i];
 
       if (char === '"') {
         inQuotes = !inQuotes;
       } else if (char === delimiter && !inQuotes) {
-        values.push(current.trim());
-        current = '';
+        // Join chars array and trim once
+        const value = chars.length > 0 ? chars.join('').trim() : '';
+        values.push(value);
+        chars.length = 0; // Reset array instead of creating new one
       } else {
-        current += char;
+        chars.push(char);
       }
 
       i++;
     }
 
-    // Add the last value
-    values.push(current.trim());
+    // Add the last value - join chars array and trim once
+    const lastValue = chars.length > 0 ? chars.join('').trim() : '';
+    values.push(lastValue);
 
     return values;
   }
