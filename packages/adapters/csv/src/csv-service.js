@@ -126,14 +126,11 @@ export class CSVFlightService extends FlightServiceBase {
             continue;
           }
 
-          // Infer schema from CSV file
-          const schema = await this._inferSchemaForDataset(filePath);
-
-          // Register dataset
+          // Register dataset with basic metadata only - schema will be inferred on-demand
           this.datasets.set(datasetId, {
             id: datasetId,
             filePath: filePath,
-            schema: schema,
+            schema: null, // Will be inferred on first access
             metadata: {
               name: file,
               totalRecords: -1, // Unknown until full scan
@@ -148,7 +145,7 @@ export class CSVFlightService extends FlightServiceBase {
             file_name: file,
             file_path: filePath,
             file_size: fileStats.size
-          }, 'Registered CSV dataset');
+          }, 'Registered CSV dataset (schema will be inferred on first access)');
         } catch (error) {
           this.logger.warn({
             file_name: file,
@@ -242,6 +239,155 @@ export class CSVFlightService extends FlightServiceBase {
   }
 
   /**
+   * GetFlightInfo Implementation with lazy schema inference
+   */
+  async getFlightInfo(call) {
+    try {
+      this.logger.debug({
+        request: call.request
+      }, 'GetFlightInfo called');
+
+      const descriptor = call.request;
+      const datasetId = this._extractDatasetId(descriptor);
+
+      this.logger.debug({
+        available_datasets: Array.from(this.datasets.keys()),
+        requested_dataset_id: datasetId
+      }, 'Flight info request details');
+
+      if (!this.datasets.has(datasetId)) {
+        const error = new Error(`Dataset not found: ${datasetId}`);
+        error.code = 5; // gRPC NOT_FOUND status code
+        throw error;
+      }
+
+      const dataset = this.datasets.get(datasetId);
+      
+      // Lazy schema inference if not already cached
+      if (!dataset.schema) {
+        this.logger.debug({
+          dataset_id: datasetId
+        }, 'Inferring schema for getFlightInfo request');
+        
+        try {
+          dataset.schema = await this._inferSchemaForDataset(dataset.filePath);
+          this.logger.info({
+            dataset_id: datasetId
+          }, 'Schema inferred successfully for getFlightInfo');
+        } catch (error) {
+          this.logger.error({
+            dataset_id: datasetId,
+            error: {
+              message: error.message,
+              stack: error.stack,
+              name: error.name
+            }
+          }, 'Failed to infer schema for getFlightInfo');
+          call.callback(error);
+          return;
+        }
+      }
+
+      const flightInfo = await this._createFlightInfo(datasetId, dataset);
+      call.callback(null, flightInfo);
+    } catch (error) {
+      this.logger.error({
+        error: {
+          message: error.message,
+          stack: error.stack,
+          name: error.name
+        }
+      }, 'Error in getFlightInfo');
+      call.callback(error);
+    }
+  }
+
+  /**
+   * GetSchema Implementation with lazy schema inference
+   */
+  async getSchema(call) {
+    try {
+      const descriptor = call.request;
+      const datasetId = this._extractDatasetId(descriptor);
+
+      if (!this.datasets.has(datasetId)) {
+        const error = new Error(`Dataset not found: ${datasetId}`);
+        error.code = 5; // gRPC NOT_FOUND status code
+        throw error;
+      }
+
+      const dataset = this.datasets.get(datasetId);
+
+      // Lazy schema inference if not already cached
+      if (!dataset.schema) {
+        this.logger.debug({
+          dataset_id: datasetId
+        }, 'Inferring schema for getSchema request');
+        
+        try {
+          dataset.schema = await this._inferSchemaForDataset(dataset.filePath);
+          this.logger.info({
+            dataset_id: datasetId
+          }, 'Schema inferred successfully for getSchema');
+        } catch (error) {
+          this.logger.error({
+            dataset_id: datasetId,
+            error: {
+              message: error.message,
+              stack: error.stack,
+              name: error.name
+            }
+          }, 'Failed to infer schema for getSchema');
+          call.callback(error);
+          return;
+        }
+      }
+
+      // Serialize Arrow schema using the proper Apache Arrow method
+      let serializedSchema;
+      try {
+        // Import Apache Arrow for schema serialization
+        const arrow = await import('apache-arrow');
+        // Create an empty table to serialize the schema
+        const emptyTable = new arrow.Table(dataset.schema, []);
+        serializedSchema = arrow.tableToIPC(emptyTable);
+      } catch (error) {
+        this.logger.warn({
+          error: {
+            message: error.message,
+            stack: error.stack,
+            name: error.name
+          },
+          dataset_id: datasetId
+        }, 'Error serializing schema, using fallback');
+        // Fallback: create a simple buffer representation
+        const schemaInfo = {
+          fields: dataset.schema.fields.map(f => ({
+            name: f.name,
+            type: f.type.toString()
+          }))
+        };
+        serializedSchema = Buffer.from(JSON.stringify(schemaInfo));
+      }
+
+      const schemaResult = {
+        schema: serializedSchema
+      };
+
+      call.callback(null, schemaResult);
+    } catch (error) {
+      this.logger.error({
+        error: {
+          message: error.message,
+          stack: error.stack,
+          name: error.name
+        }
+      }, 'Error in getSchema');
+      call.callback(error);
+    }
+  }
+
+  /**
    * Stream CSV dataset as Arrow record batches
    * @param {Object} call - gRPC call object
    * @param {Object} dataset - Dataset metadata
@@ -254,6 +400,31 @@ export class CSVFlightService extends FlightServiceBase {
     }, 'Streaming CSV dataset');
 
     try {
+      // Lazy schema inference - infer schema if not already cached
+      if (!dataset.schema) {
+        this.logger.debug({
+          dataset_id: dataset.id
+        }, 'Inferring schema for dataset on first access');
+        
+        try {
+          dataset.schema = await this._inferSchemaForDataset(dataset.filePath);
+          this.logger.info({
+            dataset_id: dataset.id
+          }, 'Schema inferred successfully');
+        } catch (error) {
+          this.logger.error({
+            dataset_id: dataset.id,
+            error: {
+              message: error.message,
+              stack: error.stack,
+              name: error.name
+            }
+          }, 'Failed to infer schema for dataset');
+          call.emit('error', error);
+          return;
+        }
+      }
+
       // Create CSV streamer with configured options
       const streamer = new CSVStreamer(dataset.filePath, {
         batchSize: this.csvOptions.batchSize,

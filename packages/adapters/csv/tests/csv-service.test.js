@@ -213,10 +213,21 @@ describe('CSVFlightService', () => {
         expect(productDataset.metadata.totalBytes).toBeGreaterThan(0);
       });
 
-      it('should store inferred Arrow schema', () => {
+      it('should initialize with null schema (lazy inference)', () => {
         const productDataset = service.datasets.get('products');
+        expect(productDataset.schema).toBeNull(); // Schema is inferred on first access
+      });
+
+      it('should infer schema when dataset is accessed', async () => {
+        const productDataset = service.datasets.get('products');
+        expect(productDataset.schema).toBeNull(); // Initially null
+        
+        // Simulate accessing the dataset (like in _streamDataset)
+        productDataset.schema = await service._inferSchemaForDataset(productDataset.filePath);
+        
         expect(productDataset.schema).toBeDefined();
         expect(productDataset.schema.fields).toBeDefined();
+        expect(Array.isArray(productDataset.schema.fields)).toBe(true);
       });
 
       it('should set dataset type to csv', () => {
