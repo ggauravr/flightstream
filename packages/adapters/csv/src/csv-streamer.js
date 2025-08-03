@@ -349,23 +349,31 @@ export class CSVStreamer extends EventEmitter {
     // CHARACTER-BY-CHARACTER PARSING:
     // This approach is more reliable than regex for complex CSV
     while (i < line.length) {
+      // Inside _parseCSVLine's while loop
       const char = line[i];
 
-      if (char === '"') {
-        // QUOTE HANDLING:
-        // Toggle quote state - everything between quotes is literal
-        inQuotes = !inQuotes;
-      } else if (char === delimiter && !inQuotes) {
-        // DELIMITER HANDLING:
-        // Only treat as delimiter if not inside quotes
-        values.push(current.trim());
-        current = '';
+      if (inQuotes) {
+        if (char === '"') {
+          // Check for escaped quote ("")
+          if (i + 1 < line.length && line[i + 1] === '"') {
+            current += '"'; // Add a single quote to the value
+            i++; // Skip the second quote
+          } else {
+            inQuotes = false; // It's a closing quote
+          }
+        } else {
+          current += char;
+        }
       } else {
-        // REGULAR CHARACTER:
-        // Add to current field value
-        current += char;
+        if (char === '"') {
+          inQuotes = true;
+        } else if (char === delimiter) {
+          values.push(current.trim());
+          current = '';
+        } else {
+          current += char;
+        }
       }
-
       i++;
     }
 
