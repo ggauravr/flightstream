@@ -140,7 +140,7 @@ export class CSVArrowBuilder extends ArrowBuilder {
     // Trim arrays to actual valid row count
     for (const [columnName, typedArray] of Object.entries(typedArrays)) {
       if (validRowCount < typedArray.length) {
-        typedArrays[columnName] = typedArray.slice(0, validRowCount);
+        typedArrays[columnName] = typedArray.subarray(0, validRowCount);
       }
     }
 
@@ -244,34 +244,6 @@ export class CSVArrowBuilder extends ArrowBuilder {
     }
   }
 
-  /**
-   * Convert string values to typed arrays efficiently
-   * @param {Array<string>} values - Array of string values
-   * @param {arrow.DataType} arrowType - Arrow data type
-   * @returns {TypedArray} Typed array
-   * @private
-   */
-  _convertToTypedArray(values, arrowType) {
-    if (arrowType instanceof arrow.Int32) {
-      return new Int32Array(values.map(v => this._convertStringToInt32(v)));
-    } else if (arrowType instanceof arrow.Int64) {
-      return new BigInt64Array(values.map(v => this._convertStringToInt64(v)));
-    } else if (arrowType instanceof arrow.Float32) {
-      return new Float32Array(values.map(v => this._convertStringToFloat32(v)));
-    } else if (arrowType instanceof arrow.Float64) {
-      return new Float64Array(values.map(v => this._convertStringToFloat64(v)));
-    } else if (arrowType instanceof arrow.Bool) {
-      return new Uint8Array(values.map(v => this._convertStringToBoolean(v)));
-    } else if (arrowType instanceof arrow.DateMillisecond) {
-      return new Int32Array(values.map(v => this._convertStringToDate(v)));
-    } else if (arrowType instanceof arrow.TimestampMillisecond) {
-      return new BigInt64Array(values.map(v => this._convertStringToTimestamp(v)));
-    } else {
-      // For strings, return as array (Arrow will handle conversion)
-      return values;
-    }
-  }
-
   // ===== DIRECT CONVERSION METHODS =====
 
   /**
@@ -281,11 +253,8 @@ export class CSVArrowBuilder extends ArrowBuilder {
    * @private
    */
   _convertStringToInt32(value) {
-    if (value === null || value === undefined || value === '') {
-      return 0;
-    }
-    const strValue = String(value).trim();
-    return strValue === '' ? 0 : parseInt(strValue, 10) || 0;
+    const number = parseInt(value, 10);
+    return isNaN(number) ? 0 : number;
   }
 
   /**
@@ -295,11 +264,11 @@ export class CSVArrowBuilder extends ArrowBuilder {
    * @private
    */
   _convertStringToInt64(value) {
-    if (value === null || value === undefined || value === '') {
+    try {
+      return BigInt(value);
+    } catch (error) {
       return BigInt(0);
     }
-    const strValue = String(value).trim();
-    return strValue === '' ? BigInt(0) : BigInt(strValue) || BigInt(0);
   }
 
   /**
@@ -309,11 +278,8 @@ export class CSVArrowBuilder extends ArrowBuilder {
    * @private
    */
   _convertStringToFloat32(value) {
-    if (value === null || value === undefined || value === '') {
-      return 0.0;
-    }
-    const strValue = String(value).trim();
-    return strValue === '' ? 0.0 : parseFloat(strValue) || 0.0;
+    const number = parseFloat(value);
+    return isNaN(number) ? 0.0 : number;
   }
 
   /**
@@ -323,11 +289,8 @@ export class CSVArrowBuilder extends ArrowBuilder {
    * @private
    */
   _convertStringToFloat64(value) {
-    if (value === null || value === undefined || value === '') {
-      return 0.0;
-    }
-    const strValue = String(value).trim();
-    return strValue === '' ? 0.0 : parseFloat(strValue) || 0.0;
+    const number = parseFloat(value);
+    return isNaN(number) ? 0.0 : number;
   }
 
   /**
@@ -337,11 +300,7 @@ export class CSVArrowBuilder extends ArrowBuilder {
    * @private
    */
   _convertStringToBoolean(value) {
-    if (value === null || value === undefined || value === '') {
-      return 0;
-    }
-    const strValue = String(value).trim().toLowerCase();
-    return strValue === 'true' ? 1 : 0;
+    return String(value).trim().toLowerCase() === 'true' ? 1 : 0;
   }
 
   /**
@@ -351,14 +310,8 @@ export class CSVArrowBuilder extends ArrowBuilder {
    * @private
    */
   _convertStringToDate(value) {
-    if (value === null || value === undefined || value === '') {
-      return 0;
-    }
-    const strValue = String(value).trim();
-    if (strValue === '') return 0;
-
     try {
-      const date = new Date(strValue);
+      const date = new Date(String(value).trim());
       return isNaN(date.getTime()) ? 0 : date.getTime();
     } catch (error) {
       return 0;
