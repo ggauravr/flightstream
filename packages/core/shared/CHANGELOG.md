@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.6](https://github.com/ggauravr/flightstream/compare/@flightstream/core-shared@1.0.0-alpha.5...@flightstream/core-shared@1.0.0-alpha.6) (2025-08-03)
+
+
+### Performance Improvements
+
+* **arrow:** optimize csv parsing and simplify ipc serialization ([b1a9f79](https://github.com/ggauravr/flightstream/commit/b1a9f795274498fde29c4911f235b94d537f32d2))
+
+
+
+
+
 # [1.0.0-alpha.5](https://github.com/ggauravr/flightstream/compare/@flightstream/core-shared@1.0.0-alpha.4...@flightstream/core-shared@1.0.0-alpha.5) (2025-07-29)
 
 

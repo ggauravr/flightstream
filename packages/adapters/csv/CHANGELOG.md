@@ -3,6 +3,29 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.0.0-alpha.9](https://github.com/ggauravr/flightstream/compare/@flightstream/adapters-csv@1.0.0-alpha.8...@flightstream/adapters-csv@1.0.0-alpha.9) (2025-08-03)
+
+
+### Bug Fixes
+
+* **csv:** correctly handle escaped quotes in CSV parser ([913d971](https://github.com/ggauravr/flightstream/commit/913d9710ee9bb6f9c820e31540aa6e45a0ccfb7a))
+
+
+### Features
+
+* **csv:** Implement lazy schema inference for datasets ([ab471e7](https://github.com/ggauravr/flightstream/commit/ab471e7f8e249b7bc3856543ad0d9edd087fb811))
+
+
+### Performance Improvements
+
+* **arrow:** optimize csv parsing and simplify ipc serialization ([b1a9f79](https://github.com/ggauravr/flightstream/commit/b1a9f795274498fde29c4911f235b94d537f32d2))
+* **csv:** Optimize CSV to Arrow conversion ([a3c5f8e](https://github.com/ggauravr/flightstream/commit/a3c5f8e110209196bd4aec7831df37180f304f39))
+* **csv:** use subarray and simplify type conversions ([c6270da](https://github.com/ggauravr/flightstream/commit/c6270da8694f1d41f0c448f858613eb94e01ebd5))
+
+
+
+
+
 # [1.0.0-alpha.8](https://github.com/ggauravr/flightstream/compare/@flightstream/adapters-csv@1.0.0-alpha.7...@flightstream/adapters-csv@1.0.0-alpha.8) (2025-07-29)
 
 
